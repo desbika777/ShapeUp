@@ -1,0 +1,27 @@
+{
+  "name": "shapeup-platform",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "frontend",
+    "backend",
+    "shared"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev --workspace frontend",
+    "dev:backend": "npm run dev --workspace backend",
+    "build": "npm run build --workspace shared && npm run build --workspace backend && npm run build --workspace frontend",
+    "test": "npm run test --workspace shared && npm run test --workspace backend && npm run test --workspace frontend",
+    "lint": "npm run lint --workspace shared && npm run lint --workspace backend && npm run lint --workspace frontend",
+    "e2e": "npm run test:e2e --workspace frontend",
+    "e2e:docker": "node scripts/run-e2e-docker.cjs",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "fast-check": "^4.6.0",
+    "husky": "^9.1.7"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.2"
+  }
+}

@@ -1,0 +1,10 @@
+services:
+  mysql:
+    ports:
+      - "127.0.0.1:3307:3306"
+    networks:
+      - shapeup_internal
+      - shapeup_dbeaver
+
+networks:
+  shapeup_dbeaver:

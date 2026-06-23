@@ -1,0 +1,38 @@
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shapeup-mark-background" x1="24" y1="16" x2="136" y2="152" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10304F" />
+      <stop offset="0.55" stop-color="#0F2740" />
+      <stop offset="1" stop-color="#0F766E" />
+    </linearGradient>
+    <radialGradient id="shapeup-mark-glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(54 36) rotate(48) scale(92 84)">
+      <stop stop-color="#6FF3E3" stop-opacity="0.6" />
+      <stop offset="1" stop-color="#6FF3E3" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="shapeup-mark-monogram" x1="42" y1="28" x2="117" y2="131" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" />
+      <stop offset="1" stop-color="#C9FFF6" />
+    </linearGradient>
+    <linearGradient id="shapeup-mark-stem" x1="80" y1="22" x2="80" y2="138" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B8FFF5" />
+      <stop offset="0.45" stop-color="#6FF3E3" />
+      <stop offset="1" stop-color="#14B8A6" />
+    </linearGradient>
+  </defs>
+
+  <rect x="8" y="8" width="144" height="144" rx="38" fill="url(#shapeup-mark-background)" />
+  <rect x="12" y="12" width="136" height="136" rx="34" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1.5" />
+  <circle cx="58" cy="44" r="50" fill="url(#shapeup-mark-glow)" />
+  <circle cx="124" cy="124" r="26" fill="#14B8A6" fill-opacity="0.12" />
+
+  <path d="M80 24V136" stroke="url(#shapeup-mark-stem)" stroke-width="9" stroke-linecap="round" />
+  <path
+    d="M111 46C104 37 92 32 77 32C58 32 46 41 46 55C46 69 57 76 78 80C100 84 114 91 114 106C114 121 101 130 81 130C63 130 50 124 42 114"
+    stroke="url(#shapeup-mark-monogram)"
+    stroke-width="17"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path d="M53 45H107" stroke="#DFFFF8" stroke-opacity="0.28" stroke-width="4" stroke-linecap="round" />
+  <path d="M53 115H107" stroke="#DFFFF8" stroke-opacity="0.22" stroke-width="4" stroke-linecap="round" />
+</svg>

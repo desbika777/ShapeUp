@@ -1,0 +1,1 @@
+-- Included in the MySQL baseline migration.
