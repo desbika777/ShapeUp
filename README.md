@@ -2,6 +2,8 @@
 
 Sistema completo de gestao para academias com frontend e backend separados, autenticacao JWT, 3 CRUDs completos, dashboard, TypeScript estrito, Prisma, Docker, Nginx com HTTPS local e testes automatizados.
 
+Este repositorio contem a versao final preparada para a rubrica. As instrucoes abaixo servem para reproduzir o ambiente em outra maquina, acessar o banco, executar testes e demonstrar os recursos implementados.
+
 ## Stack
 
 - Frontend: React, Vite, TypeScript, React Router, TanStack Query, React Hook Form, Zod, Tailwind CSS, Recharts
@@ -81,12 +83,14 @@ Credenciais criadas:
 - `npm run test`
 - `npm run lint`
 - `npm run e2e`
+- `npm run e2e:docker`
 - `npm run dev:backend`
 - `npm run dev:frontend`
 
 Para E2E via Docker/HTTPS:
 
 - instale o Chromium do Playwright se ainda nao existir: `npm exec --workspace frontend playwright install chromium`
+- comando recomendado para o ambiente Docker/Nginx: `npm run e2e:docker`
 - com `shapeup.local` no hosts: `$env:E2E_BASE_URL="https://shapeup.local"; $env:E2E_API_URL="https://shapeup.local/api"; npm run e2e`
 - sem permissao de admin para editar hosts no Windows: `$env:E2E_BASE_URL="https://shapeup.local"; $env:E2E_API_URL="https://localhost/api"; $env:E2E_HOST_ALIAS="shapeup.local"; $env:NODE_TLS_REJECT_UNAUTHORIZED="0"; npm run e2e`
 
@@ -99,7 +103,7 @@ Para E2E via Docker/HTTPS:
 
 ## Cobertura funcional entregue
 
-- autenticacao com JWT e persistencia em `localStorage`
+- autenticacao com JWT, opcao "Lembrar meu acesso" e persistencia em `localStorage` ou `sessionStorage`
 - cadastro, login, consulta e edicao do proprio usuario
 - validacao de e-mail, CPF e senha forte
 - CRUD de planos, alunos e treinos com paginacao
