@@ -1,3 +1,4 @@
+// Testes do AuthProvider: validam persistencia do token local e por sessao.
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -8,6 +9,7 @@ import { AuthProvider } from '@/context/auth-context';
 import { useAuth } from '@/hooks/use-auth';
 
 function Harness() {
+  // Exponhe botoes simples para acionar login em dois modos.
   const { login, user } = useAuth();
   return (
     <div>
@@ -19,6 +21,7 @@ function Harness() {
 }
 
 afterEach(() => {
+  // Limpa ambiente do navegador simulado entre testes.
   localStorage.clear();
   sessionStorage.clear();
   vi.restoreAllMocks();

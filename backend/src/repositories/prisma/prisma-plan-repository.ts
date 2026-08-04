@@ -1,8 +1,10 @@
+// Repositorio Prisma dos planos: traduz chamadas do service para consultas MySQL.
 import type { PaginatedResponse, Plan, PlanInput } from '@shapeup/shared';
 import type { IPlanRepository, PlanListParams } from '../interfaces.js';
 import { prisma } from '../../lib/prisma.js';
 
 function meta(totalItems: number, page: number, pageSize: number) {
+  // Monta informacoes de paginacao devolvidas junto com a lista.
   return {
     page,
     pageSize,
@@ -21,6 +23,7 @@ function mapPlan(plan: {
   createdAt: Date;
   updatedAt: Date;
 }): Plan {
+  // Converte Decimal/Data do Prisma para tipos simples usados no frontend.
   return {
     id: plan.id,
     name: plan.name,
@@ -35,6 +38,7 @@ function mapPlan(plan: {
 
 export class PrismaPlanRepository implements IPlanRepository {
   async list(params: PlanListParams): Promise<PaginatedResponse<Plan>> {
+    // Filtro dinamico: adiciona status e busca textual apenas quando vierem na URL.
     const where = {
       ownerId: params.ownerId,
       ...(params.status ? { status: params.status } : {}),
@@ -46,6 +50,7 @@ export class PrismaPlanRepository implements IPlanRepository {
       } : {}),
     };
 
+    // Busca pagina e total em paralelo para montar resposta paginada.
     const [items, totalItems] = await Promise.all([
       prisma.plan.findMany({
         skip: params.skip,
@@ -83,6 +88,7 @@ export class PrismaPlanRepository implements IPlanRepository {
   }
 
   async countStudentsByPlan(ownerId: string) {
+    // Usado no dashboard para mostrar quantos alunos existem em cada plano.
     const plans = await prisma.plan.findMany({
       where: { ownerId },
       include: { _count: { select: { students: true } } },

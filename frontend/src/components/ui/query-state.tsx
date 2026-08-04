@@ -1,3 +1,4 @@
+// Padroniza estados de carregamento, erro e vazio das consultas React Query.
 import type { PropsWithChildren, ReactNode } from 'react';
 import { ApiError } from '@/lib/api';
 
@@ -22,10 +23,12 @@ export function QueryState({
   children,
 }: QueryStateProps) {
   if (isLoading) {
+    // Cada tela pode enviar um skeleton proprio; se nao enviar, usamos fallback simples.
     return <>{loadingFallback ?? <div className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel">Carregando...</div>}</>;
   }
 
   if (isError) {
+    // ApiError traz mensagem amigavel do backend.
     const message = error instanceof ApiError ? error.message : 'Nao foi possivel carregar os dados agora.';
 
     return (
@@ -46,9 +49,9 @@ export function QueryState({
   }
 
   if (isEmpty) {
+    // Estado vazio evita tabela sem contexto quando nao ha resultados.
     return <>{emptyFallback ?? null}</>;
   }
 
   return <>{children}</>;
 }
-

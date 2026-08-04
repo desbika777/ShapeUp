@@ -1,3 +1,4 @@
+// Testes da tela de login: validam comportamento basico do formulario.
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -8,6 +9,7 @@ import { AuthProvider } from '@/context/auth-context';
 import { LoginPage } from '@/pages/auth/login-page';
 
 function renderLoginPage() {
+  // Renderiza a pagina com os provedores necessarios para o teste.
   const queryClient = new QueryClient();
   return render(
     <QueryClientProvider client={queryClient}>

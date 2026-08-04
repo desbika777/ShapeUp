@@ -1,3 +1,4 @@
+// Testes da tela de cadastro: garantem validacao de senha e formulario.
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -8,6 +9,7 @@ import { AuthProvider } from '@/context/auth-context';
 import { RegisterPage } from '@/pages/auth/register-page';
 
 function renderRegisterPage() {
+  // Monta a pagina com roteador, autenticacao, toast e cache de dados.
   const queryClient = new QueryClient();
   return render(
     <QueryClientProvider client={queryClient}>

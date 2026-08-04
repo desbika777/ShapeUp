@@ -1,3 +1,4 @@
+// Pagina de cadastro: cria a primeira conta de gestor da academia.
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import type { UserRegistrationInput } from '@shapeup/shared';
@@ -20,6 +21,7 @@ export function RegisterPage() {
 
   async function onSubmit(values: UserRegistrationInput) {
     try {
+      // Envia CPF sem mascara para o backend validar e salvar padronizado.
       await register({ ...values, cpf: values.cpf.replace(/\D/g, '') });
       navigate('/');
     } catch (error) {
@@ -29,6 +31,7 @@ export function RegisterPage() {
 
   return (
     <AuthLayout>
+      {/* Formulario de primeiro acesso com validacao de senha forte e CPF. */}
       <p className="text-xs font-semibold uppercase tracking-[0.32em] text-teal">Cadastro de usuario</p>
       <h2 className="mt-4 font-display text-4xl font-semibold text-slateblue">Criar conta de gestao</h2>
       <p className="mt-3 text-sm text-slate-500">Cadastre o gestor principal da academia com uma senha forte e acesso imediato ao painel.</p>

@@ -1,3 +1,4 @@
+// Pagina de recuperacao: solicita link seguro de redefinicao de senha.
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -19,6 +20,7 @@ export function ForgotPasswordPage() {
 
   async function onSubmit(values: ForgotPasswordInput) {
     try {
+      // Normaliza o e-mail antes de enviar para a API.
       const response = await apiRequest<ApiMessageResponse>('/auth/forgot-password', {
         method: 'POST',
         body: JSON.stringify({ email: values.email.trim().toLowerCase() }),
@@ -34,6 +36,7 @@ export function ForgotPasswordPage() {
 
   return (
     <AuthLayout>
+      {/* Mensagem generica evita revelar se o e-mail existe no sistema. */}
       <p className="text-xs font-semibold uppercase tracking-[0.32em] text-teal">Recuperacao de acesso</p>
       <h2 className="mt-4 font-display text-4xl font-semibold text-slateblue">Redefinir senha</h2>
       <p className="mt-3 text-sm text-slate-500">Informe o e-mail da conta para receber o link seguro de redefinicao.</p>

@@ -1,3 +1,4 @@
+// Layout principal do painel: sidebar, topo, menu mobile e area de conteudo.
 import { BadgeDollarSign, Dumbbell, LayoutDashboard, LogOut, UserCircle2, Users } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -6,6 +7,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/cn';
 
 const navigation = [
+  // Itens usados tanto no menu lateral desktop quanto no menu inferior mobile.
   { label: 'Painel', icon: LayoutDashboard, to: '/' },
   { label: 'Planos', icon: BadgeDollarSign, to: '/plans' },
   { label: 'Alunos', icon: Users, to: '/students' },
@@ -20,6 +22,7 @@ export function AppShell({ children }: PropsWithChildren) {
   return (
     <div className="min-h-screen bg-hero-mesh font-body text-ink">
       <div className="mx-auto flex min-h-screen max-w-[1600px] gap-6 px-4 py-4 lg:px-6">
+        {/* Menu lateral fixo para telas grandes. */}
         <aside className="hidden w-[290px] flex-col justify-between rounded-[36px] bg-slateblue px-6 py-8 text-white shadow-panel lg:flex">
           <div>
             <div className="flex items-center gap-3 rounded-3xl bg-white/10 p-4 backdrop-blur">
@@ -56,6 +59,7 @@ export function AppShell({ children }: PropsWithChildren) {
         </aside>
 
         <div className="flex-1">
+          {/* Cabecalho mostra contexto da conta e dados do usuario logado. */}
           <header className="mb-6 rounded-[32px] border border-white/60 bg-white/80 px-6 py-5 shadow-panel backdrop-blur">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-4">
@@ -89,6 +93,7 @@ export function AppShell({ children }: PropsWithChildren) {
         </div>
       </div>
 
+      {/* Menu inferior para celular, reutilizando a mesma lista de navegacao. */}
       <nav className="fixed inset-x-4 bottom-4 z-40 rounded-[28px] border border-white/60 bg-white/85 p-2 shadow-panel backdrop-blur lg:hidden">
         <div className="grid grid-cols-5 gap-2">
           {navigation.map((item) => {

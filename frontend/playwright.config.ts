@@ -1,3 +1,4 @@
+// Configuracao dos testes E2E com Playwright.
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
@@ -7,6 +8,7 @@ export default defineConfig({
     timeout: 10_000,
   },
   use: {
+    // URL base do frontend usada pelos comandos page.goto('/rota').
     baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:5173',
     headless: true,
     ignoreHTTPSErrors: true,
@@ -16,6 +18,7 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   webServer: [
+    // Playwright sobe backend e frontend antes dos testes se eles nao estiverem rodando.
     {
       command: 'npm run dev',
       cwd: '../backend',

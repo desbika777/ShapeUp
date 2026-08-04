@@ -1,3 +1,5 @@
+// Testes da API com repositorios em memoria.
+// Validam regras de negocio sem depender do MySQL.
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { DashboardMetrics, PaginatedResponse, Plan, PlanInput, Student, StudentInput, Workout, WorkoutInput } from '@shapeup/shared';
@@ -17,6 +19,7 @@ import type {
 import type { IMailService, MailMessage } from '../src/services/mail-service.js';
 
 function paginate<T>(items: T[], params: PaginationParams): PaginatedResponse<T> {
+  // Simula a paginacao usada nos repositories reais.
   const sliced = items.slice(params.skip, params.skip + params.pageSize);
   return {
     data: sliced,
@@ -34,6 +37,7 @@ type OwnedStudent = Student & { ownerId: string };
 type OwnedWorkout = Workout & { ownerId: string };
 
 class InMemoryUserRepository implements IUserRepository {
+  // Repositorio fake para cadastro, login, perfil e recuperacao de senha.
   users: UserRecord[] = [];
   passwordResetTokens: PasswordResetTokenRecord[] = [];
 
@@ -80,6 +84,7 @@ class InMemoryUserRepository implements IUserRepository {
 }
 
 class InMemoryMailService implements IMailService {
+  // Guarda mensagens enviadas para validar o fluxo de reset.
   messages: MailMessage[] = [];
 
   async send(message: MailMessage) {
@@ -88,6 +93,7 @@ class InMemoryMailService implements IMailService {
 }
 
 class InMemoryPlanRepository implements IPlanRepository {
+  // Simula planos em memoria para testar CRUD e regras de exclusao.
   plans: OwnedPlan[] = [];
   async list(params: PlanListParams) {
     const search = params.search?.trim().toLowerCase();
@@ -123,6 +129,7 @@ class InMemoryPlanRepository implements IPlanRepository {
 }
 
 class InMemoryStudentRepository implements IStudentRepository {
+  // Simula alunos, incluindo buscas por CPF/e-mail e contadores.
   students: OwnedStudent[] = [];
   async list(params: StudentListParams) {
     const rawSearch = params.search?.trim().toLowerCase();
@@ -166,6 +173,7 @@ class InMemoryStudentRepository implements IStudentRepository {
 }
 
 class InMemoryWorkoutRepository implements IWorkoutRepository {
+  // Simula treinos para testar filtros, CRUD e metricas.
   workouts: OwnedWorkout[] = [];
   async list(params: WorkoutListParams) {
     const rawSearch = params.search?.trim().toLowerCase();
@@ -203,6 +211,7 @@ class InMemoryWorkoutRepository implements IWorkoutRepository {
 }
 
 describe('ShapeUp API', () => {
+  // Cada teste recebe dependencias novas para evitar vazamento de estado.
   let userRepository: InMemoryUserRepository;
   let planRepository: InMemoryPlanRepository;
   let studentRepository: InMemoryStudentRepository;

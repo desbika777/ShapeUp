@@ -1,3 +1,4 @@
+// Schemas Zod do backend: validam entrada antes das regras de negocio.
 import { z } from 'zod';
 
 export const paginationSchema = z.object({

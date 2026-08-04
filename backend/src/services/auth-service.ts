@@ -1,3 +1,4 @@
+// Service de autenticacao: concentra regras de cadastro, login, perfil e senha.
 import { createHash, randomBytes } from 'node:crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -26,6 +27,7 @@ export class AuthService {
     private readonly mailService: IMailService,
   ) {}
 
+  // Valida dados do gestor, protege a senha com hash e cria a conta.
   async register(input: UserRegistrationInput): Promise<AuthResponse> {
     if (!isValidEmail(input.email)) {
       throw new AppError(400, 'Informe um e-mail valido.');
@@ -69,6 +71,7 @@ export class AuthService {
     return this.buildAuthResponse(user);
   }
 
+  // Confere e-mail e senha para gerar uma sessao JWT.
   async login(input: UserLoginInput): Promise<AuthResponse> {
     if (!isValidEmail(input.email)) {
       throw new AppError(400, 'Informe um e-mail valido.');
@@ -89,6 +92,7 @@ export class AuthService {
     return this.buildAuthResponse(user);
   }
 
+  // Busca o usuario autenticado pelo id gravado no token.
   async getCurrentUser(userId: string): Promise<AuthUser> {
     const user = await this.userRepository.findById(userId);
 
@@ -99,6 +103,7 @@ export class AuthService {
     return this.toAuthUser(user);
   }
 
+  // Atualiza perfil e troca senha somente quando a senha atual foi confirmada.
   async updateProfile(userId: string, input: UserUpdateInput): Promise<AuthUser> {
     const user = await this.userRepository.findById(userId);
 
@@ -155,6 +160,7 @@ export class AuthService {
     return this.toAuthUser(updated);
   }
 
+  // Gera token de redefinicao, salva o hash e envia o link por e-mail.
   async requestPasswordReset(input: ForgotPasswordInput): Promise<ApiMessageResponse> {
     const email = input.email.trim().toLowerCase();
 
@@ -198,6 +204,7 @@ export class AuthService {
     return { message: PASSWORD_RESET_REQUEST_MESSAGE };
   }
 
+  // Valida o token recebido por e-mail e grava a nova senha com hash.
   async resetPassword(input: ResetPasswordInput): Promise<ApiMessageResponse> {
     if (!isStrongPassword(input.password)) {
       throw new AppError(400, 'A nova senha deve ter no minimo 8 caracteres, letras maiusculas, minusculas, numeros e simbolos.');
@@ -232,6 +239,7 @@ export class AuthService {
     return { message: 'Senha redefinida com sucesso.' };
   }
 
+  // Monta o retorno padrao usado em cadastro e login.
   private buildAuthResponse(user: Awaited<ReturnType<IUserRepository['create']>>): AuthResponse {
     return {
       token: jwt.sign({}, env.JWT_SECRET, { subject: user.id, expiresIn: '8h' }),
@@ -239,6 +247,7 @@ export class AuthService {
     };
   }
 
+  // Remove dados sensiveis antes de devolver usuario ao frontend.
   private toAuthUser(user: Awaited<ReturnType<IUserRepository['create']>>): AuthUser {
     return {
       id: user.id,
@@ -250,10 +259,12 @@ export class AuthService {
     };
   }
 
+  // Guarda apenas o hash do token de reset, nao o token puro.
   private hashResetToken(token: string): string {
     return createHash('sha256').update(token).digest('hex');
   }
 
+  // Monta a URL que o usuario recebe para redefinir a senha.
   private buildPasswordResetUrl(token: string): string {
     const resetUrl = env.PASSWORD_RESET_URL ? new URL(env.PASSWORD_RESET_URL) : new URL('/reset-password', env.FRONTEND_URL);
     resetUrl.searchParams.set('token', token);

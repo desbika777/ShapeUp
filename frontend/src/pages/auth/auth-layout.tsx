@@ -1,3 +1,4 @@
+// Layout compartilhado das telas publicas de autenticacao.
 import { ArrowRight } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { Link } from 'react-router-dom';
@@ -6,6 +7,7 @@ import { BrandLogo } from '@/components/brand/brand-logo';
 export function AuthLayout({ children }: PropsWithChildren) {
   return (
     <div className="grid min-h-screen lg:grid-cols-[1.05fr_0.95fr]">
+      {/* Painel institucional exibido no desktop para reforcar identidade visual. */}
       <section className="relative hidden overflow-hidden bg-slateblue p-10 text-white lg:flex lg:flex-col lg:justify-between">
         <div className="absolute inset-0">
           <div className="absolute left-[-4rem] top-[-5rem] h-56 w-56 rounded-full bg-mint/25 blur-3xl" />
@@ -29,6 +31,7 @@ export function AuthLayout({ children }: PropsWithChildren) {
           <span className="h-px flex-1 bg-gradient-to-r from-white/0 via-white/20 to-white/0" />
         </div>
       </section>
+      {/* Area onde cada formulario de autenticacao e renderizado. */}
       <section className="flex items-center justify-center bg-hero-mesh p-5">
         <div className="w-full max-w-xl animate-fade-up rounded-[36px] border border-white/65 bg-white/88 p-8 shadow-panel backdrop-blur">
           <div className="mb-8 flex items-center justify-between">

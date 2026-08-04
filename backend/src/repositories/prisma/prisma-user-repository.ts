@@ -1,3 +1,4 @@
+// Repositorio Prisma de usuarios: usado pela autenticacao e perfil.
 import type { IUserRepository, PasswordResetTokenRecord, UserRecord } from '../interfaces.js';
 import { prisma } from '../../lib/prisma.js';
 
@@ -10,6 +11,7 @@ function mapUser(record: {
   createdAt: Date;
   updatedAt: Date;
 }): UserRecord {
+  // Padroniza datas como string ISO para o service e o frontend.
   return {
     id: record.id,
     name: record.name,
@@ -29,6 +31,7 @@ function mapPasswordResetToken(record: {
   usedAt: Date | null;
   createdAt: Date;
 }): PasswordResetTokenRecord {
+  // Normaliza datas do token de reset para facilitar comparacoes.
   return {
     id: record.id,
     userId: record.userId,
@@ -41,6 +44,7 @@ function mapPasswordResetToken(record: {
 
 export class PrismaUserRepository implements IUserRepository {
   async create(input: { name: string; email: string; passwordHash: string; cpf: string }) {
+    // Cria usuario ja com senha protegida por hash recebido do service.
     const created = await prisma.user.create({ data: input });
     return mapUser(created);
   }
@@ -66,6 +70,7 @@ export class PrismaUserRepository implements IUserRepository {
   }
 
   async createPasswordResetToken(input: { userId: string; tokenHash: string; expiresAt: Date }) {
+    // Salva somente hash do token para reduzir risco caso o banco seja exposto.
     const created = await prisma.passwordResetToken.create({ data: input });
     return mapPasswordResetToken(created);
   }
@@ -83,6 +88,7 @@ export class PrismaUserRepository implements IUserRepository {
   }
 
   async deletePasswordResetTokensByUserId(userId: string) {
+    // Invalida tokens antigos quando um novo link e enviado ou a senha muda.
     await prisma.passwordResetToken.deleteMany({ where: { userId } });
   }
 }

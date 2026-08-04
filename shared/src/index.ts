@@ -1,3 +1,5 @@
+// Tipos compartilhados entre frontend e backend.
+// Mantem os contratos da API iguais nos dois lados do projeto.
 export type PaginatedResponse<T> = {
   data: T[];
   meta: {
@@ -8,6 +10,7 @@ export type PaginatedResponse<T> = {
   };
 };
 
+// Usuario autenticado enviado ao frontend sem dados sensiveis.
 export type AuthUser = {
   id: string;
   name: string;
@@ -17,11 +20,13 @@ export type AuthUser = {
   updatedAt: string;
 };
 
+// Resposta padrao de cadastro/login: token JWT e usuario.
 export type AuthResponse = {
   token: string;
   user: AuthUser;
 };
 
+// Entradas usadas nas telas e services de autenticacao.
 export type UserRegistrationInput = {
   name: string;
   email: string;
@@ -53,10 +58,12 @@ export type UserUpdateInput = {
   confirmPassword?: string;
 };
 
+// Status e niveis controlam valores permitidos em selects e banco.
 export type PlanStatus = 'ACTIVE' | 'INACTIVE';
 export type StudentStatus = 'ACTIVE' | 'INACTIVE';
 export type WorkoutLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
 
+// Contrato de plano comercial exibido no CRUD de planos.
 export type Plan = {
   id: string;
   name: string;
@@ -76,6 +83,7 @@ export type PlanInput = {
   status: PlanStatus;
 };
 
+// Contrato de aluno exibido nas telas de carteira e formulario.
 export type Student = {
   id: string;
   name: string;
@@ -102,6 +110,7 @@ export type StudentInput = {
   planId: string;
 };
 
+// Contrato de treino usado na prescricao vinculada a alunos.
 export type Workout = {
   id: string;
   studentId: string;
@@ -126,6 +135,7 @@ export type WorkoutInput = {
   endDate: string;
 };
 
+// Dados consolidados que alimentam cards e graficos do dashboard.
 export type DashboardMetrics = {
   totals: {
     students: number;
@@ -138,6 +148,7 @@ export type DashboardMetrics = {
   recentStudents: Array<Pick<Student, 'id' | 'name' | 'goal' | 'status' | 'createdAt'>>;
 };
 
+// Formato padrao de erro e mensagens simples da API.
 export type ApiErrorPayload = {
   message: string;
   details?: string[];

@@ -1,8 +1,10 @@
+// Repositorio Prisma dos alunos: concentra consultas e gravacoes da carteira de alunos.
 import type { DashboardMetrics, PaginatedResponse, Student, StudentInput } from '@shapeup/shared';
 import type { IStudentRepository, StudentListParams } from '../interfaces.js';
 import { prisma } from '../../lib/prisma.js';
 
 function meta(totalItems: number, page: number, pageSize: number) {
+  // Mantem o formato de paginacao igual ao restante da API.
   return {
     page,
     pageSize,
@@ -25,6 +27,7 @@ function mapStudent(student: {
   updatedAt: Date;
   plan?: { name: string };
 }): Student {
+  // Adapta datas e relacionamento do plano para o contrato compartilhado com o frontend.
   return {
     id: student.id,
     name: student.name,
@@ -46,6 +49,7 @@ export class PrismaStudentRepository implements IStudentRepository {
     const rawSearch = params.search?.trim();
     const cpfDigits = rawSearch ? rawSearch.replace(/\D/g, '') : '';
 
+    // Permite buscar aluno por nome, e-mail ou CPF digitado com/sem pontuacao.
     const where = {
       ownerId: params.ownerId,
       ...(params.status ? { status: params.status } : {}),
@@ -59,6 +63,7 @@ export class PrismaStudentRepository implements IStudentRepository {
       } : {}),
     };
 
+    // Carrega o plano junto para exibir o nome na tabela de alunos.
     const [items, totalItems] = await Promise.all([
       prisma.student.findMany({
         skip: params.skip,
@@ -128,6 +133,7 @@ export class PrismaStudentRepository implements IStudentRepository {
   }
 
   async countNewInCurrentMonth(ownerId: string) {
+    // Indicador do dashboard para acompanhar entrada de alunos no mes atual.
     const now = new Date();
     return prisma.student.count({
       where: {
@@ -140,6 +146,7 @@ export class PrismaStudentRepository implements IStudentRepository {
   }
 
   async findRecent(ownerId: string, limit: number): Promise<DashboardMetrics['recentStudents']> {
+    // Lista os alunos mais recentes para o painel inicial.
     const students = await prisma.student.findMany({
       where: { ownerId },
       take: limit,

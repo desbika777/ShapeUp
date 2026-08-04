@@ -1,3 +1,4 @@
+// Rota auxiliar que coloca o layout autenticado em volta das paginas internas.
 import { Outlet } from 'react-router-dom';
 import { AppShell } from '@/components/layout/app-shell';
 

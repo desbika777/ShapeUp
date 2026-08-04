@@ -1,3 +1,4 @@
+// Service do dashboard: consolida dados de diferentes modulos para os graficos.
 import type { DashboardMetrics } from '@shapeup/shared';
 import type { IPlanRepository, IStudentRepository, IWorkoutRepository } from '../repositories/interfaces.js';
 
@@ -8,6 +9,7 @@ export class DashboardService {
     private readonly workoutRepository: IWorkoutRepository,
   ) {}
 
+  // Executa consultas em paralelo para montar a visao executiva rapidamente.
   async getMetrics(ownerId: string): Promise<DashboardMetrics> {
     const [students, activePlans, workouts, newStudentsThisMonth, studentsByPlan, workoutsByLevel, recentStudents] = await Promise.all([
       this.studentRepository.countAll(ownerId),

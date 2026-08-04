@@ -1,3 +1,4 @@
+// Pagina de nova senha: usa o token recebido no e-mail para redefinir acesso.
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -24,11 +25,13 @@ export function ResetPasswordPage() {
   });
 
   useEffect(() => {
+    // Mantem o token da URL sincronizado com o formulario validado pelo Zod.
     form.setValue('token', token, { shouldValidate: true });
   }, [form, token]);
 
   async function onSubmit(values: ResetPasswordInput) {
     try {
+      // Envia token e nova senha para o backend encerrar o fluxo de reset.
       const response = await apiRequest<ApiMessageResponse>('/auth/reset-password', {
         method: 'POST',
         body: JSON.stringify({
@@ -46,6 +49,7 @@ export function ResetPasswordPage() {
   }
 
   if (!token) {
+    // Sem token nao ha como redefinir; orienta o usuario a gerar novo link.
     return (
       <AuthLayout>
         <p className="text-xs font-semibold uppercase tracking-[0.32em] text-teal">Link invalido</p>
@@ -60,6 +64,7 @@ export function ResetPasswordPage() {
 
   return (
     <AuthLayout>
+      {/* Formulario exibido apenas quando o link contem token. */}
       <p className="text-xs font-semibold uppercase tracking-[0.32em] text-teal">Nova senha</p>
       <h2 className="mt-4 font-display text-4xl font-semibold text-slateblue">Crie uma nova senha</h2>
       <p className="mt-3 text-sm text-slate-500">Defina uma senha forte para retomar o acesso com seguranca.</p>

@@ -1,8 +1,10 @@
+// Repositorio Prisma dos treinos: consulta e grava prescricoes vinculadas a alunos.
 import type { PaginatedResponse, Workout, WorkoutInput } from '@shapeup/shared';
 import type { IWorkoutRepository, WorkoutListParams } from '../interfaces.js';
 import { prisma } from '../../lib/prisma.js';
 
 function meta(totalItems: number, page: number, pageSize: number) {
+  // Calcula os metadados usados pelo componente de paginacao.
   return {
     page,
     pageSize,
@@ -24,6 +26,7 @@ function mapWorkout(workout: {
   updatedAt: Date;
   student?: { name: string };
 }): Workout {
+  // Inclui nome do aluno quando a consulta traz o relacionamento.
   return {
     id: workout.id,
     studentId: workout.studentId,
@@ -43,6 +46,7 @@ export class PrismaWorkoutRepository implements IWorkoutRepository {
   async list(params: WorkoutListParams): Promise<PaginatedResponse<Workout>> {
     const rawSearch = params.search?.trim();
 
+    // Busca por titulo, objetivo ou nome do aluno, alem de filtros por nivel/aluno.
     const where = {
       ownerId: params.ownerId,
       ...(params.level ? { level: params.level } : {}),
@@ -71,6 +75,7 @@ export class PrismaWorkoutRepository implements IWorkoutRepository {
   }
 
   async create(ownerId: string, input: WorkoutInput) {
+    // Datas chegam do formulario como string e sao convertidas para Date no Prisma.
     const created = await prisma.workout.create({
       data: {
         ownerId,
@@ -110,6 +115,7 @@ export class PrismaWorkoutRepository implements IWorkoutRepository {
   }
 
   async countByLevel(ownerId: string) {
+    // Agrupamento usado no grafico de treinos por nivel.
     const grouped = await prisma.workout.groupBy({
       by: ['level'],
       where: { ownerId },

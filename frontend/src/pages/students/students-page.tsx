@@ -1,3 +1,4 @@
+// Pagina de alunos: gerencia carteira, filtros, paginacao e exclusao.
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { PaginatedResponse, Plan, Student, StudentStatus } from '@shapeup/shared';
 import { Link } from 'react-router-dom';
@@ -27,12 +28,14 @@ export function StudentsPage() {
   const [planId, setPlanId] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<Student | null>(null);
 
+  // Filtros combinam texto, status e plano escolhido.
   const filters = useMemo(() => ({
     search: deferredSearch.trim(),
     status: status === 'ALL' ? undefined : status,
     planId: planId || undefined,
   }), [deferredSearch, planId, status]);
 
+  // Busca alunos paginados respeitando filtros.
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: ['students', page, pageSize, filters],
     queryFn: () => {
@@ -45,11 +48,13 @@ export function StudentsPage() {
     placeholderData: keepPreviousData,
   });
 
+  // Lista de planos para popular o filtro e manter o cadastro consistente.
   const { data: plansOptions } = useQuery({
     queryKey: ['plans-options'],
     queryFn: () => apiRequest<PaginatedResponse<Plan>>('/plans?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
   });
 
+  // Exclusao de aluno com atualizacao da lista apos sucesso.
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiRequest<void>(`/students/${id}`, { method: 'DELETE' }, token ?? undefined),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['students'] }),
@@ -58,6 +63,7 @@ export function StudentsPage() {
   return (
     <div className="space-y-6">
       <PageHeader eyebrow="Alunos" title="Carteira de alunos" description="Centralize dados cadastrais, objetivos, plano atual e situacao operacional dos alunos." action={<Link to="/students/new" className="rounded-full bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo aluno</Link>} />
+      {/* Filtros permitem encontrar alunos por texto, status ou plano. */}
       <div className="grid gap-3 rounded-[28px] border border-white/70 bg-white p-4 shadow-panel md:grid-cols-[1.2fr_0.8fr_0.8fr]">
         <input
           value={search}
@@ -103,6 +109,7 @@ export function StudentsPage() {
         emptyFallback={<EmptyState title="Nenhum aluno encontrado" description="Ajuste os filtros ou cadastre o primeiro aluno para iniciar a operacao da academia." />}
       >
         <>
+          {/* Tabela mostra os principais dados de cada aluno. */}
           <DataTable columns={[
             { key: 'name', label: 'Aluno' },
             { key: 'email', label: 'E-mail' },
@@ -121,6 +128,7 @@ export function StudentsPage() {
             },
           ]} rows={data?.data ?? []} />
           {data ? (
+            /* Paginacao conserva a navegacao mesmo durante novas buscas. */
             <Pagination
               page={data.meta.page}
               totalPages={data.meta.totalPages}
@@ -137,6 +145,7 @@ export function StudentsPage() {
         </>
       </QueryState>
 
+      {/* Confirmacao evita remover aluno sem intencao. */}
       <ConfirmModal
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => {

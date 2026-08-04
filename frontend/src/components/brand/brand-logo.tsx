@@ -1,3 +1,4 @@
+// Componentes da marca ShapeUp usados no login, sidebar e estados de carregamento.
 import { useId } from 'react';
 import { cn } from '@/lib/cn';
 
@@ -10,6 +11,7 @@ type BrandLogoProps = {
 };
 
 const sizeStyles = {
+  // Cada tamanho controla marca, texto e espacamento sem duplicar JSX.
   sm: {
     gap: 'gap-3',
     mark: 'h-11 w-11',
@@ -31,6 +33,7 @@ const sizeStyles = {
 } as const;
 
 export function BrandMark({ className }: { className?: string }) {
+  // useId evita colisao entre gradientes SVG quando a logo aparece mais de uma vez.
   const id = useId().replace(/:/g, '');
   const backgroundId = `${id}-background`;
   const glowId = `${id}-glow`;
@@ -91,6 +94,7 @@ export function BrandLogo({
   subtitle,
   markOnly = false,
 }: BrandLogoProps) {
+  // O tema muda contraste da marca conforme fundo claro ou escuro.
   const styles = sizeStyles[size];
   const titleColor = theme === 'light' ? 'text-white' : 'text-slateblue';
   const accentColor = theme === 'light' ? 'text-mint' : 'text-teal';

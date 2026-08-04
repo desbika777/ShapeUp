@@ -1,3 +1,5 @@
+// Monta as dependencias da aplicacao em um unico lugar.
+// Isso facilita testes, porque podemos trocar repositorios reais por repositorios em memoria.
 import type { IPlanRepository, IStudentRepository, IUserRepository, IWorkoutRepository } from './repositories/interfaces.js';
 import { PrismaPlanRepository } from './repositories/prisma/prisma-plan-repository.js';
 import { PrismaStudentRepository } from './repositories/prisma/prisma-student-repository.js';
@@ -25,6 +27,7 @@ export type RepositoryDependencies = {
 };
 
 export function createControllers(overrides?: Partial<RepositoryDependencies>) {
+  // Usa implementacoes Prisma por padrao, mas aceita substituicoes nos testes.
   const userRepository = overrides?.userRepository ?? new PrismaUserRepository();
   const planRepository = overrides?.planRepository ?? new PrismaPlanRepository();
   const studentRepository = overrides?.studentRepository ?? new PrismaStudentRepository();
@@ -37,6 +40,7 @@ export function createControllers(overrides?: Partial<RepositoryDependencies>) {
   const workoutService = new WorkoutService(workoutRepository, studentRepository);
   const dashboardService = new DashboardService(studentRepository, planRepository, workoutRepository);
 
+  // Controllers recebem services prontos e ficam responsaveis apenas pelo fluxo HTTP.
   return {
     authController: new AuthController(authService),
     planController: new PlanController(planService),

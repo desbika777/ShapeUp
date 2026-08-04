@@ -1,3 +1,4 @@
+// Define todas as rotas do frontend e separa telas publicas das protegidas.
 import { Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/protected-route';
 import { ShellRoute } from '@/components/layout/shell-route';
@@ -17,10 +18,12 @@ import { WorkoutsPage } from '@/pages/workouts/workouts-page';
 export function App() {
   return (
     <Routes>
+      {/* Telas publicas acessadas sem token. */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      {/* Area autenticada: primeiro valida token, depois renderiza o layout interno. */}
       <Route element={<ProtectedRoute />}>
         <Route element={<ShellRoute />}>
           <Route path="/" element={<DashboardPage />} />

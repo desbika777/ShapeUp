@@ -1,3 +1,4 @@
+// Formulario de aluno: cadastra e edita dados pessoais, plano e objetivo.
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
@@ -20,16 +21,19 @@ export function StudentFormPage() {
   const queryClient = useQueryClient();
   const { id } = useParams();
   const isEdit = Boolean(id);
+  // Valores iniciais mantem o formulario controlado desde o primeiro render.
   const form = useForm<StudentInput>({
     resolver: zodResolver(studentSchema),
     defaultValues: { name: '', email: '', cpf: '', phone: '', birthDate: '', goal: '', status: 'ACTIVE', planId: '' },
   });
 
+  // Planos ativos/opcoes aparecem no select de vinculo do aluno.
   const { data: plans } = useQuery({
     queryKey: ['plans-options'],
     queryFn: () => apiRequest<PaginatedResponse<Plan>>('/plans?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
   });
 
+  // Em modo edicao, carrega o aluno atual.
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['student', id],
     queryFn: () => apiRequest<Student>(`/students/${id}`, { method: 'GET' }, token ?? undefined),
@@ -37,17 +41,20 @@ export function StudentFormPage() {
   });
 
   useEffect(() => {
+    // Ajusta CPF e data para o formato visual do formulario.
     if (data) {
       form.reset({ ...data, cpf: formatCpf(data.cpf), birthDate: data.birthDate.slice(0, 10) });
     }
   }, [data, form]);
 
+  // Envia POST para novo aluno e PUT para edicao.
   const mutation = useMutation({
     mutationFn: (values: StudentInput) => apiRequest<Student>(isEdit ? `/students/${id}` : '/students', {
       method: isEdit ? 'PUT' : 'POST',
       body: JSON.stringify({ ...values, cpf: values.cpf.replace(/\D/g, '') }),
     }, token ?? undefined),
     onSuccess: async () => {
+      // Recarrega listas e indicadores impactados por alunos.
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['students'] }),
         queryClient.invalidateQueries({ queryKey: ['students-options'] }),
@@ -69,6 +76,7 @@ export function StudentFormPage() {
         onRetry={() => void refetch()}
         loadingFallback={<div className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel">Carregando aluno...</div>}
       >
+        {/* Formulario validado por Zod antes do envio para /students. */}
         <form
           className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel"
           onSubmit={form.handleSubmit(async (values) => {

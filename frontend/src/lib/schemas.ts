@@ -1,8 +1,10 @@
+// Validacoes dos formularios do frontend usando Zod.
 import { z } from 'zod';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function isValidCpf(cpf: string) {
+  // Repete no frontend a regra de CPF para mostrar erro antes de enviar para a API.
   const normalized = cpf.replace(/\D/g, '');
   if (normalized.length !== 11 || /^([0-9])\1+$/.test(normalized)) return false;
   let sum = 0;
@@ -19,6 +21,7 @@ function isValidCpf(cpf: string) {
 
 const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
 
+// Login exige e-mail valido e senha preenchida.
 export const loginSchema = z.object({
   email: z.string().regex(emailRegex, 'Informe um e-mail valido.'),
   password: z.string().min(1, 'Informe sua senha.'),
@@ -28,6 +31,7 @@ export const loginFormSchema = loginSchema.extend({
   rememberAccess: z.boolean(),
 });
 
+// Cadastro exige dados validos e confirmacao de senha igual.
 export const registerSchema = z
   .object({
     name: z.string().min(3, 'Informe um nome com ao menos 3 caracteres.'),
@@ -41,10 +45,12 @@ export const registerSchema = z
     message: 'A confirmacao da senha nao confere.',
   });
 
+// Recuperacao de senha pede somente o e-mail cadastrado.
 export const forgotPasswordSchema = z.object({
   email: z.string().regex(emailRegex, 'Informe um e-mail valido.'),
 });
 
+// Redefinicao usa token do link e nova senha forte.
 export const resetPasswordSchema = z
   .object({
     token: z.string().min(1, 'O link de redefinicao e invalido ou expirou.'),
@@ -56,6 +62,7 @@ export const resetPasswordSchema = z
     message: 'A confirmacao da senha nao confere.',
   });
 
+// Perfil permite alterar senha apenas quando os campos de senha sao preenchidos corretamente.
 export const updateUserSchema = z
   .object({
     name: z.string().min(3, 'Informe um nome com ao menos 3 caracteres.'),
@@ -108,6 +115,7 @@ export const updateUserSchema = z
     }
   });
 
+// Plano comercial precisa de nome, descricao, valor, duracao e status.
 export const planSchema = z.object({
   name: z.string().min(2, 'Informe o nome do plano.'),
   description: z.string().min(10, 'A descricao precisa ter pelo menos 10 caracteres.'),
@@ -116,6 +124,7 @@ export const planSchema = z.object({
   status: z.enum(['ACTIVE', 'INACTIVE']),
 });
 
+// Aluno precisa de dados pessoais, objetivo e plano vinculado.
 export const studentSchema = z.object({
   name: z.string().min(3, 'Informe o nome do aluno.'),
   email: z.string().regex(emailRegex, 'Informe um e-mail valido.'),
@@ -127,6 +136,7 @@ export const studentSchema = z.object({
   planId: z.string().min(1, 'Selecione um plano.'),
 });
 
+// Treino precisa de aluno, periodo valido, objetivo e nivel.
 export const workoutSchema = z.object({
   studentId: z.string().min(1, 'Selecione um aluno.'),
   title: z.string().min(3, 'Informe o titulo do treino.'),

@@ -1,3 +1,4 @@
+// Pagina de perfil: atualiza dados do gestor e permite troca de senha.
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import type { UserUpdateInput } from '@shapeup/shared';
@@ -24,11 +25,13 @@ export function ProfilePage() {
 
   async function onSubmit(values: UserUpdateInput) {
     try {
+      // Campos de senha vazios significam que o usuario quer alterar apenas dados pessoais.
       const trimmedCurrentPassword = values.currentPassword?.trim();
       const trimmedPassword = values.password?.trim();
       const trimmedConfirmPassword = values.confirmPassword?.trim();
 
       await updateProfile({
+        // CPF vai sem mascara para manter o mesmo padrao do banco.
         name: values.name,
         cpf: values.cpf.replace(/\D/g, ''),
         currentPassword: trimmedCurrentPassword || undefined,
@@ -53,6 +56,7 @@ export function ProfilePage() {
     <div className="space-y-6">
       <PageHeader eyebrow="Perfil do gestor" title="Minha conta" description="Atualize seus dados pessoais, redefina a senha e mantenha seu acesso sempre seguro. O e-mail permanece fixo conforme a regra da rubrica." />
       <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+        {/* Resumo lateral mostra a identidade da conta autenticada. */}
         <div className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel">
           <p className="text-sm uppercase tracking-[0.25em] text-teal">Identidade</p>
           <h3 className="mt-3 font-display text-2xl font-semibold text-slateblue">{user?.name}</h3>
@@ -61,6 +65,7 @@ export function ProfilePage() {
             <p>Seu e-mail nao pode ser alterado nesta versao para preservar a integridade da autenticacao.</p>
           </div>
         </div>
+        {/* Formulario de atualizacao envia dados para /users/me. */}
         <form className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="grid gap-5 md:grid-cols-2">
             <div className="md:col-span-2"><FormField label="Nome" error={form.formState.errors.name?.message}><input className={inputClassName(!!form.formState.errors.name)} {...form.register('name')} /></FormField></div>

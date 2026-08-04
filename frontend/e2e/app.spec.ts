@@ -1,3 +1,4 @@
+// Testes ponta a ponta: exercitam o app real no navegador contra a API local.
 import { expect, test, type APIRequestContext, type Page, type TestInfo } from '@playwright/test';
 
 const API_URL = process.env.E2E_API_URL ?? 'http://127.0.0.1:3333/api';
@@ -5,11 +6,13 @@ const PASSWORD = 'ShapeUp@123';
 let sequence = 0;
 
 function nextSeed(testInfo: TestInfo) {
+  // Gera dados unicos por teste para evitar conflito de CPF/e-mail.
   sequence += 1;
   return Date.now() + testInfo.workerIndex * 10_000 + testInfo.retry * 1_000 + sequence;
 }
 
 function validCpf(seed: number) {
+  // Monta CPF valido para passar pela mesma regra usada no cadastro real.
   const base = String(100_000_000 + (Math.abs(seed) % 800_000_000)).padStart(9, '0');
   const digits = base.split('').map(Number);
 
@@ -26,6 +29,7 @@ function validCpf(seed: number) {
 }
 
 function managerData(testInfo: TestInfo) {
+  // Dados de gestor usados nos cenarios de autenticacao.
   const seed = nextSeed(testInfo);
   return {
     name: `Gestor E2E ${seed}`,
@@ -43,6 +47,7 @@ async function expectApiOk(response: Awaited<ReturnType<APIRequestContext['post'
 }
 
 async function createManager(request: APIRequestContext, testInfo: TestInfo) {
+  // Cria gestor diretamente pela API para preparar cenarios autenticados.
   const manager = managerData(testInfo);
   const response = await request.post(`${API_URL}/auth/register`, { data: manager });
   await expectApiOk(response);
@@ -51,6 +56,7 @@ async function createManager(request: APIRequestContext, testInfo: TestInfo) {
 }
 
 async function createPlan(request: APIRequestContext, token: string, name: string) {
+  // Plano auxiliar usado nos testes de alunos e treinos.
   const response = await request.post(`${API_URL}/plans`, {
     headers: { Authorization: `Bearer ${token}` },
     data: {
@@ -81,6 +87,7 @@ async function findPlanByName(request: APIRequestContext, token: string, name: s
 }
 
 async function createStudent(request: APIRequestContext, token: string, input: { planId: string; seed: number; name?: string }) {
+  // Aluno auxiliar criado pela API para preparar cenarios de treino.
   const response = await request.post(`${API_URL}/students`, {
     headers: { Authorization: `Bearer ${token}` },
     data: {
@@ -106,12 +113,14 @@ async function deleteStudent(request: APIRequestContext, token: string, id: stri
 }
 
 async function authenticate(page: Page, token: string) {
+  // Injeta token no navegador para acessar telas internas sem repetir login manual.
   await page.addInitScript((storedToken) => {
     window.localStorage.setItem('shapeup:token', storedToken);
   }, token);
 }
 
 async function fillRegisterForm(page: Page, input: ReturnType<typeof managerData>) {
+  // Preenche cadastro completo pelo navegador para validar a experiencia real.
   await page.getByLabel('Nome completo').fill(input.name);
   await page.getByLabel('E-mail').fill(input.email);
   await page.getByLabel('CPF').fill(input.cpf);
@@ -120,6 +129,7 @@ async function fillRegisterForm(page: Page, input: ReturnType<typeof managerData
 }
 
 test.describe('autenticacao', () => {
+  // Garante que cadastro e login funcionam tambem pela interface.
   test('bloqueia cadastro invalido e cria usuario com sucesso', async ({ page }, testInfo) => {
     await page.goto('/register');
 
@@ -150,6 +160,7 @@ test.describe('autenticacao', () => {
 });
 
 test.describe('CRUDs principais', () => {
+  // Cobertura dos fluxos mais importantes para demonstracao do MVP.
   test('cadastra, edita, lista e exclui planos', async ({ page, request }, testInfo) => {
     const manager = await createManager(request, testInfo);
     const seed = nextSeed(testInfo);

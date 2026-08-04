@@ -1,3 +1,5 @@
+// Seed local do ShapeUp.
+// Cria dados iniciais para testar o sistema e demonstrar a modelagem na banca.
 import 'dotenv/config';
 import {
   AttendanceSource,
@@ -23,9 +25,11 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
+  // Senha padrao do usuario administrador: ShapeUp@123.
   const passwordHash = await bcrypt.hash('ShapeUp@123', 10);
   const now = new Date();
 
+  // Academia base usada para relacionar usuarios, alunos e operacao.
   const academy = await prisma.academy.upsert({
     where: { document: '12345678000190' },
     update: {
@@ -44,6 +48,7 @@ async function main() {
     },
   });
 
+  // Perfis de acesso preparados para evoluir permissoes no projeto.
   const adminRole = await prisma.role.upsert({
     where: { name: 'ADMIN' },
     update: { description: 'Acesso administrativo completo.' },
@@ -56,6 +61,7 @@ async function main() {
     create: { id: 'seed-role-professor', name: 'PROFESSOR', description: 'Acesso para professores e instrutores.' },
   });
 
+  // Gestor principal usado para acessar o sistema localmente.
   const admin = await prisma.user.upsert({
     where: { email: 'admin@shapeup.com' },
     update: {
@@ -75,12 +81,14 @@ async function main() {
     },
   });
 
+  // Vincula o gestor ao perfil administrativo.
   await prisma.userRole.upsert({
     where: { userId_roleId: { userId: admin.id, roleId: adminRole.id } },
     update: {},
     create: { userId: admin.id, roleId: adminRole.id },
   });
 
+  // Professor/instrutor usado nos treinos, aulas e avaliacoes.
   const teacher = await prisma.staffMember.upsert({
     where: { academyId_cpf: { academyId: academy.id, cpf: '22255588896' } },
     update: {
@@ -108,6 +116,7 @@ async function main() {
     create: { userId: admin.id, roleId: teacherRole.id },
   });
 
+  // Plano comercial inicial para matricular alunos.
   const plan = await prisma.plan.upsert({
     where: { id: 'seed-plan-premium' },
     update: {
@@ -131,6 +140,7 @@ async function main() {
     },
   });
 
+  // Aluno inicial para demonstrar carteira, matricula e treino.
   const student = await prisma.student.upsert({
     where: { ownerId_cpf: { ownerId: admin.id, cpf: '39053344705' } },
     update: {
@@ -159,6 +169,7 @@ async function main() {
     },
   });
 
+  // Matricula liga aluno e plano com status ativo.
   const membership = await prisma.membership.upsert({
     where: { id: 'seed-membership-ana-performance' },
     update: {
@@ -178,6 +189,7 @@ async function main() {
     },
   });
 
+  // Forma de pagamento e pagamento simulam a parte financeira.
   const paymentMethod = await prisma.paymentMethod.upsert({
     where: { academyId_name: { academyId: academy.id, name: 'Cartao de credito' } },
     update: { status: PaymentMethodStatus.ACTIVE },
@@ -210,6 +222,7 @@ async function main() {
     },
   });
 
+  // Catalogo de grupos musculares e exercicios sustenta o modulo de treinos.
   const lowerBody = await prisma.muscleGroup.upsert({
     where: { academyId_name: { academyId: academy.id, name: 'Membros inferiores' } },
     update: {},
@@ -268,6 +281,7 @@ async function main() {
     create: { exerciseId: plank.id, muscleGroupId: core.id },
   });
 
+  // Treino prescrito para o aluno, com professor responsavel.
   const workout = await prisma.workout.upsert({
     where: { id: 'seed-workout-forca-base' },
     update: {
@@ -297,6 +311,7 @@ async function main() {
     },
   });
 
+  // Exercicios vinculados ao treino com ordem, series e repeticoes.
   await prisma.workoutExercise.upsert({
     where: { workoutId_exerciseId_sortOrder: { workoutId: workout.id, exerciseId: squat.id, sortOrder: 1 } },
     update: { sets: 4, repetitions: '8-10', load: 40, restSeconds: 90, notes: 'Aumentar carga se execucao estiver estavel.' },
@@ -326,6 +341,7 @@ async function main() {
     },
   });
 
+  // Avaliacao fisica registra acompanhamento corporal do aluno.
   const assessment = await prisma.physicalAssessment.upsert({
     where: { id: 'seed-assessment-ana-initial' },
     update: {
@@ -349,6 +365,7 @@ async function main() {
     },
   });
 
+  // Medidas corporais complementam a avaliacao fisica.
   await prisma.bodyMeasurement.upsert({
     where: { id: 'seed-measurement-ana-waist' },
     update: { assessmentId: assessment.id, bodyPart: 'Cintura', value: 72, unit: 'cm' },
@@ -361,6 +378,7 @@ async function main() {
     create: { id: 'seed-measurement-ana-hip', assessmentId: assessment.id, bodyPart: 'Quadril', value: 98, unit: 'cm' },
   });
 
+  // Aulas coletivas, inscricao e frequencia representam rotina da academia.
   const classType = await prisma.classType.upsert({
     where: { academyId_name: { academyId: academy.id, name: 'Funcional' } },
     update: { description: 'Aula coletiva de condicionamento geral.', defaultCapacity: 20, status: ClassStatus.ACTIVE },
@@ -418,6 +436,7 @@ async function main() {
     },
   });
 
+  // Equipamento e manutencao cobrem a parte operacional da estrutura fisica.
   const treadmill = await prisma.equipment.upsert({
     where: { academyId_code: { academyId: academy.id, code: 'EQ-EST-001' } },
     update: {
@@ -454,6 +473,7 @@ async function main() {
     },
   });
 
+  // Metas, notificacoes e auditoria deixam a modelagem preparada para futuras entregas.
   await prisma.goal.upsert({
     where: { id: 'seed-goal-ana-strength' },
     update: {

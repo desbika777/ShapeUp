@@ -1,3 +1,4 @@
+// Formulario de treino: cria ou edita prescricoes vinculadas a alunos.
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
@@ -19,16 +20,19 @@ export function WorkoutFormPage() {
   const queryClient = useQueryClient();
   const { id } = useParams();
   const isEdit = Boolean(id);
+  // O mesmo componente atende cadastro e edicao conforme id da rota.
   const form = useForm<WorkoutInput>({
     resolver: zodResolver(workoutSchema),
     defaultValues: { studentId: '', title: '', objective: '', level: 'BEGINNER', notes: '', startDate: '', endDate: '' },
   });
 
+  // Alunos cadastrados alimentam o select de destino do treino.
   const { data: students } = useQuery({
     queryKey: ['students-options'],
     queryFn: () => apiRequest<PaginatedResponse<Student>>('/students?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
   });
 
+  // Em edicao, busca o treino atual para preencher os campos.
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['workout', id],
     queryFn: () => apiRequest<Workout>(`/workouts/${id}`, { method: 'GET' }, token ?? undefined),
@@ -36,17 +40,20 @@ export function WorkoutFormPage() {
   });
 
   useEffect(() => {
+    // Datas ISO vindas da API sao cortadas para o formato aceito pelo input date.
     if (data) {
       form.reset({ ...data, startDate: data.startDate.slice(0, 10), endDate: data.endDate.slice(0, 10) });
     }
   }, [data, form]);
 
+  // Envia POST para criar e PUT para atualizar.
   const mutation = useMutation({
     mutationFn: (values: WorkoutInput) => apiRequest<Workout>(isEdit ? `/workouts/${id}` : '/workouts', {
       method: isEdit ? 'PUT' : 'POST',
       body: JSON.stringify(values),
     }, token ?? undefined),
     onSuccess: async () => {
+      // Treinos afetam a lista e os indicadores do dashboard.
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['workouts'] }),
         queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
@@ -67,6 +74,7 @@ export function WorkoutFormPage() {
         onRetry={() => void refetch()}
         loadingFallback={<div className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel">Carregando treino...</div>}
       >
+        {/* Formulario validado pelo workoutSchema antes da chamada na API. */}
         <form
           className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel"
           onSubmit={form.handleSubmit(async (values) => {

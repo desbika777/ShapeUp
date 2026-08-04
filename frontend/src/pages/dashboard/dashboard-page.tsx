@@ -1,3 +1,4 @@
+// Pagina inicial autenticada: mostra indicadores e graficos da academia.
 import { useQuery } from '@tanstack/react-query';
 import { BarChart3, Sparkles } from 'lucide-react';
 import { PieChart, Pie, ResponsiveContainer, Cell, Tooltip, BarChart, Bar, CartesianGrid, XAxis, YAxis } from 'recharts';
@@ -13,6 +14,7 @@ import { formatDate, formatStudentStatus, formatWorkoutLevel } from '@/lib/forma
 const pieColors = ['#0f766e', '#14b8a6', '#7dd3fc', '#1d4ed8'];
 
 function DashboardSkeleton() {
+  // Mantem a estrutura visual enquanto os indicadores carregam.
   return (
     <div className="space-y-6">
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
@@ -39,11 +41,13 @@ function DashboardSkeleton() {
 
 export function DashboardPage() {
   const { token } = useAuth();
+  // Busca metricas consolidadas no backend com React Query.
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['dashboard', token],
     queryFn: () => apiRequest<DashboardMetrics>('/dashboard/metrics', { method: 'GET' }, token ?? undefined),
     enabled: Boolean(token),
   });
+  // Quando a conta ainda nao tem dados, exibimos um roteiro de primeiros passos.
   const isFirstAccess = Boolean(
     data
     && data.totals.students === 0
@@ -51,6 +55,7 @@ export function DashboardPage() {
     && data.totals.workouts === 0
     && data.recentStudents.length === 0,
   );
+  // Adiciona labels em portugues aos dados do grafico de treinos.
   const workoutsByLevel = (data?.workoutsByLevel ?? []).map((entry) => ({
     ...entry,
     label: formatWorkoutLevel(entry.level),
@@ -67,6 +72,7 @@ export function DashboardPage() {
         loadingFallback={<DashboardSkeleton />}
       >
         <>
+          {/* Bloco de onboarding para contas novas. */}
           {isFirstAccess ? (
             <div className="grid gap-6 rounded-[28px] border border-teal/15 bg-white p-6 shadow-panel lg:grid-cols-[1.2fr_0.8fr]">
               <div>
@@ -93,12 +99,14 @@ export function DashboardPage() {
             </div>
           ) : null}
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {/* Cards resumem os numeros mais importantes da operacao. */}
             <MetricCard label="Total de alunos" value={String(data?.totals.students ?? 0)} trend="Base ativa" />
             <MetricCard label="Planos ativos" value={String(data?.totals.activePlans ?? 0)} trend="Oferta vigente" />
             <MetricCard label="Treinos cadastrados" value={String(data?.totals.workouts ?? 0)} trend="Volume operacional" />
             <MetricCard label="Novos alunos no mes" value={String(data?.totals.newStudentsThisMonth ?? 0)} trend="Aquisicao recente" />
           </div>
           <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+            {/* Grafico de barras mostra distribuicao de alunos por plano. */}
             <div className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel">
               <div className="mb-4 flex items-center gap-3">
                 <BarChart3 className="text-teal" />
@@ -119,6 +127,7 @@ export function DashboardPage() {
                 </ResponsiveContainer>
               </div>
             </div>
+            {/* Grafico de pizza mostra distribuicao dos treinos por nivel. */}
             <div className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel">
               <h3 className="font-display text-2xl font-semibold text-slateblue">Treinos por nivel</h3>
               <p className="mt-1 text-sm text-slate-500">Equilibrio entre prescricao basica, intermediaria e avancada.</p>
@@ -134,6 +143,7 @@ export function DashboardPage() {
               </div>
             </div>
           </div>
+          {/* Lista curta ajuda a acompanhar os cadastros mais recentes. */}
           <div className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel">
             <h3 className="font-display text-2xl font-semibold text-slateblue">Alunos recentes</h3>
             <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-5">

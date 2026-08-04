@@ -1,3 +1,4 @@
+// Funcoes reutilizadas para validar dados sensiveis antes de gravar no banco.
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function isValidEmail(email: string) {
@@ -11,10 +12,12 @@ export function normalizeCpf(cpf: string) {
 export function isValidCpf(cpf: string) {
   const normalized = normalizeCpf(cpf);
 
+  // CPF com tamanho errado ou todos os digitos iguais nao passa na regra oficial.
   if (normalized.length !== 11 || /^([0-9])\1+$/.test(normalized)) {
     return false;
   }
 
+  // Primeiro digito verificador do CPF.
   let sum = 0;
   for (let index = 0; index < 9; index += 1) {
     sum += Number(normalized[index]) * (10 - index);
@@ -25,6 +28,7 @@ export function isValidCpf(cpf: string) {
     return false;
   }
 
+  // Segundo digito verificador do CPF.
   sum = 0;
   for (let index = 0; index < 10; index += 1) {
     sum += Number(normalized[index]) * (11 - index);

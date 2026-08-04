@@ -1,3 +1,4 @@
+// Pagina de treinos: lista prescricoes, filtra por nivel/aluno e exclui registros.
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { PaginatedResponse, Student, Workout, WorkoutLevel } from '@shapeup/shared';
 import { Link } from 'react-router-dom';
@@ -27,12 +28,14 @@ export function WorkoutsPage() {
   const [studentId, setStudentId] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<Workout | null>(null);
 
+  // Filtros unem busca textual, nivel e aluno selecionado.
   const filters = useMemo(() => ({
     search: deferredSearch.trim(),
     level: level === 'ALL' ? undefined : level,
     studentId: studentId || undefined,
   }), [deferredSearch, level, studentId]);
 
+  // Consulta a lista paginada de treinos.
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: ['workouts', page, pageSize, filters],
     queryFn: () => {
@@ -45,11 +48,13 @@ export function WorkoutsPage() {
     placeholderData: keepPreviousData,
   });
 
+  // Carrega alunos para o filtro de treino por aluno.
   const { data: studentsOptions } = useQuery({
     queryKey: ['students-options'],
     queryFn: () => apiRequest<PaginatedResponse<Student>>('/students?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
   });
 
+  // Exclui treino e atualiza a lista apos sucesso.
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiRequest<void>(`/workouts/${id}`, { method: 'DELETE' }, token ?? undefined),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['workouts'] }),
@@ -58,6 +63,7 @@ export function WorkoutsPage() {
   return (
     <div className="space-y-6">
       <PageHeader eyebrow="Treinos" title="Prescricao de treinos" description="Organize treinos por aluno, nivel, periodo e objetivo, com historico claro e operacao padronizada." action={<Link to="/workouts/new" className="rounded-full bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo treino</Link>} />
+      {/* Filtros ajudam a localizar treinos por objetivo, nivel ou aluno. */}
       <div className="grid gap-3 rounded-[28px] border border-white/70 bg-white p-4 shadow-panel md:grid-cols-[1.2fr_0.7fr_1.1fr]">
         <input
           value={search}
@@ -104,6 +110,7 @@ export function WorkoutsPage() {
         emptyFallback={<EmptyState title="Nenhum treino encontrado" description="Ajuste os filtros ou cadastre o primeiro treino para iniciar a prescricao estruturada." />}
       >
         <>
+          {/* Tabela resume aluno, nivel e periodo de cada treino. */}
           <DataTable columns={[
             { key: 'title', label: 'Treino' },
             { key: 'studentName', label: 'Aluno' },
@@ -122,6 +129,7 @@ export function WorkoutsPage() {
             },
           ]} rows={data?.data ?? []} />
           {data ? (
+            /* Paginacao mantem a navegacao entre prescricoes. */
             <Pagination
               page={data.meta.page}
               totalPages={data.meta.totalPages}
@@ -138,6 +146,7 @@ export function WorkoutsPage() {
         </>
       </QueryState>
 
+      {/* Confirmacao protege contra exclusao acidental de treino. */}
       <ConfirmModal
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => {

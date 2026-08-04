@@ -1,3 +1,4 @@
+// Pagina de login: autentica o gestor e inicia a sessao no painel.
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import type { UserLoginInput } from '@shapeup/shared';
@@ -23,6 +24,7 @@ export function LoginPage() {
   });
 
   async function onSubmit(values: LoginFormInput) {
+    // Se o login der certo, redireciona para a tela que o usuario tentou acessar.
     const { rememberAccess, ...credentials } = values;
 
     try {
@@ -35,6 +37,7 @@ export function LoginPage() {
 
   return (
     <AuthLayout>
+      {/* Formulario principal de acesso do gestor. */}
       <p className="text-xs font-semibold uppercase tracking-[0.32em] text-teal">Acesso seguro</p>
       <h2 className="mt-4 font-display text-4xl font-semibold text-slateblue">Entrar na central ShapeUp</h2>
       <p className="mt-3 text-sm text-slate-500">Use seu e-mail e senha para acessar o painel de gestao da academia.</p>

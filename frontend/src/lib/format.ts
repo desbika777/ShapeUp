@@ -1,3 +1,4 @@
+// Formatadores usados para mostrar dados tecnicos em formato brasileiro.
 import type { PlanStatus, StudentStatus, WorkoutLevel } from '@shapeup/shared';
 
 export function formatCurrency(value: number) {
@@ -12,6 +13,7 @@ export function formatDate(value: string) {
 }
 
 export function formatCpf(value: string) {
+  // Mantem apenas 11 digitos e aplica mascara visual de CPF.
   const digits = value.replace(/\D/g, '').slice(0, 11);
   return digits
     .replace(/(\d{3})(\d)/, '$1.$2')

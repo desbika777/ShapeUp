@@ -1,3 +1,5 @@
+// Contratos dos repositorios usados pelos services.
+// Eles separam regras de negocio da tecnologia de banco de dados.
 import type {
   AuthUser,
   PaginatedResponse,
@@ -39,10 +41,12 @@ export type WorkoutListParams = PaginationParams & {
   studentId?: string;
 };
 
+// Registro interno de usuario inclui passwordHash; esse campo nao vai para o frontend.
 export type UserRecord = AuthUser & {
   passwordHash: string;
 };
 
+// Token de recuperacao salvo como hash para nao expor o link original.
 export type PasswordResetTokenRecord = {
   id: string;
   userId: string;
@@ -52,6 +56,7 @@ export type PasswordResetTokenRecord = {
   createdAt: string;
 };
 
+// Operacoes necessarias para cadastro, login, perfil e recuperacao de senha.
 export interface IUserRepository {
   create(input: { name: string; email: string; passwordHash: string; cpf: string }): Promise<UserRecord>;
   findByEmail(email: string): Promise<UserRecord | null>;
@@ -64,6 +69,7 @@ export interface IUserRepository {
   deletePasswordResetTokensByUserId(userId: string): Promise<void>;
 }
 
+// Operacoes de persistencia para planos comerciais da academia.
 export interface IPlanRepository {
   list(params: PlanListParams): Promise<PaginatedResponse<Plan>>;
   create(ownerId: string, input: PlanInput): Promise<Plan>;
@@ -74,6 +80,7 @@ export interface IPlanRepository {
   countStudentsByPlan(ownerId: string): Promise<Array<{ name: string; students: number }>>;
 }
 
+// Operacoes de persistencia para alunos e indicadores relacionados.
 export interface IStudentRepository {
   list(params: StudentListParams): Promise<PaginatedResponse<Student>>;
   create(ownerId: string, input: StudentInput): Promise<Student>;
@@ -88,6 +95,7 @@ export interface IStudentRepository {
   findRecent(ownerId: string, limit: number): Promise<DashboardMetrics['recentStudents']>;
 }
 
+// Operacoes de persistencia para treinos e agrupamentos do dashboard.
 export interface IWorkoutRepository {
   list(params: WorkoutListParams): Promise<PaginatedResponse<Workout>>;
   create(ownerId: string, input: WorkoutInput): Promise<Workout>;

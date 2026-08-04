@@ -1,3 +1,4 @@
+// Pagina de planos: lista, filtra, pagina e exclui planos comerciais.
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { PaginatedResponse, Plan, PlanStatus } from '@shapeup/shared';
 import { Link } from 'react-router-dom';
@@ -26,11 +27,13 @@ export function PlansPage() {
   const [status, setStatus] = useState<PlanStatus | 'ALL'>('ALL');
   const [deleteTarget, setDeleteTarget] = useState<Plan | null>(null);
 
+  // Agrupa filtros para que a chave do React Query reflita a busca atual.
   const filters = useMemo(() => ({
     search: deferredSearch.trim(),
     status: status === 'ALL' ? undefined : status,
   }), [deferredSearch, status]);
 
+  // Consulta paginada de planos no backend.
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: ['plans', page, pageSize, filters],
     queryFn: () => {
@@ -42,6 +45,7 @@ export function PlansPage() {
     placeholderData: keepPreviousData,
   });
 
+  // Mutation de exclusao; ao concluir, recarrega a lista.
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiRequest<void>(`/plans/${id}`, { method: 'DELETE' }, token ?? undefined),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['plans'] }),
@@ -50,6 +54,7 @@ export function PlansPage() {
   return (
     <div className="space-y-6">
       <PageHeader eyebrow="Planos" title="Catalogo comercial da academia" description="Gerencie planos, duracao, ticket medio e status de venda com uma operacao organizada e escalavel." action={<Link to="/plans/new" className="rounded-full bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo plano</Link>} />
+      {/* Filtros de busca e status usados para reduzir a tabela. */}
       <div className="grid gap-3 rounded-[28px] border border-white/70 bg-white p-4 shadow-panel md:grid-cols-[1.4fr_0.6fr]">
         <input
           value={search}
@@ -84,6 +89,7 @@ export function PlansPage() {
         emptyFallback={<EmptyState title="Nenhum plano encontrado" description="Ajuste os filtros ou crie o primeiro plano comercial para comecar." />}
       >
         <>
+          {/* Tabela generica recebe as colunas especificas de planos. */}
           <DataTable
             columns={[
               { key: 'name', label: 'Plano' },
@@ -105,6 +111,7 @@ export function PlansPage() {
             rows={data?.data ?? []}
           />
           {data ? (
+            /* Paginacao permite controlar tamanho da pagina e navegar entre resultados. */
             <Pagination
               page={data.meta.page}
               totalPages={data.meta.totalPages}
@@ -121,6 +128,7 @@ export function PlansPage() {
         </>
       </QueryState>
 
+      {/* Modal evita exclusao acidental de plano. */}
       <ConfirmModal
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => {

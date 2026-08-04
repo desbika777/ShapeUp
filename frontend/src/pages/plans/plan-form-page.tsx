@@ -1,3 +1,4 @@
+// Formulario de plano: usado tanto para criar quanto para editar.
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
@@ -19,11 +20,13 @@ export function PlanFormPage() {
   const queryClient = useQueryClient();
   const { id } = useParams();
   const isEdit = Boolean(id);
+  // Um unico formulario atende cadastro e edicao; o id da URL define o modo.
   const form = useForm<PlanInput>({
     resolver: zodResolver(planSchema),
     defaultValues: { name: '', description: '', price: 0, durationMonths: 1, status: 'ACTIVE' },
   });
 
+  // Em modo edicao, carrega os dados atuais do plano.
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['plan', id],
     queryFn: () => apiRequest<Plan>(`/plans/${id}`, { method: 'GET' }, token ?? undefined),
@@ -31,11 +34,13 @@ export function PlanFormPage() {
   });
 
   useEffect(() => {
+    // Quando os dados chegam, preenche o formulario com os valores salvos.
     if (data) {
       form.reset(data);
     }
   }, [data, form]);
 
+  // Salva via POST no cadastro e via PUT na edicao.
   const mutation = useMutation({
     mutationFn: (values: PlanInput) =>
       apiRequest<Plan>(isEdit ? `/plans/${id}` : '/plans', {
@@ -43,6 +48,7 @@ export function PlanFormPage() {
         body: JSON.stringify(values),
       }, token ?? undefined),
     onSuccess: async () => {
+      // Atualiza caches que dependem de planos.
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['plans'] }),
         queryClient.invalidateQueries({ queryKey: ['plans-options'] }),
@@ -64,6 +70,7 @@ export function PlanFormPage() {
         onRetry={() => void refetch()}
         loadingFallback={<div className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel">Carregando plano...</div>}
       >
+        {/* Formulario validado pelo planSchema antes de enviar para a API. */}
         <form
           className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel"
           onSubmit={form.handleSubmit(async (values) => {

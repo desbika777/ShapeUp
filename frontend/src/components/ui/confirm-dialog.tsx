@@ -1,3 +1,4 @@
+// Alerta inline de confirmacao simples, mantido para reaproveitamento em fluxos menores.
 import { AlertTriangle } from 'lucide-react';
 
 type ConfirmDialogProps = {
