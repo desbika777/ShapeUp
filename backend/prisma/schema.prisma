@@ -7,86 +7,489 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Academy {
+  id             String          @id @default(cuid())
+  name           String
+  document       String          @unique
+  phone          String?
+  email          String?
+  status         AcademyStatus   @default(ACTIVE)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  users          User[]
+  staffMembers   StaffMember[]
+  students       Student[]
+  plans          Plan[]
+  paymentMethods PaymentMethod[]
+  exercises      Exercise[]
+  muscleGroups   MuscleGroup[]
+  classTypes     ClassType[]
+  equipments     Equipment[]
+  notifications  Notification[]
+  auditLogs      AuditLog[]
+}
+
 model User {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  passwordHash String
-  cpf          String   @unique
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                  String               @id @default(cuid())
+  academyId           String?
+  name                String
+  email               String               @unique
+  passwordHash        String
+  cpf                 String               @unique
+  status              UserStatus           @default(ACTIVE)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  academy             Academy?             @relation(fields: [academyId], references: [id], onDelete: SetNull)
   passwordResetTokens PasswordResetToken[]
-  plans        Plan[]
-  students     Student[]
-  workouts     Workout[]
+  roles               UserRole[]
+  staffMember         StaffMember?
+  plans               Plan[]
+  students            Student[]            @relation("StudentOwner")
+  workouts            Workout[]
+  notifications       Notification[]
+  auditLogs           AuditLog[]
+
+  @@index([academyId])
+}
+
+model Role {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  users       UserRole[]
+}
+
+model UserRole {
+  id        String   @id @default(cuid())
+  userId    String
+  roleId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@index([roleId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model StaffMember {
+  id                  String               @id @default(cuid())
+  academyId           String
+  userId              String?              @unique
+  name                String
+  email               String?
+  cpf                 String
+  phone               String?
+  position            String
+  status              StaffStatus          @default(ACTIVE)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  academy             Academy              @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  user                User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  workouts            Workout[]
+  physicalAssessments PhysicalAssessment[]
+  classSchedules      ClassSchedule[]
+
+  @@unique([academyId, cpf])
+  @@index([academyId])
 }
 
 model Plan {
-  id             String    @id @default(cuid())
+  id             String       @id @default(cuid())
+  academyId      String?
   ownerId        String
   name           String
   description    String
-  price          Decimal   @db.Decimal(10, 2)
+  price          Decimal      @db.Decimal(10, 2)
   durationMonths Int
   status         PlanStatus
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  owner          User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  academy        Academy?     @relation(fields: [academyId], references: [id], onDelete: SetNull)
+  owner          User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   students       Student[]
+  memberships    Membership[]
 
+  @@index([academyId])
   @@index([ownerId])
 }
 
 model Student {
-  id        String        @id @default(cuid())
-  ownerId   String
-  name      String
-  email     String
-  cpf       String
-  phone     String
-  birthDate DateTime
-  goal      String
-  status    StudentStatus
-  planId    String
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  owner     User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  plan      Plan          @relation(fields: [planId], references: [id], onDelete: Restrict)
-  workouts  Workout[]
+  id                  String               @id @default(cuid())
+  academyId           String?
+  ownerId             String
+  name                String
+  email               String
+  cpf                 String
+  phone               String
+  birthDate           DateTime
+  goal                String
+  status              StudentStatus
+  planId              String
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  academy             Academy?             @relation(fields: [academyId], references: [id], onDelete: SetNull)
+  owner               User                 @relation("StudentOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  plan                Plan                 @relation(fields: [planId], references: [id], onDelete: Restrict)
+  memberships         Membership[]
+  workouts            Workout[]
+  physicalAssessments PhysicalAssessment[]
+  attendanceRecords   AttendanceRecord[]
+  classEnrollments    ClassEnrollment[]
+  goals               Goal[]
 
   @@unique([ownerId, email])
   @@unique([ownerId, cpf])
+  @@index([academyId])
   @@index([ownerId])
   @@index([ownerId, planId])
 }
 
+model Membership {
+  id                 String           @id @default(cuid())
+  studentId          String
+  planId             String
+  startDate          DateTime
+  endDate            DateTime
+  status             MembershipStatus @default(ACTIVE)
+  cancellationReason String?
+  canceledAt         DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  student            Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  plan               Plan             @relation(fields: [planId], references: [id], onDelete: Restrict)
+  payments           Payment[]
+
+  @@index([studentId])
+  @@index([planId])
+  @@index([status])
+}
+
+model PaymentMethod {
+  id        String              @id @default(cuid())
+  academyId String
+  name      String
+  status    PaymentMethodStatus @default(ACTIVE)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  academy   Academy             @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  payments  Payment[]
+
+  @@unique([academyId, name])
+  @@index([academyId])
+}
+
+model Payment {
+  id              String         @id @default(cuid())
+  membershipId    String
+  paymentMethodId String?
+  amount          Decimal        @db.Decimal(10, 2)
+  dueDate         DateTime
+  paidAt          DateTime?
+  status          PaymentStatus  @default(PENDING)
+  notes           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  membership      Membership     @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  paymentMethod   PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
+
+  @@index([membershipId])
+  @@index([paymentMethodId])
+  @@index([status])
+  @@index([dueDate])
+}
+
 model Workout {
-  id        String       @id @default(cuid())
-  ownerId   String
-  studentId String
-  title     String
-  objective String
-  level     WorkoutLevel
-  notes     String
-  startDate DateTime
-  endDate   DateTime
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  owner     User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  student   Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  id               String            @id @default(cuid())
+  ownerId          String
+  studentId        String
+  staffMemberId    String?
+  title            String
+  objective        String
+  level            WorkoutLevel
+  notes            String
+  status           WorkoutStatus     @default(ACTIVE)
+  startDate        DateTime
+  endDate          DateTime
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  owner            User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  student          Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  staffMember      StaffMember?      @relation(fields: [staffMemberId], references: [id], onDelete: SetNull)
+  workoutExercises WorkoutExercise[]
 
   @@index([ownerId])
   @@index([ownerId, studentId])
+  @@index([staffMemberId])
+  @@index([status])
 }
 
-model PasswordResetToken {
+model Exercise {
+  id               String                @id @default(cuid())
+  academyId        String
+  name             String
+  description      String?
+  instructions     String?
+  status           ExerciseStatus        @default(ACTIVE)
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  academy          Academy               @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  muscleGroups     ExerciseMuscleGroup[]
+  workoutExercises WorkoutExercise[]
+
+  @@unique([academyId, name])
+  @@index([academyId])
+}
+
+model MuscleGroup {
+  id        String                @id @default(cuid())
+  academyId String
+  name      String
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+  academy   Academy               @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  exercises ExerciseMuscleGroup[]
+
+  @@unique([academyId, name])
+  @@index([academyId])
+}
+
+model ExerciseMuscleGroup {
+  id            String      @id @default(cuid())
+  exerciseId    String
+  muscleGroupId String
+  exercise      Exercise    @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  muscleGroup   MuscleGroup @relation(fields: [muscleGroupId], references: [id], onDelete: Cascade)
+
+  @@unique([exerciseId, muscleGroupId])
+  @@index([muscleGroupId])
+}
+
+model WorkoutExercise {
+  id          String   @id @default(cuid())
+  workoutId   String
+  exerciseId  String
+  sortOrder   Int
+  sets        Int?
+  repetitions String?
+  load        Decimal? @db.Decimal(8, 2)
+  restSeconds Int?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  workout     Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercise    Exercise @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+
+  @@unique([workoutId, exerciseId, sortOrder])
+  @@index([exerciseId])
+}
+
+model PhysicalAssessment {
+  id                String            @id @default(cuid())
+  studentId         String
+  staffMemberId     String?
+  assessmentDate    DateTime
+  weight            Decimal?          @db.Decimal(5, 2)
+  height            Decimal?          @db.Decimal(5, 2)
+  bodyFatPercentage Decimal?          @db.Decimal(5, 2)
+  notes             String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  student           Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  staffMember       StaffMember?      @relation(fields: [staffMemberId], references: [id], onDelete: SetNull)
+  measurements      BodyMeasurement[]
+
+  @@index([studentId])
+  @@index([staffMemberId])
+  @@index([assessmentDate])
+}
+
+model BodyMeasurement {
+  id           String             @id @default(cuid())
+  assessmentId String
+  bodyPart     String
+  value        Decimal            @db.Decimal(6, 2)
+  unit         String
+  createdAt    DateTime           @default(now())
+  assessment   PhysicalAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@index([assessmentId])
+}
+
+model AttendanceRecord {
+  id              String           @id @default(cuid())
+  studentId       String
+  classScheduleId String?
+  checkInAt       DateTime
+  source          AttendanceSource @default(MANUAL)
+  createdAt       DateTime         @default(now())
+  student         Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  classSchedule   ClassSchedule?   @relation(fields: [classScheduleId], references: [id], onDelete: SetNull)
+
+  @@index([studentId])
+  @@index([classScheduleId])
+  @@index([checkInAt])
+}
+
+model ClassType {
+  id              String          @id @default(cuid())
+  academyId       String
+  name            String
+  description     String?
+  defaultCapacity Int?
+  status          ClassStatus     @default(ACTIVE)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  academy         Academy         @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  schedules       ClassSchedule[]
+
+  @@unique([academyId, name])
+  @@index([academyId])
+}
+
+model ClassSchedule {
+  id                String              @id @default(cuid())
+  classTypeId       String
+  staffMemberId     String?
+  startsAt          DateTime
+  endsAt            DateTime
+  capacity          Int?
+  status            ClassScheduleStatus @default(SCHEDULED)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  classType         ClassType           @relation(fields: [classTypeId], references: [id], onDelete: Cascade)
+  staffMember       StaffMember?        @relation(fields: [staffMemberId], references: [id], onDelete: SetNull)
+  enrollments       ClassEnrollment[]
+  attendanceRecords AttendanceRecord[]
+
+  @@index([classTypeId])
+  @@index([staffMemberId])
+  @@index([startsAt])
+}
+
+model ClassEnrollment {
+  id              String           @id @default(cuid())
+  classScheduleId String
+  studentId       String
+  status          EnrollmentStatus @default(ENROLLED)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  classSchedule   ClassSchedule    @relation(fields: [classScheduleId], references: [id], onDelete: Cascade)
+  student         Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([classScheduleId, studentId])
+  @@index([studentId])
+}
+
+model Equipment {
+  id           String                 @id @default(cuid())
+  academyId    String
+  name         String
+  code         String
+  status       EquipmentStatus        @default(ACTIVE)
+  acquiredAt   DateTime?
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  academy      Academy                @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  maintenances EquipmentMaintenance[]
+
+  @@unique([academyId, code])
+  @@index([academyId])
+  @@index([status])
+}
+
+model EquipmentMaintenance {
+  id          String            @id @default(cuid())
+  equipmentId String
+  description String
+  scheduledAt DateTime
+  completedAt DateTime?
+  status      MaintenanceStatus @default(SCHEDULED)
+  cost        Decimal?          @db.Decimal(10, 2)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  equipment   Equipment         @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+
+  @@index([equipmentId])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+model Goal {
+  id          String     @id @default(cuid())
+  studentId   String
+  title       String
+  description String?
+  targetDate  DateTime?
+  status      GoalStatus @default(ACTIVE)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  student     Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([status])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  academyId String
+  userId    String?
+  title     String
+  message   String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  academy   Academy   @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([academyId])
+  @@index([userId])
+  @@index([readAt])
+}
+
+model AuditLog {
   id        String   @id @default(cuid())
-  userId     String
-  tokenHash  String   @unique
-  expiresAt  DateTime
-  usedAt     DateTime?
-  createdAt  DateTime @default(now())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  academyId String
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  academy   Academy  @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([academyId])
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+enum AcademyStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum StaffStatus {
+  ACTIVE
+  INACTIVE
 }
 
 enum PlanStatus {
@@ -99,8 +502,80 @@ enum StudentStatus {
   INACTIVE
 }
 
+enum MembershipStatus {
+  ACTIVE
+  EXPIRED
+  CANCELED
+}
+
+enum PaymentMethodStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELED
+}
+
 enum WorkoutLevel {
   BEGINNER
   INTERMEDIATE
   ADVANCED
+}
+
+enum WorkoutStatus {
+  ACTIVE
+  INACTIVE
+  COMPLETED
+}
+
+enum ExerciseStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum AttendanceSource {
+  MANUAL
+  CLASS
+  CHECK_IN
+}
+
+enum ClassStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ClassScheduleStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELED
+}
+
+enum EnrollmentStatus {
+  ENROLLED
+  CANCELED
+  ATTENDED
+  MISSED
+}
+
+enum EquipmentStatus {
+  ACTIVE
+  MAINTENANCE
+  INACTIVE
+}
+
+enum MaintenanceStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+}
+
+enum GoalStatus {
+  ACTIVE
+  ACHIEVED
+  CANCELED
 }

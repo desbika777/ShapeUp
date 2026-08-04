@@ -204,6 +204,10 @@ Progresso atual:
 - regras de negocio iniciais documentadas;
 - proposta de DER com 27 tabelas criada;
 - dicionario de dados resumido criado.
+- schema Prisma expandido para 27 tabelas de aplicacao;
+- migration `20260804010935_expand_shape_model` criada e aplicada localmente;
+- seed expandido para popular os principais modulos da nova modelagem;
+- banco local validado com a nova estrutura.
 
 Documento principal:
 
@@ -503,5 +507,6 @@ Documentos ja criados:
 Proxima acao:
 
 - revisar DER e backlog com a dupla;
-- decidir quais tabelas entram na primeira migration;
-- iniciar atualizacao do `schema.prisma`.
+- abrir Pull Request da branch atual quando os commits estiverem no GitHub;
+- alinhar merge para `dev`;
+- criar branch de funcionalidade para endpoints e telas de matriculas/pagamentos.

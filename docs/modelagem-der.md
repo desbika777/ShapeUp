@@ -606,11 +606,20 @@ Nova estrutura importante:
 
 ## Proximo Passo
 
-Antes de alterar o Prisma, a dupla deve revisar:
+Status de implementacao:
+
+- A modelagem foi implementada no `backend/prisma/schema.prisma`.
+- A migration `20260804010935_expand_shape_model` foi criada.
+- O seed foi expandido para popular dados dos principais modulos.
+- O banco local foi validado com 27 tabelas de aplicacao e a tabela `_prisma_migrations`.
+
+Observacao tecnica:
+A implementacao no Prisma preserva os modelos legados `User`, `Plan`, `Student`, `Workout` e `PasswordResetToken` para manter compatibilidade com os CRUDs ja existentes. As novas tabelas foram adicionadas de forma incremental ao redor dessa base.
+
+Antes de evoluir a interface para os novos modulos, a dupla deve revisar:
 
 - se as 27 tabelas fazem sentido para o escopo;
-- quais tabelas entram no primeiro MVP;
 - quais relacionamentos precisam ser obrigatorios ou opcionais;
-- quais nomes finais serao usados no codigo.
+- quais modulos novos entram primeiro na interface.
 
-Depois da revisao, o proximo passo tecnico sera criar a primeira versao do novo `schema.prisma`.
+Depois da revisao, o proximo passo tecnico sera criar os primeiros endpoints/telas para matriculas e pagamentos.
