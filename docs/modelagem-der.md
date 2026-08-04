@@ -37,35 +37,38 @@ Para a nova versao Shape, a modelagem sera ampliada para representar uma academi
 
 A proposta inicial possui 27 tabelas.
 
+Decisao de nomenclatura:
+As tabelas fisicas do banco foram traduzidas para PT-BR para deixar o projeto mais natural para a equipe e para a banca. Os nomes internos dos modelos Prisma foram preservados em ingles por estabilidade tecnica, evitando quebrar os CRUDs ja existentes enquanto a interface evolui.
+
 | Numero | Tabela | Modulo | Prioridade | Finalidade |
 | --- | --- | --- | --- | --- |
-| 1 | academies | Gestao da Academia | MVP | Representa a academia que utiliza o sistema. |
-| 2 | users | Usuarios | MVP | Armazena usuarios que acessam o sistema. |
-| 3 | roles | Usuarios | P1 | Define perfis de acesso, como admin, professor e recepcao. |
-| 4 | user_roles | Usuarios | P1 | Relaciona usuarios com seus perfis. |
-| 5 | password_reset_tokens | Usuarios | MVP | Controla tokens de recuperacao de senha. |
-| 6 | staff_members | Equipe | P1 | Armazena professores e funcionarios da academia. |
-| 7 | students | Alunos | MVP | Armazena alunos da academia. |
-| 8 | membership_plans | Planos | MVP | Representa planos vendidos pela academia. |
-| 9 | memberships | Matriculas | MVP | Vincula alunos a planos contratados. |
-| 10 | payment_methods | Financeiro | P1 | Armazena formas de pagamento aceitas. |
-| 11 | payments | Financeiro | MVP | Registra pagamentos de matriculas. |
-| 12 | workouts | Treinos | MVP | Armazena treinos dos alunos. |
-| 13 | exercises | Exercicios | P1 | Catalogo de exercicios da academia. |
-| 14 | muscle_groups | Exercicios | P1 | Catalogo de grupos musculares. |
-| 15 | exercise_muscle_groups | Exercicios | P1 | Relaciona exercicios e grupos musculares. |
-| 16 | workout_exercises | Treinos | P1 | Define exercicios dentro de cada treino. |
-| 17 | physical_assessments | Avaliacoes | P1 | Registra avaliacoes fisicas dos alunos. |
-| 18 | body_measurements | Avaliacoes | P1 | Registra medidas corporais de cada avaliacao. |
-| 19 | attendance_records | Frequencia | P1 | Registra presenca dos alunos. |
-| 20 | class_types | Aulas | P1 | Define tipos de aulas coletivas, como spinning ou funcional. |
-| 21 | class_schedules | Aulas | P1 | Registra horarios/turmas de aulas coletivas. |
-| 22 | class_enrollments | Aulas | P1 | Registra inscricoes de alunos em aulas. |
-| 23 | equipments | Equipamentos | P1 | Armazena equipamentos da academia. |
-| 24 | equipment_maintenances | Equipamentos | P1 | Registra manutencoes dos equipamentos. |
-| 25 | goals | Alunos | P2 | Registra metas de alunos. |
-| 26 | notifications | Comunicacao | P2 | Registra notificacoes internas. |
-| 27 | audit_logs | Auditoria | P2 | Registra eventos relevantes para rastreabilidade. |
+| 1 | academias | Gestao da Academia | MVP | Representa a academia que utiliza o sistema. |
+| 2 | usuarios | Usuarios | MVP | Armazena usuarios que acessam o sistema. |
+| 3 | perfis | Usuarios | P1 | Define perfis de acesso, como admin, professor e recepcao. |
+| 4 | usuario_perfis | Usuarios | P1 | Relaciona usuarios com seus perfis. |
+| 5 | tokens_recuperacao_senha | Usuarios | MVP | Controla tokens de recuperacao de senha. |
+| 6 | funcionarios | Equipe | P1 | Armazena professores e funcionarios da academia. |
+| 7 | alunos | Alunos | MVP | Armazena alunos da academia. |
+| 8 | planos | Planos | MVP | Representa planos vendidos pela academia. |
+| 9 | matriculas | Matriculas | MVP | Vincula alunos a planos contratados. |
+| 10 | formas_pagamento | Financeiro | P1 | Armazena formas de pagamento aceitas. |
+| 11 | pagamentos | Financeiro | MVP | Registra pagamentos de matriculas. |
+| 12 | treinos | Treinos | MVP | Armazena treinos dos alunos. |
+| 13 | exercicios | Exercicios | P1 | Catalogo de exercicios da academia. |
+| 14 | grupos_musculares | Exercicios | P1 | Catalogo de grupos musculares. |
+| 15 | exercicio_grupos_musculares | Exercicios | P1 | Relaciona exercicios e grupos musculares. |
+| 16 | treino_exercicios | Treinos | P1 | Define exercicios dentro de cada treino. |
+| 17 | avaliacoes_fisicas | Avaliacoes | P1 | Registra avaliacoes fisicas dos alunos. |
+| 18 | medidas_corporais | Avaliacoes | P1 | Registra medidas corporais de cada avaliacao. |
+| 19 | registros_frequencia | Frequencia | P1 | Registra presenca dos alunos. |
+| 20 | tipos_aula | Aulas | P1 | Define tipos de aulas coletivas, como spinning ou funcional. |
+| 21 | horarios_aula | Aulas | P1 | Registra horarios/turmas de aulas coletivas. |
+| 22 | inscricoes_aula | Aulas | P1 | Registra inscricoes de alunos em aulas. |
+| 23 | equipamentos | Equipamentos | P1 | Armazena equipamentos da academia. |
+| 24 | manutencoes_equipamentos | Equipamentos | P1 | Registra manutencoes dos equipamentos. |
+| 25 | metas | Alunos | P2 | Registra metas de alunos. |
+| 26 | notificacoes | Comunicacao | P2 | Registra notificacoes internas. |
+| 27 | logs_auditoria | Auditoria | P2 | Registra eventos relevantes para rastreabilidade. |
 
 ## Tabelas Prioritarias Para o MVP
 
@@ -610,11 +613,12 @@ Status de implementacao:
 
 - A modelagem foi implementada no `backend/prisma/schema.prisma`.
 - A migration `20260804010935_expand_shape_model` foi criada.
+- A migration `20260804223000_traduzir_tabelas_ptbr` traduziu os nomes fisicos das tabelas para PT-BR.
 - O seed foi expandido para popular dados dos principais modulos.
 - O banco local foi validado com 27 tabelas de aplicacao e a tabela `_prisma_migrations`.
 
 Observacao tecnica:
-A implementacao no Prisma preserva os modelos legados `User`, `Plan`, `Student`, `Workout` e `PasswordResetToken` para manter compatibilidade com os CRUDs ja existentes. As novas tabelas foram adicionadas de forma incremental ao redor dessa base.
+A implementacao no Prisma preserva os modelos legados `User`, `Plan`, `Student`, `Workout` e `PasswordResetToken` para manter compatibilidade com os CRUDs ja existentes. As tabelas fisicas usam nomes em PT-BR por meio de `@@map`, enquanto os modelos internos continuam estaveis para o codigo atual.
 
 Antes de evoluir a interface para os novos modulos, a dupla deve revisar:
 

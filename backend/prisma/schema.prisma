@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// Tabela principal da academia cadastrada no sistema.
 model Academy {
   id             String          @id @default(cuid())
   name           String
@@ -27,8 +28,11 @@ model Academy {
   equipments     Equipment[]
   notifications  Notification[]
   auditLogs      AuditLog[]
+
+  @@map("academias")
 }
 
+/// Tabela de usuarios que acessam o Shape.
 model User {
   id                  String               @id @default(cuid())
   academyId           String?
@@ -50,8 +54,10 @@ model User {
   auditLogs           AuditLog[]
 
   @@index([academyId])
+  @@map("usuarios")
 }
 
+/// Tabela de perfis de acesso, como administrador e professor.
 model Role {
   id          String     @id @default(cuid())
   name        String     @unique
@@ -59,8 +65,11 @@ model Role {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   users       UserRole[]
+
+  @@map("perfis")
 }
 
+/// Tabela de ligacao entre usuarios e perfis.
 model UserRole {
   id        String   @id @default(cuid())
   userId    String
@@ -71,8 +80,10 @@ model UserRole {
 
   @@unique([userId, roleId])
   @@index([roleId])
+  @@map("usuario_perfis")
 }
 
+/// Tabela de tokens para recuperacao de senha.
 model PasswordResetToken {
   id        String    @id @default(cuid())
   userId    String
@@ -83,8 +94,10 @@ model PasswordResetToken {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@map("tokens_recuperacao_senha")
 }
 
+/// Tabela de funcionarios e professores da academia.
 model StaffMember {
   id                  String               @id @default(cuid())
   academyId           String
@@ -105,8 +118,10 @@ model StaffMember {
 
   @@unique([academyId, cpf])
   @@index([academyId])
+  @@map("funcionarios")
 }
 
+/// Tabela de planos oferecidos pela academia.
 model Plan {
   id             String       @id @default(cuid())
   academyId      String?
@@ -125,8 +140,10 @@ model Plan {
 
   @@index([academyId])
   @@index([ownerId])
+  @@map("planos")
 }
 
+/// Tabela de alunos matriculados na academia.
 model Student {
   id                  String               @id @default(cuid())
   academyId           String?
@@ -156,8 +173,10 @@ model Student {
   @@index([academyId])
   @@index([ownerId])
   @@index([ownerId, planId])
+  @@map("alunos")
 }
 
+/// Tabela de matriculas que vinculam alunos aos planos.
 model Membership {
   id                 String           @id @default(cuid())
   studentId          String
@@ -176,8 +195,10 @@ model Membership {
   @@index([studentId])
   @@index([planId])
   @@index([status])
+  @@map("matriculas")
 }
 
+/// Tabela de formas de pagamento aceitas pela academia.
 model PaymentMethod {
   id        String              @id @default(cuid())
   academyId String
@@ -190,8 +211,10 @@ model PaymentMethod {
 
   @@unique([academyId, name])
   @@index([academyId])
+  @@map("formas_pagamento")
 }
 
+/// Tabela de pagamentos vinculados as matriculas.
 model Payment {
   id              String         @id @default(cuid())
   membershipId    String
@@ -210,8 +233,10 @@ model Payment {
   @@index([paymentMethodId])
   @@index([status])
   @@index([dueDate])
+  @@map("pagamentos")
 }
 
+/// Tabela de treinos criados para os alunos.
 model Workout {
   id               String            @id @default(cuid())
   ownerId          String
@@ -235,8 +260,10 @@ model Workout {
   @@index([ownerId, studentId])
   @@index([staffMemberId])
   @@index([status])
+  @@map("treinos")
 }
 
+/// Tabela de exercicios cadastrados no catalogo da academia.
 model Exercise {
   id               String                @id @default(cuid())
   academyId        String
@@ -252,8 +279,10 @@ model Exercise {
 
   @@unique([academyId, name])
   @@index([academyId])
+  @@map("exercicios")
 }
 
+/// Tabela de grupos musculares utilizados nos exercicios.
 model MuscleGroup {
   id        String                @id @default(cuid())
   academyId String
@@ -265,8 +294,10 @@ model MuscleGroup {
 
   @@unique([academyId, name])
   @@index([academyId])
+  @@map("grupos_musculares")
 }
 
+/// Tabela de ligacao entre exercicios e grupos musculares.
 model ExerciseMuscleGroup {
   id            String      @id @default(cuid())
   exerciseId    String
@@ -276,8 +307,10 @@ model ExerciseMuscleGroup {
 
   @@unique([exerciseId, muscleGroupId])
   @@index([muscleGroupId])
+  @@map("exercicio_grupos_musculares")
 }
 
+/// Tabela de exercicios que compoem cada treino.
 model WorkoutExercise {
   id          String   @id @default(cuid())
   workoutId   String
@@ -295,8 +328,10 @@ model WorkoutExercise {
 
   @@unique([workoutId, exerciseId, sortOrder])
   @@index([exerciseId])
+  @@map("treino_exercicios")
 }
 
+/// Tabela de avaliacoes fisicas dos alunos.
 model PhysicalAssessment {
   id                String            @id @default(cuid())
   studentId         String
@@ -315,8 +350,10 @@ model PhysicalAssessment {
   @@index([studentId])
   @@index([staffMemberId])
   @@index([assessmentDate])
+  @@map("avaliacoes_fisicas")
 }
 
+/// Tabela de medidas corporais coletadas em avaliacoes fisicas.
 model BodyMeasurement {
   id           String             @id @default(cuid())
   assessmentId String
@@ -327,8 +364,10 @@ model BodyMeasurement {
   assessment   PhysicalAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
 
   @@index([assessmentId])
+  @@map("medidas_corporais")
 }
 
+/// Tabela de registros de frequencia dos alunos.
 model AttendanceRecord {
   id              String           @id @default(cuid())
   studentId       String
@@ -342,8 +381,10 @@ model AttendanceRecord {
   @@index([studentId])
   @@index([classScheduleId])
   @@index([checkInAt])
+  @@map("registros_frequencia")
 }
 
+/// Tabela de tipos de aula oferecidos pela academia.
 model ClassType {
   id              String          @id @default(cuid())
   academyId       String
@@ -358,8 +399,10 @@ model ClassType {
 
   @@unique([academyId, name])
   @@index([academyId])
+  @@map("tipos_aula")
 }
 
+/// Tabela de horarios e turmas de aulas coletivas.
 model ClassSchedule {
   id                String              @id @default(cuid())
   classTypeId       String
@@ -378,8 +421,10 @@ model ClassSchedule {
   @@index([classTypeId])
   @@index([staffMemberId])
   @@index([startsAt])
+  @@map("horarios_aula")
 }
 
+/// Tabela de inscricoes de alunos em aulas.
 model ClassEnrollment {
   id              String           @id @default(cuid())
   classScheduleId String
@@ -392,8 +437,10 @@ model ClassEnrollment {
 
   @@unique([classScheduleId, studentId])
   @@index([studentId])
+  @@map("inscricoes_aula")
 }
 
+/// Tabela de equipamentos da academia.
 model Equipment {
   id           String                 @id @default(cuid())
   academyId    String
@@ -409,8 +456,10 @@ model Equipment {
   @@unique([academyId, code])
   @@index([academyId])
   @@index([status])
+  @@map("equipamentos")
 }
 
+/// Tabela de manutencoes realizadas ou planejadas nos equipamentos.
 model EquipmentMaintenance {
   id          String            @id @default(cuid())
   equipmentId String
@@ -426,8 +475,10 @@ model EquipmentMaintenance {
   @@index([equipmentId])
   @@index([status])
   @@index([scheduledAt])
+  @@map("manutencoes_equipamentos")
 }
 
+/// Tabela de metas definidas para os alunos.
 model Goal {
   id          String     @id @default(cuid())
   studentId   String
@@ -441,8 +492,10 @@ model Goal {
 
   @@index([studentId])
   @@index([status])
+  @@map("metas")
 }
 
+/// Tabela de notificacoes internas para usuarios.
 model Notification {
   id        String    @id @default(cuid())
   academyId String
@@ -457,8 +510,10 @@ model Notification {
   @@index([academyId])
   @@index([userId])
   @@index([readAt])
+  @@map("notificacoes")
 }
 
+/// Tabela de auditoria para registrar acoes importantes.
 model AuditLog {
   id        String   @id @default(cuid())
   academyId String
@@ -475,6 +530,7 @@ model AuditLog {
   @@index([userId])
   @@index([entity, entityId])
   @@index([createdAt])
+  @@map("logs_auditoria")
 }
 
 enum AcademyStatus {

@@ -206,6 +206,9 @@ Progresso atual:
 - dicionario de dados resumido criado.
 - schema Prisma expandido para 27 tabelas de aplicacao;
 - migration `20260804010935_expand_shape_model` criada e aplicada localmente;
+- migration `20260804223000_traduzir_tabelas_ptbr` criada e aplicada localmente;
+- tabelas fisicas do banco traduzidas para PT-BR;
+- comentarios em portugues adicionados ao schema Prisma para explicar cada tabela;
 - seed expandido para popular os principais modulos da nova modelagem;
 - banco local validado com a nova estrutura.
 
