@@ -7,7 +7,7 @@ export default defineConfig({
     timeout: 10_000,
   },
   use: {
-    baseURL: process.env.E2E_BASE_URL ?? 'http://127.0.0.1:5173',
+    baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:5173',
     headless: true,
     ignoreHTTPSErrors: true,
     launchOptions: {
@@ -15,4 +15,20 @@ export default defineConfig({
     },
     trace: 'retain-on-failure',
   },
+  webServer: [
+    {
+      command: 'npm run dev',
+      cwd: '../backend',
+      url: 'http://127.0.0.1:3333/health',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+    {
+      command: 'npm run dev -- --host 127.0.0.1',
+      cwd: '.',
+      url: 'http://localhost:5173',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+  ],
 });
