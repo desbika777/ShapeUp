@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { PrismaClient, PlanStatus, StudentStatus, WorkoutLevel } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
@@ -39,10 +40,11 @@ async function main() {
   });
 
   const student = await prisma.student.upsert({
-    where: { ownerId_email: { ownerId: admin.id, email: 'ana.silva@shapeup.com' } },
+    where: { ownerId_cpf: { ownerId: admin.id, cpf: '39053344705' } },
     update: {
       ownerId: admin.id,
       name: 'Ana Silva',
+      email: 'ana.silva@shapeup.com',
       cpf: '39053344705',
       phone: '11987654321',
       birthDate: new Date('1997-07-15'),
