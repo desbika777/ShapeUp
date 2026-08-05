@@ -39,7 +39,6 @@ Alguns termos podem continuar em ingles porque sao convencoes tecnicas:
 - `node_modules`, `package.json`, `tsconfig`, `vite`, `eslint`;
 - nomes de bibliotecas;
 - scripts do npm;
-- models, campos e enums internos do Prisma quando o nome fisico da tabela ja esta mapeado em PT-BR com `@@map`;
 - metodos tecnicos comuns como `login`, `register`, `build`, `test`, `request` e `response`.
 
 Justificativa:
@@ -66,6 +65,18 @@ Alterar tudo de uma vez poderia gerar risco alto e pouco ganho. A leitura do rep
 | Marca visual `ShapeUp` | Marca visual `Shape` |
 | `admin@shapeup.com` | `admin@shape.com.br` |
 | Senha seed `ShapeUp@123` | Senha seed `Shape@123` |
+| `model Academy` | `model Academia` |
+| `model User` | `model Usuario` |
+| `model Plan` | `model Plano` |
+| `model Student` | `model Aluno` |
+| `model Workout` | `model Treino` |
+| `PlanStatus`, `StudentStatus`, `WorkoutLevel` | `StatusPlano`, `StatusAluno`, `NivelTreino` |
+| `ACTIVE`, `INACTIVE` | `ATIVO`, `INATIVO` |
+| `BEGINNER`, `INTERMEDIATE`, `ADVANCED` | `INICIANTE`, `INTERMEDIARIO`, `AVANCADO` |
+| `Plan`, `Student`, `Workout` | `Plano`, `Aluno`, `Treino` |
+| `IPlanRepository`, `IStudentRepository`, `IWorkoutRepository` | `IRepositorioPlano`, `IRepositorioAluno`, `IRepositorioTreino` |
+| `PrismaPlanRepository`, `PrismaStudentRepository`, `PrismaWorkoutRepository` | `RepositorioPrismaPlano`, `RepositorioPrismaAluno`, `RepositorioPrismaTreino` |
+| `PlanService`, `StudentService`, `WorkoutService` | `ServicoPlano`, `ServicoAluno`, `ServicoTreino` |
 
 ## Arquivos de Pagina Traduzidos
 
@@ -78,13 +89,12 @@ Alterar tudo de uma vez poderia gerar risco alto e pouco ganho. A leitura do rep
 | Alunos | `frontend/src/pages/alunos` |
 | Treinos | `frontend/src/pages/treinos` |
 
-## Proximos Candidatos a Traducao
+## Proximos Candidatos a Revisao
 
 Quando a base estiver estavel, podemos traduzir com mais calma:
 
-- tipos compartilhados como `Plan`, `Student`, `Workout`;
-- nomes de controllers e services;
-- nomes de campos internos do Prisma, caso a avaliacao peca uma traducao ainda mais profunda.
+- nomes de arquivos herdados, como `plan-service.ts` e `student-controller.ts`;
+- nomes de alguns campos internos herdados, como `ownerId`, `createdAt` e `updatedAt`, caso a avaliacao peca uma traducao ainda mais profunda.
 
 Essas alteracoes devem ser feitas em branches pequenas, com testes passando a cada etapa.
 

@@ -8,75 +8,75 @@ datasource db {
 }
 
 /// Tabela principal da academia cadastrada no sistema.
-model Academy {
-  id             String          @id @default(cuid())
-  name           String
-  document       String          @unique
-  phone          String?
-  email          String?
-  status         AcademyStatus   @default(ACTIVE)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  users          User[]
-  staffMembers   StaffMember[]
-  students       Student[]
-  plans          Plan[]
-  paymentMethods PaymentMethod[]
-  exercises      Exercise[]
-  muscleGroups   MuscleGroup[]
-  classTypes     ClassType[]
-  equipments     Equipment[]
-  notifications  Notification[]
-  auditLogs      AuditLog[]
+model Academia {
+  id               String           @id @default(cuid())
+  name             String
+  document         String           @unique
+  phone            String?
+  email            String?
+  status           StatusAcademia   @default(ATIVO)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  usuarios         Usuario[]
+  funcionarios     Funcionario[]
+  alunos           Aluno[]
+  planos           Plano[]
+  formasPagamento  FormaPagamento[]
+  exercicios       Exercicio[]
+  gruposMusculares GrupoMuscular[]
+  tiposAula        TipoAula[]
+  equipamentos     Equipamento[]
+  notificacoes     Notificacao[]
+  logsAuditoria    LogAuditoria[]
 
   @@map("academias")
 }
 
 /// Tabela de usuarios que acessam o Shape.
-model User {
-  id                  String               @id @default(cuid())
-  academyId           String?
-  name                String
-  email               String               @unique
-  passwordHash        String
-  cpf                 String               @unique
-  status              UserStatus           @default(ACTIVE)
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  academy             Academy?             @relation(fields: [academyId], references: [id], onDelete: SetNull)
-  passwordResetTokens PasswordResetToken[]
-  roles               UserRole[]
-  staffMember         StaffMember?
-  plans               Plan[]
-  students            Student[]            @relation("StudentOwner")
-  workouts            Workout[]
-  notifications       Notification[]
-  auditLogs           AuditLog[]
+model Usuario {
+  id                     String                  @id @default(cuid())
+  academyId              String?
+  name                   String
+  email                  String                  @unique
+  passwordHash           String
+  cpf                    String                  @unique
+  status                 StatusUsuario           @default(ATIVO)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  academia               Academia?               @relation(fields: [academyId], references: [id], onDelete: SetNull)
+  tokensRecuperacaoSenha TokenRecuperacaoSenha[]
+  perfis                 UsuarioPerfil[]
+  funcionario            Funcionario?
+  planos                 Plano[]
+  alunos                 Aluno[]                 @relation("AlunoResponsavel")
+  treinos                Treino[]
+  notificacoes           Notificacao[]
+  logsAuditoria          LogAuditoria[]
 
   @@index([academyId])
   @@map("usuarios")
 }
 
 /// Tabela de perfis de acesso, como administrador e professor.
-model Role {
-  id          String     @id @default(cuid())
-  name        String     @unique
+model Perfil {
+  id          String          @id @default(cuid())
+  name        String          @unique
   description String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  users       UserRole[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  usuarios    UsuarioPerfil[]
 
   @@map("perfis")
 }
 
 /// Tabela de ligacao entre usuarios e perfis.
-model UserRole {
+model UsuarioPerfil {
   id        String   @id @default(cuid())
   userId    String
   roleId    String
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  usuario   Usuario  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  perfil    Perfil   @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@unique([userId, roleId])
   @@index([roleId])
@@ -84,37 +84,37 @@ model UserRole {
 }
 
 /// Tabela de tokens para recuperacao de senha.
-model PasswordResetToken {
+model TokenRecuperacaoSenha {
   id        String    @id @default(cuid())
   userId    String
   tokenHash String    @unique
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  usuario   Usuario   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("tokens_recuperacao_senha")
 }
 
 /// Tabela de funcionarios e professores da academia.
-model StaffMember {
-  id                  String               @id @default(cuid())
-  academyId           String
-  userId              String?              @unique
-  name                String
-  email               String?
-  cpf                 String
-  phone               String?
-  position            String
-  status              StaffStatus          @default(ACTIVE)
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  academy             Academy              @relation(fields: [academyId], references: [id], onDelete: Cascade)
-  user                User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
-  workouts            Workout[]
-  physicalAssessments PhysicalAssessment[]
-  classSchedules      ClassSchedule[]
+model Funcionario {
+  id                String            @id @default(cuid())
+  academyId         String
+  userId            String?           @unique
+  name              String
+  email             String?
+  cpf               String
+  phone             String?
+  position          String
+  status            StatusFuncionario @default(ATIVO)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  academia          Academia          @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  usuario           Usuario?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  treinos           Treino[]
+  avaliacoesFisicas AvaliacaoFisica[]
+  horariosAula      HorarioAula[]
 
   @@unique([academyId, cpf])
   @@index([academyId])
@@ -122,21 +122,21 @@ model StaffMember {
 }
 
 /// Tabela de planos oferecidos pela academia.
-model Plan {
-  id             String       @id @default(cuid())
+model Plano {
+  id             String      @id @default(cuid())
   academyId      String?
   ownerId        String
   name           String
   description    String
-  price          Decimal      @db.Decimal(10, 2)
+  price          Decimal     @db.Decimal(10, 2)
   durationMonths Int
-  status         PlanStatus
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  academy        Academy?     @relation(fields: [academyId], references: [id], onDelete: SetNull)
-  owner          User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  students       Student[]
-  memberships    Membership[]
+  status         StatusPlano
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  academia       Academia?   @relation(fields: [academyId], references: [id], onDelete: SetNull)
+  responsavel    Usuario     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  alunos         Aluno[]
+  matriculas     Matricula[]
 
   @@index([academyId])
   @@index([ownerId])
@@ -144,7 +144,7 @@ model Plan {
 }
 
 /// Tabela de alunos matriculados na academia.
-model Student {
+model Aluno {
   id                  String               @id @default(cuid())
   academyId           String?
   ownerId             String
@@ -154,19 +154,19 @@ model Student {
   phone               String
   birthDate           DateTime
   goal                String
-  status              StudentStatus
+  status              StatusAluno
   planId              String
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
-  academy             Academy?             @relation(fields: [academyId], references: [id], onDelete: SetNull)
-  owner               User                 @relation("StudentOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  plan                Plan                 @relation(fields: [planId], references: [id], onDelete: Restrict)
-  memberships         Membership[]
-  workouts            Workout[]
-  physicalAssessments PhysicalAssessment[]
-  attendanceRecords   AttendanceRecord[]
-  classEnrollments    ClassEnrollment[]
-  goals               Goal[]
+  academia            Academia?            @relation(fields: [academyId], references: [id], onDelete: SetNull)
+  responsavel         Usuario              @relation("AlunoResponsavel", fields: [ownerId], references: [id], onDelete: Cascade)
+  plano               Plano                @relation(fields: [planId], references: [id], onDelete: Restrict)
+  matriculas          Matricula[]
+  treinos             Treino[]
+  avaliacoesFisicas   AvaliacaoFisica[]
+  registrosFrequencia RegistroFrequencia[]
+  inscricoesAula      InscricaoAula[]
+  metas               Meta[]
 
   @@unique([ownerId, email])
   @@unique([ownerId, cpf])
@@ -177,20 +177,20 @@ model Student {
 }
 
 /// Tabela de matriculas que vinculam alunos aos planos.
-model Membership {
-  id                 String           @id @default(cuid())
+model Matricula {
+  id                 String          @id @default(cuid())
   studentId          String
   planId             String
   startDate          DateTime
   endDate            DateTime
-  status             MembershipStatus @default(ACTIVE)
+  status             StatusMatricula @default(ATIVO)
   cancellationReason String?
   canceledAt         DateTime?
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-  student            Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  plan               Plan             @relation(fields: [planId], references: [id], onDelete: Restrict)
-  payments           Payment[]
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  aluno              Aluno           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  plano              Plano           @relation(fields: [planId], references: [id], onDelete: Restrict)
+  pagamentos         Pagamento[]
 
   @@index([studentId])
   @@index([planId])
@@ -199,15 +199,15 @@ model Membership {
 }
 
 /// Tabela de formas de pagamento aceitas pela academia.
-model PaymentMethod {
-  id        String              @id @default(cuid())
-  academyId String
-  name      String
-  status    PaymentMethodStatus @default(ACTIVE)
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
-  academy   Academy             @relation(fields: [academyId], references: [id], onDelete: Cascade)
-  payments  Payment[]
+model FormaPagamento {
+  id         String               @id @default(cuid())
+  academyId  String
+  name       String
+  status     StatusFormaPagamento @default(ATIVO)
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+  academia   Academia             @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  pagamentos Pagamento[]
 
   @@unique([academyId, name])
   @@index([academyId])
@@ -215,19 +215,19 @@ model PaymentMethod {
 }
 
 /// Tabela de pagamentos vinculados as matriculas.
-model Payment {
-  id              String         @id @default(cuid())
+model Pagamento {
+  id              String          @id @default(cuid())
   membershipId    String
   paymentMethodId String?
-  amount          Decimal        @db.Decimal(10, 2)
+  amount          Decimal         @db.Decimal(10, 2)
   dueDate         DateTime
   paidAt          DateTime?
-  status          PaymentStatus  @default(PENDING)
+  status          StatusPagamento @default(PENDENTE)
   notes           String?
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  membership      Membership     @relation(fields: [membershipId], references: [id], onDelete: Cascade)
-  paymentMethod   PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  matricula       Matricula       @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  formaPagamento  FormaPagamento? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
 
   @@index([membershipId])
   @@index([paymentMethodId])
@@ -237,24 +237,24 @@ model Payment {
 }
 
 /// Tabela de treinos criados para os alunos.
-model Workout {
+model Treino {
   id               String            @id @default(cuid())
   ownerId          String
   studentId        String
   staffMemberId    String?
   title            String
   objective        String
-  level            WorkoutLevel
+  level            NivelTreino
   notes            String
-  status           WorkoutStatus     @default(ACTIVE)
+  status           StatusTreino      @default(ATIVO)
   startDate        DateTime
   endDate          DateTime
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
-  owner            User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  student          Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  staffMember      StaffMember?      @relation(fields: [staffMemberId], references: [id], onDelete: SetNull)
-  workoutExercises WorkoutExercise[]
+  responsavel      Usuario           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  aluno            Aluno             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  funcionario      Funcionario?      @relation(fields: [staffMemberId], references: [id], onDelete: SetNull)
+  treinoExercicios TreinoExercicio[]
 
   @@index([ownerId])
   @@index([ownerId, studentId])
@@ -264,18 +264,18 @@ model Workout {
 }
 
 /// Tabela de exercicios cadastrados no catalogo da academia.
-model Exercise {
-  id               String                @id @default(cuid())
+model Exercicio {
+  id               String                   @id @default(cuid())
   academyId        String
   name             String
   description      String?
   instructions     String?
-  status           ExerciseStatus        @default(ACTIVE)
-  createdAt        DateTime              @default(now())
-  updatedAt        DateTime              @updatedAt
-  academy          Academy               @relation(fields: [academyId], references: [id], onDelete: Cascade)
-  muscleGroups     ExerciseMuscleGroup[]
-  workoutExercises WorkoutExercise[]
+  status           StatusExercicio          @default(ATIVO)
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  academia         Academia                 @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  gruposMusculares ExercicioGrupoMuscular[]
+  treinoExercicios TreinoExercicio[]
 
   @@unique([academyId, name])
   @@index([academyId])
@@ -283,14 +283,14 @@ model Exercise {
 }
 
 /// Tabela de grupos musculares utilizados nos exercicios.
-model MuscleGroup {
-  id        String                @id @default(cuid())
-  academyId String
-  name      String
-  createdAt DateTime              @default(now())
-  updatedAt DateTime              @updatedAt
-  academy   Academy               @relation(fields: [academyId], references: [id], onDelete: Cascade)
-  exercises ExerciseMuscleGroup[]
+model GrupoMuscular {
+  id         String                   @id @default(cuid())
+  academyId  String
+  name       String
+  createdAt  DateTime                 @default(now())
+  updatedAt  DateTime                 @updatedAt
+  academia   Academia                 @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  exercicios ExercicioGrupoMuscular[]
 
   @@unique([academyId, name])
   @@index([academyId])
@@ -298,12 +298,12 @@ model MuscleGroup {
 }
 
 /// Tabela de ligacao entre exercicios e grupos musculares.
-model ExerciseMuscleGroup {
-  id            String      @id @default(cuid())
+model ExercicioGrupoMuscular {
+  id            String        @id @default(cuid())
   exerciseId    String
   muscleGroupId String
-  exercise      Exercise    @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
-  muscleGroup   MuscleGroup @relation(fields: [muscleGroupId], references: [id], onDelete: Cascade)
+  exercicio     Exercicio     @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  grupoMuscular GrupoMuscular @relation(fields: [muscleGroupId], references: [id], onDelete: Cascade)
 
   @@unique([exerciseId, muscleGroupId])
   @@index([muscleGroupId])
@@ -311,20 +311,20 @@ model ExerciseMuscleGroup {
 }
 
 /// Tabela de exercicios que compoem cada treino.
-model WorkoutExercise {
-  id          String   @id @default(cuid())
+model TreinoExercicio {
+  id          String    @id @default(cuid())
   workoutId   String
   exerciseId  String
   sortOrder   Int
   sets        Int?
   repetitions String?
-  load        Decimal? @db.Decimal(8, 2)
+  load        Decimal?  @db.Decimal(8, 2)
   restSeconds Int?
   notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  workout     Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-  exercise    Exercise @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  treino      Treino    @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercicio   Exercicio @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
 
   @@unique([workoutId, exerciseId, sortOrder])
   @@index([exerciseId])
@@ -332,20 +332,20 @@ model WorkoutExercise {
 }
 
 /// Tabela de avaliacoes fisicas dos alunos.
-model PhysicalAssessment {
-  id                String            @id @default(cuid())
+model AvaliacaoFisica {
+  id                String           @id @default(cuid())
   studentId         String
   staffMemberId     String?
   assessmentDate    DateTime
-  weight            Decimal?          @db.Decimal(5, 2)
-  height            Decimal?          @db.Decimal(5, 2)
-  bodyFatPercentage Decimal?          @db.Decimal(5, 2)
+  weight            Decimal?         @db.Decimal(5, 2)
+  height            Decimal?         @db.Decimal(5, 2)
+  bodyFatPercentage Decimal?         @db.Decimal(5, 2)
   notes             String?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  student           Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  staffMember       StaffMember?      @relation(fields: [staffMemberId], references: [id], onDelete: SetNull)
-  measurements      BodyMeasurement[]
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  aluno             Aluno            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  funcionario       Funcionario?     @relation(fields: [staffMemberId], references: [id], onDelete: SetNull)
+  medidas           MedidaCorporal[]
 
   @@index([studentId])
   @@index([staffMemberId])
@@ -354,29 +354,29 @@ model PhysicalAssessment {
 }
 
 /// Tabela de medidas corporais coletadas em avaliacoes fisicas.
-model BodyMeasurement {
-  id           String             @id @default(cuid())
+model MedidaCorporal {
+  id           String          @id @default(cuid())
   assessmentId String
   bodyPart     String
-  value        Decimal            @db.Decimal(6, 2)
+  value        Decimal         @db.Decimal(6, 2)
   unit         String
-  createdAt    DateTime           @default(now())
-  assessment   PhysicalAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  createdAt    DateTime        @default(now())
+  avaliacao    AvaliacaoFisica @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
 
   @@index([assessmentId])
   @@map("medidas_corporais")
 }
 
 /// Tabela de registros de frequencia dos alunos.
-model AttendanceRecord {
+model RegistroFrequencia {
   id              String           @id @default(cuid())
   studentId       String
   classScheduleId String?
   checkInAt       DateTime
-  source          AttendanceSource @default(MANUAL)
+  source          OrigemFrequencia @default(MANUAL)
   createdAt       DateTime         @default(now())
-  student         Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  classSchedule   ClassSchedule?   @relation(fields: [classScheduleId], references: [id], onDelete: SetNull)
+  aluno           Aluno            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  horarioAula     HorarioAula?     @relation(fields: [classScheduleId], references: [id], onDelete: SetNull)
 
   @@index([studentId])
   @@index([classScheduleId])
@@ -385,17 +385,17 @@ model AttendanceRecord {
 }
 
 /// Tabela de tipos de aula oferecidos pela academia.
-model ClassType {
-  id              String          @id @default(cuid())
+model TipoAula {
+  id              String        @id @default(cuid())
   academyId       String
   name            String
   description     String?
   defaultCapacity Int?
-  status          ClassStatus     @default(ACTIVE)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  academy         Academy         @relation(fields: [academyId], references: [id], onDelete: Cascade)
-  schedules       ClassSchedule[]
+  status          StatusAula    @default(ATIVO)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  academia        Academia      @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  horarios        HorarioAula[]
 
   @@unique([academyId, name])
   @@index([academyId])
@@ -403,20 +403,20 @@ model ClassType {
 }
 
 /// Tabela de horarios e turmas de aulas coletivas.
-model ClassSchedule {
-  id                String              @id @default(cuid())
-  classTypeId       String
-  staffMemberId     String?
-  startsAt          DateTime
-  endsAt            DateTime
-  capacity          Int?
-  status            ClassScheduleStatus @default(SCHEDULED)
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  classType         ClassType           @relation(fields: [classTypeId], references: [id], onDelete: Cascade)
-  staffMember       StaffMember?        @relation(fields: [staffMemberId], references: [id], onDelete: SetNull)
-  enrollments       ClassEnrollment[]
-  attendanceRecords AttendanceRecord[]
+model HorarioAula {
+  id                  String               @id @default(cuid())
+  classTypeId         String
+  staffMemberId       String?
+  startsAt            DateTime
+  endsAt              DateTime
+  capacity            Int?
+  status              StatusHorarioAula    @default(AGENDADO)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  tipoAula            TipoAula             @relation(fields: [classTypeId], references: [id], onDelete: Cascade)
+  funcionario         Funcionario?         @relation(fields: [staffMemberId], references: [id], onDelete: SetNull)
+  inscricoes          InscricaoAula[]
+  registrosFrequencia RegistroFrequencia[]
 
   @@index([classTypeId])
   @@index([staffMemberId])
@@ -425,15 +425,15 @@ model ClassSchedule {
 }
 
 /// Tabela de inscricoes de alunos em aulas.
-model ClassEnrollment {
-  id              String           @id @default(cuid())
+model InscricaoAula {
+  id              String          @id @default(cuid())
   classScheduleId String
   studentId       String
-  status          EnrollmentStatus @default(ENROLLED)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  classSchedule   ClassSchedule    @relation(fields: [classScheduleId], references: [id], onDelete: Cascade)
-  student         Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  status          StatusInscricao @default(INSCRITO)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  horarioAula     HorarioAula     @relation(fields: [classScheduleId], references: [id], onDelete: Cascade)
+  aluno           Aluno           @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([classScheduleId, studentId])
   @@index([studentId])
@@ -441,17 +441,17 @@ model ClassEnrollment {
 }
 
 /// Tabela de equipamentos da academia.
-model Equipment {
-  id           String                 @id @default(cuid())
-  academyId    String
-  name         String
-  code         String
-  status       EquipmentStatus        @default(ACTIVE)
-  acquiredAt   DateTime?
-  createdAt    DateTime               @default(now())
-  updatedAt    DateTime               @updatedAt
-  academy      Academy                @relation(fields: [academyId], references: [id], onDelete: Cascade)
-  maintenances EquipmentMaintenance[]
+model Equipamento {
+  id          String                  @id @default(cuid())
+  academyId   String
+  name        String
+  code        String
+  status      StatusEquipamento       @default(ATIVO)
+  acquiredAt  DateTime?
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+  academia    Academia                @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  manutencoes ManutencaoEquipamento[]
 
   @@unique([academyId, code])
   @@index([academyId])
@@ -460,17 +460,17 @@ model Equipment {
 }
 
 /// Tabela de manutencoes realizadas ou planejadas nos equipamentos.
-model EquipmentMaintenance {
-  id          String            @id @default(cuid())
+model ManutencaoEquipamento {
+  id          String           @id @default(cuid())
   equipmentId String
   description String
   scheduledAt DateTime
   completedAt DateTime?
-  status      MaintenanceStatus @default(SCHEDULED)
-  cost        Decimal?          @db.Decimal(10, 2)
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  equipment   Equipment         @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  status      StatusManutencao @default(AGENDADO)
+  cost        Decimal?         @db.Decimal(10, 2)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  equipamento Equipamento      @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
 
   @@index([equipmentId])
   @@index([status])
@@ -479,16 +479,16 @@ model EquipmentMaintenance {
 }
 
 /// Tabela de metas definidas para os alunos.
-model Goal {
+model Meta {
   id          String     @id @default(cuid())
   studentId   String
   title       String
   description String?
   targetDate  DateTime?
-  status      GoalStatus @default(ACTIVE)
+  status      StatusMeta @default(ATIVO)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  student     Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  aluno       Aluno      @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId])
   @@index([status])
@@ -496,7 +496,7 @@ model Goal {
 }
 
 /// Tabela de notificacoes internas para usuarios.
-model Notification {
+model Notificacao {
   id        String    @id @default(cuid())
   academyId String
   userId    String?
@@ -504,8 +504,8 @@ model Notification {
   message   String
   readAt    DateTime?
   createdAt DateTime  @default(now())
-  academy   Academy   @relation(fields: [academyId], references: [id], onDelete: Cascade)
-  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  academia  Academia  @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  usuario   Usuario?  @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([academyId])
   @@index([userId])
@@ -514,7 +514,7 @@ model Notification {
 }
 
 /// Tabela de auditoria para registrar acoes importantes.
-model AuditLog {
+model LogAuditoria {
   id        String   @id @default(cuid())
   academyId String
   userId    String?
@@ -523,8 +523,8 @@ model AuditLog {
   entityId  String?
   metadata  Json?
   createdAt DateTime @default(now())
-  academy   Academy  @relation(fields: [academyId], references: [id], onDelete: Cascade)
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  academia  Academia @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  usuario   Usuario? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([academyId])
   @@index([userId])
@@ -533,105 +533,105 @@ model AuditLog {
   @@map("logs_auditoria")
 }
 
-enum AcademyStatus {
-  ACTIVE
-  INACTIVE
+enum StatusAcademia {
+  ATIVO
+  INATIVO
 }
 
-enum UserStatus {
-  ACTIVE
-  INACTIVE
+enum StatusUsuario {
+  ATIVO
+  INATIVO
 }
 
-enum StaffStatus {
-  ACTIVE
-  INACTIVE
+enum StatusFuncionario {
+  ATIVO
+  INATIVO
 }
 
-enum PlanStatus {
-  ACTIVE
-  INACTIVE
+enum StatusPlano {
+  ATIVO
+  INATIVO
 }
 
-enum StudentStatus {
-  ACTIVE
-  INACTIVE
+enum StatusAluno {
+  ATIVO
+  INATIVO
 }
 
-enum MembershipStatus {
-  ACTIVE
-  EXPIRED
-  CANCELED
+enum StatusMatricula {
+  ATIVO
+  EXPIRADO
+  CANCELADO
 }
 
-enum PaymentMethodStatus {
-  ACTIVE
-  INACTIVE
+enum StatusFormaPagamento {
+  ATIVO
+  INATIVO
 }
 
-enum PaymentStatus {
-  PENDING
-  PAID
-  OVERDUE
-  CANCELED
+enum StatusPagamento {
+  PENDENTE
+  PAGO
+  ATRASADO
+  CANCELADO
 }
 
-enum WorkoutLevel {
-  BEGINNER
-  INTERMEDIATE
-  ADVANCED
+enum NivelTreino {
+  INICIANTE
+  INTERMEDIARIO
+  AVANCADO
 }
 
-enum WorkoutStatus {
-  ACTIVE
-  INACTIVE
-  COMPLETED
+enum StatusTreino {
+  ATIVO
+  INATIVO
+  CONCLUIDO
 }
 
-enum ExerciseStatus {
-  ACTIVE
-  INACTIVE
+enum StatusExercicio {
+  ATIVO
+  INATIVO
 }
 
-enum AttendanceSource {
+enum OrigemFrequencia {
   MANUAL
-  CLASS
-  CHECK_IN
+  AULA
+  ENTRADA
 }
 
-enum ClassStatus {
-  ACTIVE
-  INACTIVE
+enum StatusAula {
+  ATIVO
+  INATIVO
 }
 
-enum ClassScheduleStatus {
-  SCHEDULED
-  COMPLETED
-  CANCELED
+enum StatusHorarioAula {
+  AGENDADO
+  CONCLUIDO
+  CANCELADO
 }
 
-enum EnrollmentStatus {
-  ENROLLED
-  CANCELED
-  ATTENDED
-  MISSED
+enum StatusInscricao {
+  INSCRITO
+  CANCELADO
+  PRESENTE
+  AUSENTE
 }
 
-enum EquipmentStatus {
-  ACTIVE
-  MAINTENANCE
-  INACTIVE
+enum StatusEquipamento {
+  ATIVO
+  MANUTENCAO
+  INATIVO
 }
 
-enum MaintenanceStatus {
-  SCHEDULED
-  IN_PROGRESS
-  COMPLETED
-  CANCELED
+enum StatusManutencao {
+  AGENDADO
+  EM_ANDAMENTO
+  CONCLUIDO
+  CANCELADO
 }
 
-enum GoalStatus {
-  ACTIVE
-  ACHIEVED
-  CANCELED
+enum StatusMeta {
+  ATIVO
+  ALCANCADO
+  CANCELADO
 }

@@ -1,6 +1,6 @@
 // Pagina de planos: lista, filtra, pagina e exclui planos comerciais.
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { PaginatedResponse, Plan, PlanStatus } from '@shape/shared';
+import type { RespostaPaginada, Plano, StatusPlano } from '@shape/shared';
 import { Link } from 'react-router-dom';
 import { useDeferredValue, useMemo, useState } from 'react';
 import { DataTable } from '@/components/ui/data-table';
@@ -13,7 +13,7 @@ import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useToast } from '@/components/ui/toast';
 import { useAuth } from '@/hooks/use-auth';
 import { apiRequest } from '@/lib/api';
-import { formatCurrency, formatPlanStatus } from '@/lib/format';
+import { formatCurrency, formatarStatusPlano } from '@/lib/format';
 
 export function PlanosPage() {
   const { token } = useAuth();
@@ -24,8 +24,8 @@ export function PlanosPage() {
   const [pageSize, setPageSize] = useState(6);
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
-  const [status, setStatus] = useState<PlanStatus | 'ALL'>('ALL');
-  const [deleteTarget, setDeleteTarget] = useState<Plan | null>(null);
+  const [status, setStatus] = useState<StatusPlano | 'ALL'>('ALL');
+  const [deleteTarget, setDeleteTarget] = useState<Plano | null>(null);
 
   // Agrupa filtros para que a chave do React Query reflita a busca atual.
   const filters = useMemo(() => ({
@@ -40,7 +40,7 @@ export function PlanosPage() {
       const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
       if (filters.search) params.set('search', filters.search);
       if (filters.status) params.set('status', filters.status);
-      return apiRequest<PaginatedResponse<Plan>>(`/planos?${params.toString()}`, { method: 'GET' }, token ?? undefined);
+      return apiRequest<RespostaPaginada<Plano>>(`/planos?${params.toString()}`, { method: 'GET' }, token ?? undefined);
     },
     placeholderData: keepPreviousData,
   });
@@ -68,14 +68,14 @@ export function PlanosPage() {
         <select
           value={status}
           onChange={(event) => {
-            setStatus(event.target.value as PlanStatus | 'ALL');
+            setStatus(event.target.value as StatusPlano | 'ALL');
             setPage(1);
           }}
           className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slateblue"
         >
           <option value="ALL">Status (todos)</option>
-          <option value="ACTIVE">Ativos</option>
-          <option value="INACTIVE">Inativos</option>
+          <option value="ATIVO">Ativos</option>
+          <option value="INATIVO">Inativos</option>
         </select>
       </div>
 
@@ -96,7 +96,7 @@ export function PlanosPage() {
               { key: 'description', label: 'Descricao' },
               { key: 'price', label: 'Valor', render: (row) => formatCurrency(row.price) },
               { key: 'durationMonths', label: 'Duracao', render: (row) => `${row.durationMonths} meses` },
-              { key: 'status', label: 'Status', render: (row) => formatPlanStatus(row.status) },
+              { key: 'status', label: 'Status', render: (row) => formatarStatusPlano(row.status) },
               {
                 key: 'actions',
                 label: 'Acoes',

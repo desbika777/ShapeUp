@@ -2,14 +2,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { BarChart3, Sparkles } from 'lucide-react';
 import { PieChart, Pie, ResponsiveContainer, Cell, Tooltip, BarChart, Bar, CartesianGrid, XAxis, YAxis } from 'recharts';
-import type { DashboardMetrics } from '@shape/shared';
+import type { IndicadoresPainel } from '@shape/shared';
 import { Link } from 'react-router-dom';
 import { MetricCard } from '@/components/ui/metric-card';
 import { PageHeader } from '@/components/ui/page-header';
 import { QueryState } from '@/components/ui/query-state';
 import { useAuth } from '@/hooks/use-auth';
 import { apiRequest } from '@/lib/api';
-import { formatDate, formatStudentStatus, formatWorkoutLevel } from '@/lib/format';
+import { formatDate, formatarStatusAluno, formatarNivelTreino } from '@/lib/format';
 
 const pieColors = ['#0f766e', '#14b8a6', '#7dd3fc', '#1d4ed8'];
 
@@ -44,7 +44,7 @@ export function PainelPage() {
   // Busca metricas consolidadas no backend com React Query.
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['dashboard', token],
-    queryFn: () => apiRequest<DashboardMetrics>('/painel/indicadores', { method: 'GET' }, token ?? undefined),
+    queryFn: () => apiRequest<IndicadoresPainel>('/painel/indicadores', { method: 'GET' }, token ?? undefined),
     enabled: Boolean(token),
   });
   // Quando a conta ainda nao tem dados, exibimos um roteiro de primeiros passos.
@@ -58,7 +58,7 @@ export function PainelPage() {
   // Adiciona labels em portugues aos dados do grafico de treinos.
   const workoutsByLevel = (data?.workoutsByLevel ?? []).map((entry) => ({
     ...entry,
-    label: formatWorkoutLevel(entry.level),
+    label: formatarNivelTreino(entry.level),
   }));
 
   return (
@@ -152,7 +152,7 @@ export function PainelPage() {
                   <p className="font-semibold text-slateblue">{student.name}</p>
                   <p className="mt-2 text-sm text-slate-500">{student.goal}</p>
                   <div className="mt-4 flex items-center justify-between text-xs uppercase tracking-[0.18em] text-teal">
-                    <span>{formatStudentStatus(student.status)}</span>
+                    <span>{formatarStatusAluno(student.status)}</span>
                     <span>{formatDate(student.createdAt)}</span>
                   </div>
                 </div>

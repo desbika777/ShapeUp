@@ -1,6 +1,6 @@
-// Controller de autenticacao: recebe requisicoes HTTP e aciona o AuthService.
+// Controlador de autenticacao: recebe requisicoes HTTP e aciona o ServicoAutenticacao.
 import type { Request, Response } from 'express';
-import { AuthService } from '../services/auth-service.js';
+import { ServicoAutenticacao } from '../services/auth-service.js';
 import {
   forgotPasswordSchema,
   loginSchema,
@@ -8,10 +8,10 @@ import {
   resetPasswordSchema,
   updateUserSchema,
 } from '../services/schemas.js';
-import type { AuthenticatedRequest } from '../middlewares/auth-middleware.js';
+import type { RequisicaoAutenticada } from '../middlewares/auth-middleware.js';
 
-export class AuthController {
-  constructor(private readonly service: AuthService) {}
+export class ControladorAutenticacao {
+  constructor(private readonly service: ServicoAutenticacao) {}
 
   // Cadastro cria o gestor e ja retorna token para entrar no sistema.
   register = async (request: Request, response: Response) => {
@@ -42,13 +42,13 @@ export class AuthController {
   };
 
   // Retorna os dados do usuario dono do token.
-  me = async (request: AuthenticatedRequest, response: Response) => {
+  me = async (request: RequisicaoAutenticada, response: Response) => {
     const result = await this.service.getCurrentUser(request.userId ?? '');
     return response.status(200).json(result);
   };
 
   // Atualiza dados do perfil e permite troca de senha com senha atual.
-  update = async (request: AuthenticatedRequest, response: Response) => {
+  update = async (request: RequisicaoAutenticada, response: Response) => {
     const payload = updateUserSchema.parse(request.body);
     const result = await this.service.updateProfile(request.userId ?? '', payload);
     return response.status(200).json(result);

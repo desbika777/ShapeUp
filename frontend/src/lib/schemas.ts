@@ -121,7 +121,7 @@ export const planSchema = z.object({
   description: z.string().min(10, 'A descricao precisa ter pelo menos 10 caracteres.'),
   price: z.number().positive('Informe um valor valido.'),
   durationMonths: z.number().int().positive('Informe a duracao em meses.'),
-  status: z.enum(['ACTIVE', 'INACTIVE']),
+  status: z.enum(['ATIVO', 'INATIVO']),
 });
 
 // Aluno precisa de dados pessoais, objetivo e plano vinculado.
@@ -132,7 +132,7 @@ export const studentSchema = z.object({
   phone: z.string().min(8, 'Informe um telefone valido.'),
   birthDate: z.string().min(1, 'Informe a data de nascimento.'),
   goal: z.string().min(5, 'Informe o objetivo do aluno.'),
-  status: z.enum(['ACTIVE', 'INACTIVE']),
+  status: z.enum(['ATIVO', 'INATIVO']),
   planId: z.string().min(1, 'Selecione um plano.'),
 });
 
@@ -141,7 +141,7 @@ export const workoutSchema = z.object({
   studentId: z.string().min(1, 'Selecione um aluno.'),
   title: z.string().min(3, 'Informe o titulo do treino.'),
   objective: z.string().min(5, 'Informe o objetivo do treino.'),
-  level: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED']),
+  level: z.enum(['INICIANTE', 'INTERMEDIARIO', 'AVANCADO']),
   notes: z.string().min(5, 'Descreva observacoes importantes.'),
   startDate: z.string().min(1, 'Informe a data inicial.'),
   endDate: z.string().min(1, 'Informe a data final.'),

@@ -3,11 +3,11 @@ import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
 
-export type AuthenticatedRequest = Request & {
+export type RequisicaoAutenticada = Request & {
   userId?: string;
 };
 
-export function authMiddleware(request: AuthenticatedRequest, response: Response, next: NextFunction) {
+export function middlewareAutenticacao(request: RequisicaoAutenticada, response: Response, next: NextFunction) {
   const authorization = request.headers.authorization;
 
   // Sem cabecalho Authorization, a requisicao nao pode acessar dados privados.

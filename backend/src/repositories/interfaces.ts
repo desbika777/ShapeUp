@@ -1,53 +1,53 @@
 // Contratos dos repositorios usados pelos services.
 // Eles separam regras de negocio da tecnologia de banco de dados.
 import type {
-  AuthUser,
-  PaginatedResponse,
-  Plan,
-  PlanInput,
-  PlanStatus,
-  Student,
-  StudentInput,
-  StudentStatus,
-  Workout,
-  WorkoutInput,
-  WorkoutLevel,
-  DashboardMetrics,
+  UsuarioAutenticado,
+  RespostaPaginada,
+  Plano,
+  EntradaPlano,
+  StatusPlano,
+  Aluno,
+  EntradaAluno,
+  StatusAluno,
+  Treino,
+  EntradaTreino,
+  NivelTreino,
+  IndicadoresPainel,
 } from '@shape/shared';
 
-export type PaginationParams = {
+export type ParametrosPaginacao = {
   page: number;
   pageSize: number;
   skip: number;
 };
 
-export type PlanListParams = PaginationParams & {
+export type ParametrosListagemPlanos = ParametrosPaginacao & {
   ownerId: string;
   search?: string;
-  status?: PlanStatus;
+  status?: StatusPlano;
 };
 
-export type StudentListParams = PaginationParams & {
+export type ParametrosListagemAlunos = ParametrosPaginacao & {
   ownerId: string;
   search?: string;
-  status?: StudentStatus;
+  status?: StatusAluno;
   planId?: string;
 };
 
-export type WorkoutListParams = PaginationParams & {
+export type ParametrosListagemTreinos = ParametrosPaginacao & {
   ownerId: string;
   search?: string;
-  level?: WorkoutLevel;
+  level?: NivelTreino;
   studentId?: string;
 };
 
 // Registro interno de usuario inclui passwordHash; esse campo nao vai para o frontend.
-export type UserRecord = AuthUser & {
+export type RegistroUsuario = UsuarioAutenticado & {
   passwordHash: string;
 };
 
 // Token de recuperacao salvo como hash para nao expor o link original.
-export type PasswordResetTokenRecord = {
+export type RegistroTokenRecuperacaoSenha = {
   id: string;
   userId: string;
   tokenHash: string;
@@ -57,51 +57,51 @@ export type PasswordResetTokenRecord = {
 };
 
 // Operacoes necessarias para cadastro, login, perfil e recuperacao de senha.
-export interface IUserRepository {
-  create(input: { name: string; email: string; passwordHash: string; cpf: string }): Promise<UserRecord>;
-  findByEmail(email: string): Promise<UserRecord | null>;
-  findByCpf(cpf: string): Promise<UserRecord | null>;
-  findById(id: string): Promise<UserRecord | null>;
-  update(id: string, input: { name: string; passwordHash: string; cpf: string }): Promise<UserRecord>;
-  createPasswordResetToken(input: { userId: string; tokenHash: string; expiresAt: Date }): Promise<PasswordResetTokenRecord>;
-  findPasswordResetTokenByHash(tokenHash: string): Promise<PasswordResetTokenRecord | null>;
-  markPasswordResetTokenUsed(id: string): Promise<void>;
-  deletePasswordResetTokensByUserId(userId: string): Promise<void>;
+export interface IRepositorioUsuario {
+  create(input: { name: string; email: string; passwordHash: string; cpf: string }): Promise<RegistroUsuario>;
+  findByEmail(email: string): Promise<RegistroUsuario | null>;
+  findByCpf(cpf: string): Promise<RegistroUsuario | null>;
+  findById(id: string): Promise<RegistroUsuario | null>;
+  update(id: string, input: { name: string; passwordHash: string; cpf: string }): Promise<RegistroUsuario>;
+  criarTokenRecuperacaoSenha(input: { userId: string; tokenHash: string; expiresAt: Date }): Promise<RegistroTokenRecuperacaoSenha>;
+  buscarTokenRecuperacaoSenhaPorHash(tokenHash: string): Promise<RegistroTokenRecuperacaoSenha | null>;
+  marcarTokenRecuperacaoSenhaUsado(id: string): Promise<void>;
+  excluirTokensRecuperacaoSenhaPorUsuario(userId: string): Promise<void>;
 }
 
 // Operacoes de persistencia para planos comerciais da academia.
-export interface IPlanRepository {
-  list(params: PlanListParams): Promise<PaginatedResponse<Plan>>;
-  create(ownerId: string, input: PlanInput): Promise<Plan>;
-  findById(ownerId: string, id: string): Promise<Plan | null>;
-  update(ownerId: string, id: string, input: PlanInput): Promise<Plan>;
+export interface IRepositorioPlano {
+  list(params: ParametrosListagemPlanos): Promise<RespostaPaginada<Plano>>;
+  create(ownerId: string, input: EntradaPlano): Promise<Plano>;
+  findById(ownerId: string, id: string): Promise<Plano | null>;
+  update(ownerId: string, id: string, input: EntradaPlano): Promise<Plano>;
   delete(ownerId: string, id: string): Promise<void>;
-  countActive(ownerId: string): Promise<number>;
-  countStudentsByPlan(ownerId: string): Promise<Array<{ name: string; students: number }>>;
+  contarAtivos(ownerId: string): Promise<number>;
+  contarAlunosPorPlano(ownerId: string): Promise<Array<{ name: string; students: number }>>;
 }
 
 // Operacoes de persistencia para alunos e indicadores relacionados.
-export interface IStudentRepository {
-  list(params: StudentListParams): Promise<PaginatedResponse<Student>>;
-  create(ownerId: string, input: StudentInput): Promise<Student>;
-  findById(ownerId: string, id: string): Promise<Student | null>;
-  findByEmail(ownerId: string, email: string): Promise<Student | null>;
-  findByCpf(ownerId: string, cpf: string): Promise<Student | null>;
-  update(ownerId: string, id: string, input: StudentInput): Promise<Student>;
+export interface IRepositorioAluno {
+  list(params: ParametrosListagemAlunos): Promise<RespostaPaginada<Aluno>>;
+  create(ownerId: string, input: EntradaAluno): Promise<Aluno>;
+  findById(ownerId: string, id: string): Promise<Aluno | null>;
+  findByEmail(ownerId: string, email: string): Promise<Aluno | null>;
+  findByCpf(ownerId: string, cpf: string): Promise<Aluno | null>;
+  update(ownerId: string, id: string, input: EntradaAluno): Promise<Aluno>;
   delete(ownerId: string, id: string): Promise<void>;
-  countAll(ownerId: string): Promise<number>;
-  countByPlan(ownerId: string, planId: string): Promise<number>;
-  countNewInCurrentMonth(ownerId: string): Promise<number>;
-  findRecent(ownerId: string, limit: number): Promise<DashboardMetrics['recentStudents']>;
+  contarTodos(ownerId: string): Promise<number>;
+  contarPorPlano(ownerId: string, planId: string): Promise<number>;
+  contarNovosNoMesAtual(ownerId: string): Promise<number>;
+  buscarRecentes(ownerId: string, limit: number): Promise<IndicadoresPainel['recentStudents']>;
 }
 
 // Operacoes de persistencia para treinos e agrupamentos do dashboard.
-export interface IWorkoutRepository {
-  list(params: WorkoutListParams): Promise<PaginatedResponse<Workout>>;
-  create(ownerId: string, input: WorkoutInput): Promise<Workout>;
-  findById(ownerId: string, id: string): Promise<Workout | null>;
-  update(ownerId: string, id: string, input: WorkoutInput): Promise<Workout>;
+export interface IRepositorioTreino {
+  list(params: ParametrosListagemTreinos): Promise<RespostaPaginada<Treino>>;
+  create(ownerId: string, input: EntradaTreino): Promise<Treino>;
+  findById(ownerId: string, id: string): Promise<Treino | null>;
+  update(ownerId: string, id: string, input: EntradaTreino): Promise<Treino>;
   delete(ownerId: string, id: string): Promise<void>;
-  countAll(ownerId: string): Promise<number>;
-  countByLevel(ownerId: string): Promise<Array<{ level: Workout['level']; workouts: number }>>;
+  contarTodos(ownerId: string): Promise<number>;
+  contarPorNivel(ownerId: string): Promise<Array<{ level: Treino['level']; workouts: number }>>;
 }

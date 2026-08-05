@@ -2,7 +2,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { AuthResponse } from '@shape/shared';
+import type { RespostaAutenticacao } from '@shape/shared';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AuthProvider } from '@/context/auth-context';
@@ -29,7 +29,7 @@ afterEach(() => {
 
 describe('AuthProvider', () => {
   it('armazena token no localStorage apos login', async () => {
-    const response: AuthResponse = {
+    const response: RespostaAutenticacao = {
       token: 'jwt-token',
       user: {
         id: '1',
@@ -73,7 +73,7 @@ describe('AuthProvider', () => {
   });
 
   it('armazena token no sessionStorage quando login nao deve ser lembrado', async () => {
-    const response: AuthResponse = {
+    const response: RespostaAutenticacao = {
       token: 'jwt-token',
       user: {
         id: '1',

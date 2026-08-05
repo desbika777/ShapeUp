@@ -1,9 +1,9 @@
 // Cliente HTTP centralizado para conversar com a API do backend.
-import type { ApiErrorPayload } from '@shape/shared';
+import type { PayloadErroApi } from '@shape/shared';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3333/api';
 
-export class ApiError extends Error {
+export class ErroApi extends Error {
   details?: string[];
   statusCode?: number;
 
@@ -31,18 +31,18 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}, tok
     response = await fetch(`${API_URL}${path}`, { ...options, headers });
   } catch {
     // Erro de rede fica padronizado para a UI exibir mensagem amigavel.
-    throw new ApiError('Falha de conexao com a API.');
+    throw new ErroApi('Falha de conexao com a API.');
   }
 
   if (!response.ok) {
-    const payload = (await response.json().catch(() => null)) as ApiErrorPayload | null;
+    const payload = (await response.json().catch(() => null)) as PayloadErroApi | null;
 
     if (response.status === 401) {
       // Avisa o AuthProvider para encerrar sessao expirada ou invalida.
       window.dispatchEvent(new CustomEvent('shape:unauthorized'));
     }
 
-    throw new ApiError(payload?.message ?? 'Erro inesperado na API.', payload?.details, response.status);
+    throw new ErroApi(payload?.message ?? 'Erro inesperado na API.', payload?.details, response.status);
   }
 
   if (response.status === 204) {

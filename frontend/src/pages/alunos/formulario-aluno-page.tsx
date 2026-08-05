@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import type { PaginatedResponse, Plan, Student, StudentInput } from '@shape/shared';
+import type { RespostaPaginada, Plano, Aluno, EntradaAluno } from '@shape/shared';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FormField, inputClassName } from '@/components/ui/form-field';
 import { PageHeader } from '@/components/ui/page-header';
@@ -22,21 +22,21 @@ export function FormularioAlunoPage() {
   const { id } = useParams();
   const isEdit = Boolean(id);
   // Valores iniciais mantem o formulario controlado desde o primeiro render.
-  const form = useForm<StudentInput>({
+  const form = useForm<EntradaAluno>({
     resolver: zodResolver(studentSchema),
-    defaultValues: { name: '', email: '', cpf: '', phone: '', birthDate: '', goal: '', status: 'ACTIVE', planId: '' },
+    defaultValues: { name: '', email: '', cpf: '', phone: '', birthDate: '', goal: '', status: 'ATIVO', planId: '' },
   });
 
   // Planos ativos/opcoes aparecem no select de vinculo do aluno.
   const { data: plans } = useQuery({
     queryKey: ['plans-options'],
-    queryFn: () => apiRequest<PaginatedResponse<Plan>>('/planos?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
+    queryFn: () => apiRequest<RespostaPaginada<Plano>>('/planos?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
   });
 
   // Em modo edicao, carrega o aluno atual.
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['student', id],
-    queryFn: () => apiRequest<Student>(`/alunos/${id}`, { method: 'GET' }, token ?? undefined),
+    queryFn: () => apiRequest<Aluno>(`/alunos/${id}`, { method: 'GET' }, token ?? undefined),
     enabled: isEdit,
   });
 
@@ -49,7 +49,7 @@ export function FormularioAlunoPage() {
 
   // Envia POST para novo aluno e PUT para edicao.
   const mutation = useMutation({
-    mutationFn: (values: StudentInput) => apiRequest<Student>(isEdit ? `/alunos/${id}` : '/alunos', {
+    mutationFn: (values: EntradaAluno) => apiRequest<Aluno>(isEdit ? `/alunos/${id}` : '/alunos', {
       method: isEdit ? 'PUT' : 'POST',
       body: JSON.stringify({ ...values, cpf: values.cpf.replace(/\D/g, '') }),
     }, token ?? undefined),
@@ -95,7 +95,7 @@ export function FormularioAlunoPage() {
             <FormField label="Nascimento" error={form.formState.errors.birthDate?.message}><input type="date" className={inputClassName(!!form.formState.errors.birthDate)} {...form.register('birthDate')} /></FormField>
             <div className="md:col-span-2"><FormField label="Objetivo" error={form.formState.errors.goal?.message}><textarea rows={4} className={inputClassName(!!form.formState.errors.goal)} {...form.register('goal')} /></FormField></div>
             <FormField label="Plano" error={form.formState.errors.planId?.message}><select className={inputClassName(!!form.formState.errors.planId)} {...form.register('planId')}><option value="">Selecione</option>{plans?.data.map((plan) => <option key={plan.id} value={plan.id}>{plan.name}</option>)}</select></FormField>
-            <FormField label="Status" error={form.formState.errors.status?.message}><select className={inputClassName(!!form.formState.errors.status)} {...form.register('status')}><option value="ACTIVE">Ativo</option><option value="INACTIVE">Inativo</option></select></FormField>
+            <FormField label="Status" error={form.formState.errors.status?.message}><select className={inputClassName(!!form.formState.errors.status)} {...form.register('status')}><option value="ATIVO">Ativo</option><option value="INATIVO">Inativo</option></select></FormField>
           </div>
           <button disabled={mutation.isPending || form.formState.isSubmitting} className="mt-6 rounded-full bg-slateblue px-5 py-3 font-semibold text-white disabled:opacity-60">
             {mutation.isPending ? 'Salvando...' : 'Salvar aluno'}

@@ -1,6 +1,6 @@
 // Pagina de treinos: lista prescricoes, filtra por nivel/aluno e exclui registros.
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { PaginatedResponse, Student, Workout, WorkoutLevel } from '@shape/shared';
+import type { RespostaPaginada, Aluno, Treino, NivelTreino } from '@shape/shared';
 import { Link } from 'react-router-dom';
 import { useDeferredValue, useMemo, useState } from 'react';
 import { DataTable } from '@/components/ui/data-table';
@@ -13,7 +13,7 @@ import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useToast } from '@/components/ui/toast';
 import { useAuth } from '@/hooks/use-auth';
 import { apiRequest } from '@/lib/api';
-import { formatDate, formatWorkoutLevel } from '@/lib/format';
+import { formatDate, formatarNivelTreino } from '@/lib/format';
 
 export function TreinosPage() {
   const { token } = useAuth();
@@ -24,9 +24,9 @@ export function TreinosPage() {
   const [pageSize, setPageSize] = useState(6);
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
-  const [level, setLevel] = useState<WorkoutLevel | 'ALL'>('ALL');
+  const [level, setLevel] = useState<NivelTreino | 'ALL'>('ALL');
   const [studentId, setStudentId] = useState('');
-  const [deleteTarget, setDeleteTarget] = useState<Workout | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Treino | null>(null);
 
   // Filtros unem busca textual, nivel e aluno selecionado.
   const filters = useMemo(() => ({
@@ -43,7 +43,7 @@ export function TreinosPage() {
       if (filters.search) params.set('search', filters.search);
       if (filters.level) params.set('level', filters.level);
       if (filters.studentId) params.set('studentId', filters.studentId);
-      return apiRequest<PaginatedResponse<Workout>>(`/treinos?${params.toString()}`, { method: 'GET' }, token ?? undefined);
+      return apiRequest<RespostaPaginada<Treino>>(`/treinos?${params.toString()}`, { method: 'GET' }, token ?? undefined);
     },
     placeholderData: keepPreviousData,
   });
@@ -51,7 +51,7 @@ export function TreinosPage() {
   // Carrega alunos para o filtro de treino por aluno.
   const { data: studentsOptions } = useQuery({
     queryKey: ['students-options'],
-    queryFn: () => apiRequest<PaginatedResponse<Student>>('/alunos?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
+    queryFn: () => apiRequest<RespostaPaginada<Aluno>>('/alunos?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
   });
 
   // Exclui treino e atualiza a lista apos sucesso.
@@ -77,15 +77,15 @@ export function TreinosPage() {
         <select
           value={level}
           onChange={(event) => {
-            setLevel(event.target.value as WorkoutLevel | 'ALL');
+            setLevel(event.target.value as NivelTreino | 'ALL');
             setPage(1);
           }}
           className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slateblue"
         >
           <option value="ALL">Nivel (todos)</option>
-          <option value="BEGINNER">Iniciante</option>
-          <option value="INTERMEDIATE">Intermediario</option>
-          <option value="ADVANCED">Avancado</option>
+          <option value="INICIANTE">Iniciante</option>
+          <option value="INTERMEDIARIO">Intermediario</option>
+          <option value="AVANCADO">Avancado</option>
         </select>
         <select
           value={studentId}
@@ -114,7 +114,7 @@ export function TreinosPage() {
           <DataTable columns={[
             { key: 'title', label: 'Treino' },
             { key: 'studentName', label: 'Aluno' },
-            { key: 'level', label: 'Nivel', render: (row) => formatWorkoutLevel(row.level) },
+            { key: 'level', label: 'Nivel', render: (row) => formatarNivelTreino(row.level) },
             { key: 'startDate', label: 'Inicio', render: (row) => formatDate(row.startDate) },
             { key: 'endDate', label: 'Fim', render: (row) => formatDate(row.endDate) },
             {

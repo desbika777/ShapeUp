@@ -2,7 +2,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import type { ApiMessageResponse, ResetPasswordInput } from '@shape/shared';
+import type { RespostaMensagemApi, EntradaRedefinirSenha } from '@shape/shared';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { LayoutAutenticacao } from '@/pages/autenticacao/layout-autenticacao';
 import { FormField, inputClassName } from '@/components/ui/form-field';
@@ -15,7 +15,7 @@ export function RedefinirSenhaPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const token = searchParams.get('token') ?? '';
-  const form = useForm<ResetPasswordInput>({
+  const form = useForm<EntradaRedefinirSenha>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       token,
@@ -29,10 +29,10 @@ export function RedefinirSenhaPage() {
     form.setValue('token', token, { shouldValidate: true });
   }, [form, token]);
 
-  async function onSubmit(values: ResetPasswordInput) {
+  async function onSubmit(values: EntradaRedefinirSenha) {
     try {
       // Envia token e nova senha para o backend encerrar o fluxo de reset.
-      const response = await apiRequest<ApiMessageResponse>('/autenticacao/redefinir-senha', {
+      const response = await apiRequest<RespostaMensagemApi>('/autenticacao/redefinir-senha', {
         method: 'POST',
         body: JSON.stringify({
           token: values.token,

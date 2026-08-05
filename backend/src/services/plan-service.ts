@@ -1,12 +1,12 @@
-// Service de planos: aplica regras antes de acessar o repositorio.
-import type { PlanInput, PlanStatus } from '@shape/shared';
+// Servico de planos: aplica regras antes de acessar o repositorio.
+import type { EntradaPlano, StatusPlano } from '@shape/shared';
 import { AppError } from '../core/app-error.js';
-import type { IPlanRepository, IStudentRepository } from '../repositories/interfaces.js';
+import type { IRepositorioPlano, IRepositorioAluno } from '../repositories/interfaces.js';
 
-export class PlanService {
+export class ServicoPlano {
   constructor(
-    private readonly repository: IPlanRepository,
-    private readonly studentRepository: IStudentRepository,
+    private readonly repository: IRepositorioPlano,
+    private readonly studentRepository: IRepositorioAluno,
   ) {}
 
   // Lista planos respeitando o dono da conta e os filtros escolhidos.
@@ -15,13 +15,13 @@ export class PlanService {
     page: number,
     pageSize: number,
     skip: number,
-    filters?: { search?: string; status?: PlanStatus },
+    filters?: { search?: string; status?: StatusPlano },
   ) {
     return this.repository.list({ ownerId, page, pageSize, skip, ...filters });
   }
 
   // Cria plano para o gestor autenticado.
-  create(ownerId: string, input: PlanInput) {
+  create(ownerId: string, input: EntradaPlano) {
     return this.repository.create(ownerId, input);
   }
 
@@ -31,7 +31,7 @@ export class PlanService {
   }
 
   // Atualiza somente depois de confirmar que o plano pertence ao usuario.
-  async update(ownerId: string, id: string, input: PlanInput) {
+  async update(ownerId: string, id: string, input: EntradaPlano) {
     await this.ensureExists(ownerId, id);
     return this.repository.update(ownerId, id, input);
   }
@@ -39,7 +39,7 @@ export class PlanService {
   // Evita excluir plano que ainda possui alunos vinculados.
   async delete(ownerId: string, id: string) {
     const resource = await this.ensureExists(ownerId, id);
-    const linkedStudents = await this.studentRepository.countByPlan(ownerId, resource.id);
+    const linkedStudents = await this.studentRepository.contarPorPlano(ownerId, resource.id);
 
     if (linkedStudents > 0) {
       throw new AppError(409, 'Nao e possivel excluir um plano vinculado a alunos.');

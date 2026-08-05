@@ -1,8 +1,8 @@
 // Repositorio Prisma de usuarios: usado pela autenticacao e perfil.
-import type { IUserRepository, PasswordResetTokenRecord, UserRecord } from '../interfaces.js';
+import type { IRepositorioUsuario, RegistroTokenRecuperacaoSenha, RegistroUsuario } from '../interfaces.js';
 import { prisma } from '../../lib/prisma.js';
 
-function mapUser(record: {
+function mapearUsuario(record: {
   id: string;
   name: string;
   email: string;
@@ -10,7 +10,7 @@ function mapUser(record: {
   cpf: string;
   createdAt: Date;
   updatedAt: Date;
-}): UserRecord {
+}): RegistroUsuario {
   // Padroniza datas como string ISO para o service e o frontend.
   return {
     id: record.id,
@@ -23,14 +23,14 @@ function mapUser(record: {
   };
 }
 
-function mapPasswordResetToken(record: {
+function mapearTokenRecuperacaoSenha(record: {
   id: string;
   userId: string;
   tokenHash: string;
   expiresAt: Date;
   usedAt: Date | null;
   createdAt: Date;
-}): PasswordResetTokenRecord {
+}): RegistroTokenRecuperacaoSenha {
   // Normaliza datas do token de reset para facilitar comparacoes.
   return {
     id: record.id,
@@ -42,53 +42,53 @@ function mapPasswordResetToken(record: {
   };
 }
 
-export class PrismaUserRepository implements IUserRepository {
+export class RepositorioPrismaUsuario implements IRepositorioUsuario {
   async create(input: { name: string; email: string; passwordHash: string; cpf: string }) {
     // Cria usuario ja com senha protegida por hash recebido do service.
-    const created = await prisma.user.create({ data: input });
-    return mapUser(created);
+    const created = await prisma.usuario.create({ data: input });
+    return mapearUsuario(created);
   }
 
   async findByEmail(email: string) {
-    const user = await prisma.user.findUnique({ where: { email } });
-    return user ? mapUser(user) : null;
+    const user = await prisma.usuario.findUnique({ where: { email } });
+    return user ? mapearUsuario(user) : null;
   }
 
   async findByCpf(cpf: string) {
-    const user = await prisma.user.findUnique({ where: { cpf } });
-    return user ? mapUser(user) : null;
+    const user = await prisma.usuario.findUnique({ where: { cpf } });
+    return user ? mapearUsuario(user) : null;
   }
 
   async findById(id: string) {
-    const user = await prisma.user.findUnique({ where: { id } });
-    return user ? mapUser(user) : null;
+    const user = await prisma.usuario.findUnique({ where: { id } });
+    return user ? mapearUsuario(user) : null;
   }
 
   async update(id: string, input: { name: string; passwordHash: string; cpf: string }) {
-    const updated = await prisma.user.update({ where: { id }, data: input });
-    return mapUser(updated);
+    const updated = await prisma.usuario.update({ where: { id }, data: input });
+    return mapearUsuario(updated);
   }
 
-  async createPasswordResetToken(input: { userId: string; tokenHash: string; expiresAt: Date }) {
+  async criarTokenRecuperacaoSenha(input: { userId: string; tokenHash: string; expiresAt: Date }) {
     // Salva somente hash do token para reduzir risco caso o banco seja exposto.
-    const created = await prisma.passwordResetToken.create({ data: input });
-    return mapPasswordResetToken(created);
+    const created = await prisma.tokenRecuperacaoSenha.create({ data: input });
+    return mapearTokenRecuperacaoSenha(created);
   }
 
-  async findPasswordResetTokenByHash(tokenHash: string) {
-    const token = await prisma.passwordResetToken.findUnique({ where: { tokenHash } });
-    return token ? mapPasswordResetToken(token) : null;
+  async buscarTokenRecuperacaoSenhaPorHash(tokenHash: string) {
+    const token = await prisma.tokenRecuperacaoSenha.findUnique({ where: { tokenHash } });
+    return token ? mapearTokenRecuperacaoSenha(token) : null;
   }
 
-  async markPasswordResetTokenUsed(id: string) {
-    await prisma.passwordResetToken.update({
+  async marcarTokenRecuperacaoSenhaUsado(id: string) {
+    await prisma.tokenRecuperacaoSenha.update({
       where: { id },
       data: { usedAt: new Date() },
     });
   }
 
-  async deletePasswordResetTokensByUserId(userId: string) {
+  async excluirTokensRecuperacaoSenhaPorUsuario(userId: string) {
     // Invalida tokens antigos quando um novo link e enviado ou a senha muda.
-    await prisma.passwordResetToken.deleteMany({ where: { userId } });
+    await prisma.tokenRecuperacaoSenha.deleteMany({ where: { userId } });
   }
 }

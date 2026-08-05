@@ -1,7 +1,7 @@
 // Pagina de perfil: atualiza dados do gestor e permite troca de senha.
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import type { UserUpdateInput } from '@shape/shared';
+import type { EntradaAtualizacaoUsuario } from '@shape/shared';
 import { FormField, inputClassName } from '@/components/ui/form-field';
 import { PageHeader } from '@/components/ui/page-header';
 import { useToast } from '@/components/ui/toast';
@@ -12,7 +12,7 @@ import { formatCpf } from '@/lib/format';
 export function PerfilPage() {
   const { user, updateProfile } = useAuth();
   const { toast } = useToast();
-  const form = useForm<UserUpdateInput>({
+  const form = useForm<EntradaAtualizacaoUsuario>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
       name: user?.name ?? '',
@@ -23,7 +23,7 @@ export function PerfilPage() {
     },
   });
 
-  async function onSubmit(values: UserUpdateInput) {
+  async function onSubmit(values: EntradaAtualizacaoUsuario) {
     try {
       // Campos de senha vazios significam que o usuario quer alterar apenas dados pessoais.
       const trimmedCurrentPassword = values.currentPassword?.trim();

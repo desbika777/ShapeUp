@@ -1,7 +1,7 @@
 // Pagina de login: autentica o gestor e inicia a sessao no painel.
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import type { UserLoginInput } from '@shape/shared';
+import type { EntradaLoginUsuario } from '@shape/shared';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutAutenticacao } from '@/pages/autenticacao/layout-autenticacao';
 import { loginFormSchema } from '@/lib/schemas';
@@ -9,7 +9,7 @@ import { FormField, inputClassName } from '@/components/ui/form-field';
 import { useToast } from '@/components/ui/toast';
 import { useAuth } from '@/hooks/use-auth';
 
-type LoginFormInput = UserLoginInput & {
+type LoginFormInput = EntradaLoginUsuario & {
   rememberAccess: boolean;
 };
 

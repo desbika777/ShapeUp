@@ -1,7 +1,7 @@
 // Contexto de autenticacao: guarda token, usuario logado e acoes de conta.
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import type { PropsWithChildren } from 'react';
-import type { AuthResponse, AuthUser, UserLoginInput, UserRegistrationInput, UserUpdateInput } from '@shape/shared';
+import type { RespostaAutenticacao, UsuarioAutenticado, EntradaLoginUsuario, EntradaCadastroUsuario, EntradaAtualizacaoUsuario } from '@shape/shared';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { apiRequest } from '@/lib/api';
@@ -46,21 +46,21 @@ function decodeJwtExp(token: string): number | null {
 
 type AuthContextValue = {
   token: string | null;
-  user: AuthUser | null;
+  user: UsuarioAutenticado | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (input: UserLoginInput, options?: { rememberAccess?: boolean }) => Promise<void>;
-  register: (input: UserRegistrationInput) => Promise<void>;
+  login: (input: EntradaLoginUsuario, options?: { rememberAccess?: boolean }) => Promise<void>;
+  register: (input: EntradaCadastroUsuario) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
-  updateProfile: (input: UserUpdateInput) => Promise<void>;
+  updateProfile: (input: EntradaAtualizacaoUsuario) => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [token, setToken] = useState<string | null>(() => getStoredToken());
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<UsuarioAutenticado | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -90,7 +90,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       }
 
       try {
-        const currentUser = await apiRequest<AuthUser>('/usuarios/me', { method: 'GET' }, token);
+        const currentUser = await apiRequest<UsuarioAutenticado>('/usuarios/me', { method: 'GET' }, token);
         setUser(currentUser);
       } catch {
         logout();
@@ -120,7 +120,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     isLoading,
     async login(input, options) {
       // Login autentica e salva o token conforme a escolha do usuario.
-      const response = await apiRequest<AuthResponse>('/autenticacao/entrar', {
+      const response = await apiRequest<RespostaAutenticacao>('/autenticacao/entrar', {
         method: 'POST',
         body: JSON.stringify(input),
       });
@@ -131,7 +131,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     },
     async register(input) {
       // Cadastro ja cria sessao para reduzir passos no primeiro acesso.
-      const response = await apiRequest<AuthResponse>('/autenticacao/cadastro', {
+      const response = await apiRequest<RespostaAutenticacao>('/autenticacao/cadastro', {
         method: 'POST',
         body: JSON.stringify(input),
       });
@@ -144,13 +144,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
     async refreshUser() {
       // Recarrega dados do usuario quando alguma tela precisa de informacao atualizada.
       if (!token) return;
-      const currentUser = await apiRequest<AuthUser>('/usuarios/me', { method: 'GET' }, token);
+      const currentUser = await apiRequest<UsuarioAutenticado>('/usuarios/me', { method: 'GET' }, token);
       setUser(currentUser);
     },
     async updateProfile(input) {
       // Atualiza perfil mantendo o token atual.
       if (!token) return;
-      const updatedUser = await apiRequest<AuthUser>('/usuarios/me', {
+      const updatedUser = await apiRequest<UsuarioAutenticado>('/usuarios/me', {
         method: 'PUT',
         body: JSON.stringify(input),
       }, token);

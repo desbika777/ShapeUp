@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import type { PaginatedResponse, Student, Workout, WorkoutInput } from '@shape/shared';
+import type { RespostaPaginada, Aluno, Treino, EntradaTreino } from '@shape/shared';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FormField, inputClassName } from '@/components/ui/form-field';
 import { PageHeader } from '@/components/ui/page-header';
@@ -21,21 +21,21 @@ export function FormularioTreinoPage() {
   const { id } = useParams();
   const isEdit = Boolean(id);
   // O mesmo componente atende cadastro e edicao conforme id da rota.
-  const form = useForm<WorkoutInput>({
+  const form = useForm<EntradaTreino>({
     resolver: zodResolver(workoutSchema),
-    defaultValues: { studentId: '', title: '', objective: '', level: 'BEGINNER', notes: '', startDate: '', endDate: '' },
+    defaultValues: { studentId: '', title: '', objective: '', level: 'INICIANTE', notes: '', startDate: '', endDate: '' },
   });
 
   // Alunos cadastrados alimentam o select de destino do treino.
   const { data: students } = useQuery({
     queryKey: ['students-options'],
-    queryFn: () => apiRequest<PaginatedResponse<Student>>('/alunos?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
+    queryFn: () => apiRequest<RespostaPaginada<Aluno>>('/alunos?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
   });
 
   // Em edicao, busca o treino atual para preencher os campos.
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['workout', id],
-    queryFn: () => apiRequest<Workout>(`/treinos/${id}`, { method: 'GET' }, token ?? undefined),
+    queryFn: () => apiRequest<Treino>(`/treinos/${id}`, { method: 'GET' }, token ?? undefined),
     enabled: isEdit,
   });
 
@@ -48,7 +48,7 @@ export function FormularioTreinoPage() {
 
   // Envia POST para criar e PUT para atualizar.
   const mutation = useMutation({
-    mutationFn: (values: WorkoutInput) => apiRequest<Workout>(isEdit ? `/treinos/${id}` : '/treinos', {
+    mutationFn: (values: EntradaTreino) => apiRequest<Treino>(isEdit ? `/treinos/${id}` : '/treinos', {
       method: isEdit ? 'PUT' : 'POST',
       body: JSON.stringify(values),
     }, token ?? undefined),
@@ -87,7 +87,7 @@ export function FormularioTreinoPage() {
         >
           <div className="grid gap-5 md:grid-cols-2">
             <FormField label="Aluno" error={form.formState.errors.studentId?.message}><select className={inputClassName(!!form.formState.errors.studentId)} {...form.register('studentId')}><option value="">Selecione</option>{students?.data.map((student) => <option key={student.id} value={student.id}>{student.name}</option>)}</select></FormField>
-            <FormField label="Nivel" error={form.formState.errors.level?.message}><select className={inputClassName(!!form.formState.errors.level)} {...form.register('level')}><option value="BEGINNER">Iniciante</option><option value="INTERMEDIATE">Intermediario</option><option value="ADVANCED">Avancado</option></select></FormField>
+            <FormField label="Nivel" error={form.formState.errors.level?.message}><select className={inputClassName(!!form.formState.errors.level)} {...form.register('level')}><option value="INICIANTE">Iniciante</option><option value="INTERMEDIARIO">Intermediario</option><option value="AVANCADO">Avancado</option></select></FormField>
             <div className="md:col-span-2"><FormField label="Titulo" error={form.formState.errors.title?.message}><input className={inputClassName(!!form.formState.errors.title)} {...form.register('title')} /></FormField></div>
             <div className="md:col-span-2"><FormField label="Objetivo" error={form.formState.errors.objective?.message}><textarea rows={3} className={inputClassName(!!form.formState.errors.objective)} {...form.register('objective')} /></FormField></div>
             <FormField label="Inicio" error={form.formState.errors.startDate?.message}><input type="date" className={inputClassName(!!form.formState.errors.startDate)} {...form.register('startDate')} /></FormField>

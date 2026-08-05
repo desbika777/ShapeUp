@@ -1,7 +1,7 @@
 // Pagina de cadastro: cria a primeira conta de gestor da academia.
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import type { UserRegistrationInput } from '@shape/shared';
+import type { EntradaCadastroUsuario } from '@shape/shared';
 import { Link, useNavigate } from 'react-router-dom';
 import { LayoutAutenticacao } from '@/pages/autenticacao/layout-autenticacao';
 import { registerSchema } from '@/lib/schemas';
@@ -14,12 +14,12 @@ export function CadastroPage() {
   const navigate = useNavigate();
   const { register } = useAuth();
   const { toast } = useToast();
-  const form = useForm<UserRegistrationInput>({
+  const form = useForm<EntradaCadastroUsuario>({
     resolver: zodResolver(registerSchema),
     defaultValues: { name: '', email: '', password: '', confirmPassword: '', cpf: '' },
   });
 
-  async function onSubmit(values: UserRegistrationInput) {
+  async function onSubmit(values: EntradaCadastroUsuario) {
     try {
       // Envia CPF sem mascara para o backend validar e salvar padronizado.
       await register({ ...values, cpf: values.cpf.replace(/\D/g, '') });

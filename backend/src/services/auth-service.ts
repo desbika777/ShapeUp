@@ -1,34 +1,34 @@
-// Service de autenticacao: concentra regras de cadastro, login, perfil e senha.
+// Servico de autenticacao: concentra regras de cadastro, login, perfil e senha.
 import { createHash, randomBytes } from 'node:crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import type {
-  ApiMessageResponse,
-  AuthResponse,
-  AuthUser,
-  ForgotPasswordInput,
-  ResetPasswordInput,
-  UserLoginInput,
-  UserRegistrationInput,
-  UserUpdateInput,
+  RespostaMensagemApi,
+  RespostaAutenticacao,
+  UsuarioAutenticado,
+  EntradaEsqueciSenha,
+  EntradaRedefinirSenha,
+  EntradaLoginUsuario,
+  EntradaCadastroUsuario,
+  EntradaAtualizacaoUsuario,
 } from '@shape/shared';
 import { env } from '../config/env.js';
 import { AppError } from '../core/app-error.js';
-import type { IUserRepository } from '../repositories/interfaces.js';
-import type { IMailService } from './mail-service.js';
+import type { IRepositorioUsuario } from '../repositories/interfaces.js';
+import type { IServicoEmail } from './mail-service.js';
 import { isStrongPassword, isValidCpf, isValidEmail, normalizeCpf } from '../utils/validators.js';
 
 const PASSWORD_RESET_REQUEST_MESSAGE = 'Se o e-mail estiver cadastrado, voce recebera um link para redefinir sua senha.';
 const PASSWORD_RESET_INVALID_MESSAGE = 'O link de redefinicao e invalido ou expirou.';
 
-export class AuthService {
+export class ServicoAutenticacao {
   constructor(
-    private readonly userRepository: IUserRepository,
-    private readonly mailService: IMailService,
+    private readonly userRepository: IRepositorioUsuario,
+    private readonly mailService: IServicoEmail,
   ) {}
 
   // Valida dados do gestor, protege a senha com hash e cria a conta.
-  async register(input: UserRegistrationInput): Promise<AuthResponse> {
+  async register(input: EntradaCadastroUsuario): Promise<RespostaAutenticacao> {
     if (!isValidEmail(input.email)) {
       throw new AppError(400, 'Informe um e-mail valido.');
     }
@@ -72,7 +72,7 @@ export class AuthService {
   }
 
   // Confere e-mail e senha para gerar uma sessao JWT.
-  async login(input: UserLoginInput): Promise<AuthResponse> {
+  async login(input: EntradaLoginUsuario): Promise<RespostaAutenticacao> {
     if (!isValidEmail(input.email)) {
       throw new AppError(400, 'Informe um e-mail valido.');
     }
@@ -93,7 +93,7 @@ export class AuthService {
   }
 
   // Busca o usuario autenticado pelo id gravado no token.
-  async getCurrentUser(userId: string): Promise<AuthUser> {
+  async getCurrentUser(userId: string): Promise<UsuarioAutenticado> {
     const user = await this.userRepository.findById(userId);
 
     if (!user) {
@@ -104,7 +104,7 @@ export class AuthService {
   }
 
   // Atualiza perfil e troca senha somente quando a senha atual foi confirmada.
-  async updateProfile(userId: string, input: UserUpdateInput): Promise<AuthUser> {
+  async updateProfile(userId: string, input: EntradaAtualizacaoUsuario): Promise<UsuarioAutenticado> {
     const user = await this.userRepository.findById(userId);
 
     if (!user) {
@@ -161,7 +161,7 @@ export class AuthService {
   }
 
   // Gera token de redefinicao, salva o hash e envia o link por e-mail.
-  async requestPasswordReset(input: ForgotPasswordInput): Promise<ApiMessageResponse> {
+  async requestPasswordReset(input: EntradaEsqueciSenha): Promise<RespostaMensagemApi> {
     const email = input.email.trim().toLowerCase();
 
     if (!isValidEmail(email)) {
@@ -179,8 +179,8 @@ export class AuthService {
     const expiresAt = new Date(Date.now() + 1000 * 60 * 30);
     const resetUrl = this.buildPasswordResetUrl(token);
 
-    await this.userRepository.deletePasswordResetTokensByUserId(user.id);
-    await this.userRepository.createPasswordResetToken({ userId: user.id, tokenHash, expiresAt });
+    await this.userRepository.excluirTokensRecuperacaoSenhaPorUsuario(user.id);
+    await this.userRepository.criarTokenRecuperacaoSenha({ userId: user.id, tokenHash, expiresAt });
 
     await this.mailService.send({
       to: user.email,
@@ -205,7 +205,7 @@ export class AuthService {
   }
 
   // Valida o token recebido por e-mail e grava a nova senha com hash.
-  async resetPassword(input: ResetPasswordInput): Promise<ApiMessageResponse> {
+  async resetPassword(input: EntradaRedefinirSenha): Promise<RespostaMensagemApi> {
     if (!isStrongPassword(input.password)) {
       throw new AppError(400, 'A nova senha deve ter no minimo 8 caracteres, letras maiusculas, minusculas, numeros e simbolos.');
     }
@@ -215,7 +215,7 @@ export class AuthService {
     }
 
     const tokenHash = this.hashResetToken(input.token.trim());
-    const resetToken = await this.userRepository.findPasswordResetTokenByHash(tokenHash);
+    const resetToken = await this.userRepository.buscarTokenRecuperacaoSenhaPorHash(tokenHash);
 
     if (!resetToken || resetToken.usedAt || new Date(resetToken.expiresAt).getTime() <= Date.now()) {
       throw new AppError(400, PASSWORD_RESET_INVALID_MESSAGE);
@@ -234,13 +234,13 @@ export class AuthService {
       passwordHash,
       cpf: user.cpf,
     });
-    await this.userRepository.deletePasswordResetTokensByUserId(user.id);
+    await this.userRepository.excluirTokensRecuperacaoSenhaPorUsuario(user.id);
 
     return { message: 'Senha redefinida com sucesso.' };
   }
 
   // Monta o retorno padrao usado em cadastro e login.
-  private buildAuthResponse(user: Awaited<ReturnType<IUserRepository['create']>>): AuthResponse {
+  private buildAuthResponse(user: Awaited<ReturnType<IRepositorioUsuario['create']>>): RespostaAutenticacao {
     return {
       token: jwt.sign({}, env.JWT_SECRET, { subject: user.id, expiresIn: '8h' }),
       user: this.toAuthUser(user),
@@ -248,7 +248,7 @@ export class AuthService {
   }
 
   // Remove dados sensiveis antes de devolver usuario ao frontend.
-  private toAuthUser(user: Awaited<ReturnType<IUserRepository['create']>>): AuthUser {
+  private toAuthUser(user: Awaited<ReturnType<IRepositorioUsuario['create']>>): UsuarioAutenticado {
     return {
       id: user.id,
       name: user.name,

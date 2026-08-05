@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import type { Plan, PlanInput } from '@shape/shared';
+import type { Plano, EntradaPlano } from '@shape/shared';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FormField, inputClassName } from '@/components/ui/form-field';
 import { PageHeader } from '@/components/ui/page-header';
@@ -21,15 +21,15 @@ export function FormularioPlanoPage() {
   const { id } = useParams();
   const isEdit = Boolean(id);
   // Um unico formulario atende cadastro e edicao; o id da URL define o modo.
-  const form = useForm<PlanInput>({
+  const form = useForm<EntradaPlano>({
     resolver: zodResolver(planSchema),
-    defaultValues: { name: '', description: '', price: 0, durationMonths: 1, status: 'ACTIVE' },
+    defaultValues: { name: '', description: '', price: 0, durationMonths: 1, status: 'ATIVO' },
   });
 
   // Em modo edicao, carrega os dados atuais do plano.
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['plan', id],
-    queryFn: () => apiRequest<Plan>(`/planos/${id}`, { method: 'GET' }, token ?? undefined),
+    queryFn: () => apiRequest<Plano>(`/planos/${id}`, { method: 'GET' }, token ?? undefined),
     enabled: isEdit,
   });
 
@@ -42,8 +42,8 @@ export function FormularioPlanoPage() {
 
   // Salva via POST no cadastro e via PUT na edicao.
   const mutation = useMutation({
-    mutationFn: (values: PlanInput) =>
-      apiRequest<Plan>(isEdit ? `/planos/${id}` : '/planos', {
+    mutationFn: (values: EntradaPlano) =>
+      apiRequest<Plano>(isEdit ? `/planos/${id}` : '/planos', {
         method: isEdit ? 'PUT' : 'POST',
         body: JSON.stringify(values),
       }, token ?? undefined),
@@ -86,7 +86,7 @@ export function FormularioPlanoPage() {
             <div className="md:col-span-2"><FormField label="Descricao" error={form.formState.errors.description?.message}><textarea className={inputClassName(!!form.formState.errors.description)} rows={4} {...form.register('description')} /></FormField></div>
             <FormField label="Valor" error={form.formState.errors.price?.message}><input type="number" step="0.01" className={inputClassName(!!form.formState.errors.price)} {...form.register('price', { valueAsNumber: true })} /></FormField>
             <FormField label="Duracao (meses)" error={form.formState.errors.durationMonths?.message}><input type="number" className={inputClassName(!!form.formState.errors.durationMonths)} {...form.register('durationMonths', { valueAsNumber: true })} /></FormField>
-            <FormField label="Status" error={form.formState.errors.status?.message}><select className={inputClassName(!!form.formState.errors.status)} {...form.register('status')}><option value="ACTIVE">Ativo</option><option value="INACTIVE">Inativo</option></select></FormField>
+            <FormField label="Status" error={form.formState.errors.status?.message}><select className={inputClassName(!!form.formState.errors.status)} {...form.register('status')}><option value="ATIVO">Ativo</option><option value="INATIVO">Inativo</option></select></FormField>
           </div>
           <button disabled={mutation.isPending || form.formState.isSubmitting} className="mt-6 rounded-full bg-slateblue px-5 py-3 font-semibold text-white disabled:opacity-60">
             {mutation.isPending ? 'Salvando...' : 'Salvar plano'}

@@ -1,6 +1,6 @@
 // Repositorio Prisma dos planos: traduz chamadas do service para consultas MySQL.
-import type { PaginatedResponse, Plan, PlanInput } from '@shape/shared';
-import type { IPlanRepository, PlanListParams } from '../interfaces.js';
+import type { RespostaPaginada, Plano, EntradaPlano } from '@shape/shared';
+import type { IRepositorioPlano, ParametrosListagemPlanos } from '../interfaces.js';
 import { prisma } from '../../lib/prisma.js';
 
 function meta(totalItems: number, page: number, pageSize: number) {
@@ -13,16 +13,16 @@ function meta(totalItems: number, page: number, pageSize: number) {
   };
 }
 
-function mapPlan(plan: {
+function mapearPlano(plan: {
   id: string;
   name: string;
   description: string;
   price: { toNumber(): number };
   durationMonths: number;
-  status: Plan['status'];
+  status: Plano['status'];
   createdAt: Date;
   updatedAt: Date;
-}): Plan {
+}): Plano {
   // Converte Decimal/Data do Prisma para tipos simples usados no frontend.
   return {
     id: plan.id,
@@ -36,8 +36,8 @@ function mapPlan(plan: {
   };
 }
 
-export class PrismaPlanRepository implements IPlanRepository {
-  async list(params: PlanListParams): Promise<PaginatedResponse<Plan>> {
+export class RepositorioPrismaPlano implements IRepositorioPlano {
+  async list(params: ParametrosListagemPlanos): Promise<RespostaPaginada<Plano>> {
     // Filtro dinamico: adiciona status e busca textual apenas quando vierem na URL.
     const where = {
       ownerId: params.ownerId,
@@ -52,47 +52,47 @@ export class PrismaPlanRepository implements IPlanRepository {
 
     // Busca pagina e total em paralelo para montar resposta paginada.
     const [items, totalItems] = await Promise.all([
-      prisma.plan.findMany({
+      prisma.plano.findMany({
         skip: params.skip,
         take: params.pageSize,
         where,
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.plan.count({ where }),
+      prisma.plano.count({ where }),
     ]);
 
-    return { data: items.map(mapPlan), meta: meta(totalItems, params.page, params.pageSize) };
+    return { data: items.map(mapearPlano), meta: meta(totalItems, params.page, params.pageSize) };
   }
 
-  async create(ownerId: string, input: PlanInput) {
-    const created = await prisma.plan.create({ data: { ownerId, ...input } });
-    return mapPlan(created);
+  async create(ownerId: string, input: EntradaPlano) {
+    const created = await prisma.plano.create({ data: { ownerId, ...input } });
+    return mapearPlano(created);
   }
 
   async findById(ownerId: string, id: string) {
-    const plan = await prisma.plan.findFirst({ where: { id, ownerId } });
-    return plan ? mapPlan(plan) : null;
+    const plan = await prisma.plano.findFirst({ where: { id, ownerId } });
+    return plan ? mapearPlano(plan) : null;
   }
 
-  async update(_ownerId: string, id: string, input: PlanInput) {
-    const updated = await prisma.plan.update({ where: { id }, data: input });
-    return mapPlan(updated);
+  async update(_ownerId: string, id: string, input: EntradaPlano) {
+    const updated = await prisma.plano.update({ where: { id }, data: input });
+    return mapearPlano(updated);
   }
 
   async delete(_ownerId: string, id: string) {
-    await prisma.plan.delete({ where: { id } });
+    await prisma.plano.delete({ where: { id } });
   }
 
-  async countActive(ownerId: string) {
-    return prisma.plan.count({ where: { ownerId, status: 'ACTIVE' } });
+  async contarAtivos(ownerId: string) {
+    return prisma.plano.count({ where: { ownerId, status: 'ATIVO' } });
   }
 
-  async countStudentsByPlan(ownerId: string) {
+  async contarAlunosPorPlano(ownerId: string) {
     // Usado no dashboard para mostrar quantos alunos existem em cada plano.
-    const plans = await prisma.plan.findMany({
+    const plans = await prisma.plano.findMany({
       where: { ownerId },
-      include: { _count: { select: { students: true } } },
+      include: { _count: { select: { alunos: true } } },
     });
-    return plans.map((plan) => ({ name: plan.name, students: plan._count.students }));
+    return plans.map((plan) => ({ name: plan.name, students: plan._count.alunos }));
   }
 }

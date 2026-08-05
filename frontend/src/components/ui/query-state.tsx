@@ -1,6 +1,6 @@
 // Padroniza estados de carregamento, erro e vazio das consultas React Query.
 import type { PropsWithChildren, ReactNode } from 'react';
-import { ApiError } from '@/lib/api';
+import { ErroApi } from '@/lib/api';
 
 type QueryStateProps = PropsWithChildren<{
   isLoading: boolean;
@@ -28,8 +28,8 @@ export function QueryState({
   }
 
   if (isError) {
-    // ApiError traz mensagem amigavel do backend.
-    const message = error instanceof ApiError ? error.message : 'Nao foi possivel carregar os dados agora.';
+    // ErroApi traz mensagem amigavel do backend.
+    const message = error instanceof ErroApi ? error.message : 'Nao foi possivel carregar os dados agora.';
 
     return (
       <div className="rounded-[28px] border border-rose-200 bg-rose-50 p-6 text-rose-900 shadow-panel">

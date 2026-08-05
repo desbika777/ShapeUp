@@ -1,5 +1,5 @@
 // Formatadores usados para mostrar dados tecnicos em formato brasileiro.
-import type { PlanStatus, StudentStatus, WorkoutLevel } from '@shape/shared';
+import type { StatusPlano, StatusAluno, NivelTreino } from '@shape/shared';
 
 export function formatCurrency(value: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -21,21 +21,21 @@ export function formatCpf(value: string) {
     .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
 }
 
-export function formatPlanStatus(value: PlanStatus) {
-  return value === 'ACTIVE' ? 'Ativo' : 'Inativo';
+export function formatarStatusPlano(value: StatusPlano) {
+  return value === 'ATIVO' ? 'Ativo' : 'Inativo';
 }
 
-export function formatStudentStatus(value: StudentStatus) {
-  return value === 'ACTIVE' ? 'Ativo' : 'Inativo';
+export function formatarStatusAluno(value: StatusAluno) {
+  return value === 'ATIVO' ? 'Ativo' : 'Inativo';
 }
 
-export function formatWorkoutLevel(value: WorkoutLevel) {
+export function formatarNivelTreino(value: NivelTreino) {
   switch (value) {
-    case 'BEGINNER':
+    case 'INICIANTE':
       return 'Iniciante';
-    case 'INTERMEDIATE':
+    case 'INTERMEDIARIO':
       return 'Intermediario';
-    case 'ADVANCED':
+    case 'AVANCADO':
       return 'Avancado';
   }
 }

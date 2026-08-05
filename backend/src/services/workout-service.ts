@@ -1,12 +1,12 @@
-// Service de treinos: valida aluno e periodo antes da persistencia.
-import type { WorkoutInput, WorkoutLevel } from '@shape/shared';
+// Servico de treinos: valida aluno e periodo antes da persistencia.
+import type { EntradaTreino, NivelTreino } from '@shape/shared';
 import { AppError } from '../core/app-error.js';
-import type { IStudentRepository, IWorkoutRepository } from '../repositories/interfaces.js';
+import type { IRepositorioAluno, IRepositorioTreino } from '../repositories/interfaces.js';
 
-export class WorkoutService {
+export class ServicoTreino {
   constructor(
-    private readonly workoutRepository: IWorkoutRepository,
-    private readonly studentRepository: IStudentRepository,
+    private readonly workoutRepository: IRepositorioTreino,
+    private readonly studentRepository: IRepositorioAluno,
   ) {}
 
   // Lista treinos usando filtros de busca, nivel e aluno.
@@ -15,13 +15,13 @@ export class WorkoutService {
     page: number,
     pageSize: number,
     skip: number,
-    filters?: { search?: string; level?: WorkoutLevel; studentId?: string },
+    filters?: { search?: string; level?: NivelTreino; studentId?: string },
   ) {
     return this.workoutRepository.list({ ownerId, page, pageSize, skip, ...filters });
   }
 
   // Cria treino somente se o aluno informado existir.
-  async create(ownerId: string, input: WorkoutInput) {
+  async create(ownerId: string, input: EntradaTreino) {
     await this.validate(ownerId, input);
     return this.workoutRepository.create(ownerId, input);
   }
@@ -32,7 +32,7 @@ export class WorkoutService {
   }
 
   // Atualiza treino apos validar propriedade e datas.
-  async update(ownerId: string, id: string, input: WorkoutInput) {
+  async update(ownerId: string, id: string, input: EntradaTreino) {
     await this.ensureExists(ownerId, id);
     await this.validate(ownerId, input);
     return this.workoutRepository.update(ownerId, id, input);
@@ -54,7 +54,7 @@ export class WorkoutService {
   }
 
   // Garante aluno valido e data final posterior ou igual a data inicial.
-  private async validate(ownerId: string, input: WorkoutInput) {
+  private async validate(ownerId: string, input: EntradaTreino) {
     const student = await this.studentRepository.findById(ownerId, input.studentId);
     if (!student) {
       throw new AppError(400, 'Selecione um aluno valido para o treino.');

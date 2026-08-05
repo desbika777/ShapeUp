@@ -6,7 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '@/context/auth-context';
 import { App } from '@/App';
 import '@/index.css';
-import { ApiError } from '@/lib/api';
+import { ErroApi } from '@/lib/api';
 import { ToastProvider } from '@/components/ui/toast';
 
 const queryClient = new QueryClient({
@@ -17,7 +17,7 @@ const queryClient = new QueryClient({
       staleTime: 15_000,
       retry(failureCount, error) {
         // Erros esperados de permissao/validacao nao precisam de novas tentativas.
-        if (error instanceof ApiError) {
+        if (error instanceof ErroApi) {
           if (error.statusCode === 401 || error.statusCode === 404) return false;
           if (error.statusCode && error.statusCode >= 400 && error.statusCode < 500) return false;
         }

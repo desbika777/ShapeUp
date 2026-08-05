@@ -2,13 +2,13 @@
 import cors from 'cors';
 import express from 'express';
 import { ZodError } from 'zod';
-import { createControllers, type RepositoryDependencies } from './container.js';
+import { createControllers, type DependenciasRepositorios } from './container.js';
 import { AppError } from './core/app-error.js';
 import { env } from './config/env.js';
 import { errorHandler } from './middlewares/error-handler.js';
 import { createRouter } from './routes/index.js';
 
-export function createApp(overrides?: Partial<RepositoryDependencies>) {
+export function createApp(overrides?: Partial<DependenciasRepositorios>) {
   const app = express();
   const controllers = createControllers(overrides);
 

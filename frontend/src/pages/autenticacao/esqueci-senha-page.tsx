@@ -2,7 +2,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import type { ApiMessageResponse, ForgotPasswordInput } from '@shape/shared';
+import type { RespostaMensagemApi, EntradaEsqueciSenha } from '@shape/shared';
 import { Link } from 'react-router-dom';
 import { LayoutAutenticacao } from '@/pages/autenticacao/layout-autenticacao';
 import { FormField, inputClassName } from '@/components/ui/form-field';
@@ -13,15 +13,15 @@ import { forgotPasswordSchema } from '@/lib/schemas';
 export function EsqueciSenhaPage() {
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const { toast } = useToast();
-  const form = useForm<ForgotPasswordInput>({
+  const form = useForm<EntradaEsqueciSenha>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: { email: '' },
   });
 
-  async function onSubmit(values: ForgotPasswordInput) {
+  async function onSubmit(values: EntradaEsqueciSenha) {
     try {
       // Normaliza o e-mail antes de enviar para a API.
-      const response = await apiRequest<ApiMessageResponse>('/autenticacao/esqueci-senha', {
+      const response = await apiRequest<RespostaMensagemApi>('/autenticacao/esqueci-senha', {
         method: 'POST',
         body: JSON.stringify({ email: values.email.trim().toLowerCase() }),
       });

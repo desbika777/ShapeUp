@@ -1,6 +1,6 @@
 // Pagina de alunos: gerencia carteira, filtros, paginacao e exclusao.
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { PaginatedResponse, Plan, Student, StudentStatus } from '@shape/shared';
+import type { RespostaPaginada, Plano, Aluno, StatusAluno } from '@shape/shared';
 import { Link } from 'react-router-dom';
 import { useDeferredValue, useMemo, useState } from 'react';
 import { DataTable } from '@/components/ui/data-table';
@@ -13,7 +13,7 @@ import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useToast } from '@/components/ui/toast';
 import { useAuth } from '@/hooks/use-auth';
 import { apiRequest } from '@/lib/api';
-import { formatStudentStatus } from '@/lib/format';
+import { formatarStatusAluno } from '@/lib/format';
 
 export function AlunosPage() {
   const { token } = useAuth();
@@ -24,9 +24,9 @@ export function AlunosPage() {
   const [pageSize, setPageSize] = useState(6);
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
-  const [status, setStatus] = useState<StudentStatus | 'ALL'>('ALL');
+  const [status, setStatus] = useState<StatusAluno | 'ALL'>('ALL');
   const [planId, setPlanId] = useState('');
-  const [deleteTarget, setDeleteTarget] = useState<Student | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Aluno | null>(null);
 
   // Filtros combinam texto, status e plano escolhido.
   const filters = useMemo(() => ({
@@ -43,7 +43,7 @@ export function AlunosPage() {
       if (filters.search) params.set('search', filters.search);
       if (filters.status) params.set('status', filters.status);
       if (filters.planId) params.set('planId', filters.planId);
-      return apiRequest<PaginatedResponse<Student>>(`/alunos?${params.toString()}`, { method: 'GET' }, token ?? undefined);
+      return apiRequest<RespostaPaginada<Aluno>>(`/alunos?${params.toString()}`, { method: 'GET' }, token ?? undefined);
     },
     placeholderData: keepPreviousData,
   });
@@ -51,7 +51,7 @@ export function AlunosPage() {
   // Lista de planos para popular o filtro e manter o cadastro consistente.
   const { data: plansOptions } = useQuery({
     queryKey: ['plans-options'],
-    queryFn: () => apiRequest<PaginatedResponse<Plan>>('/planos?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
+    queryFn: () => apiRequest<RespostaPaginada<Plano>>('/planos?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
   });
 
   // Exclusao de aluno com atualizacao da lista apos sucesso.
@@ -77,14 +77,14 @@ export function AlunosPage() {
         <select
           value={status}
           onChange={(event) => {
-            setStatus(event.target.value as StudentStatus | 'ALL');
+            setStatus(event.target.value as StatusAluno | 'ALL');
             setPage(1);
           }}
           className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slateblue"
         >
           <option value="ALL">Status (todos)</option>
-          <option value="ACTIVE">Ativos</option>
-          <option value="INACTIVE">Inativos</option>
+          <option value="ATIVO">Ativos</option>
+          <option value="INATIVO">Inativos</option>
         </select>
         <select
           value={planId}
@@ -115,7 +115,7 @@ export function AlunosPage() {
             { key: 'email', label: 'E-mail' },
             { key: 'goal', label: 'Objetivo' },
             { key: 'planName', label: 'Plano' },
-            { key: 'status', label: 'Status', render: (row) => formatStudentStatus(row.status) },
+            { key: 'status', label: 'Status', render: (row) => formatarStatusAluno(row.status) },
             {
               key: 'actions',
               label: 'Acoes',

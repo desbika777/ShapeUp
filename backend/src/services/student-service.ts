@@ -1,13 +1,13 @@
-// Service de alunos: valida dados cadastrais e vinculo com plano.
-import type { StudentInput, StudentStatus } from '@shape/shared';
+// Servico de alunos: valida dados cadastrais e vinculo com plano.
+import type { EntradaAluno, StatusAluno } from '@shape/shared';
 import { AppError } from '../core/app-error.js';
-import type { IPlanRepository, IStudentRepository } from '../repositories/interfaces.js';
+import type { IRepositorioPlano, IRepositorioAluno } from '../repositories/interfaces.js';
 import { isValidCpf, isValidEmail, normalizeCpf } from '../utils/validators.js';
 
-export class StudentService {
+export class ServicoAluno {
   constructor(
-    private readonly studentRepository: IStudentRepository,
-    private readonly planRepository: IPlanRepository,
+    private readonly studentRepository: IRepositorioAluno,
+    private readonly planRepository: IRepositorioPlano,
   ) {}
 
   // Lista alunos do gestor com filtros combinados.
@@ -16,13 +16,13 @@ export class StudentService {
     page: number,
     pageSize: number,
     skip: number,
-    filters?: { search?: string; status?: StudentStatus; planId?: string },
+    filters?: { search?: string; status?: StatusAluno; planId?: string },
   ) {
     return this.studentRepository.list({ ownerId, page, pageSize, skip, ...filters });
   }
 
   // Cadastra aluno apos normalizar CPF/e-mail e confirmar plano valido.
-  async create(ownerId: string, input: StudentInput) {
+  async create(ownerId: string, input: EntradaAluno) {
     await this.validate(ownerId, input);
     return this.studentRepository.create(ownerId, { ...input, email: input.email.toLowerCase(), cpf: normalizeCpf(input.cpf) });
   }
@@ -33,7 +33,7 @@ export class StudentService {
   }
 
   // Atualiza aluno sem permitir duplicidade de CPF/e-mail.
-  async update(ownerId: string, id: string, input: StudentInput) {
+  async update(ownerId: string, id: string, input: EntradaAluno) {
     await this.ensureExists(ownerId, id);
     await this.validate(ownerId, input, id);
     return this.studentRepository.update(ownerId, id, { ...input, email: input.email.toLowerCase(), cpf: normalizeCpf(input.cpf) });
@@ -55,7 +55,7 @@ export class StudentService {
   }
 
   // Regras de negocio do cadastro de aluno: e-mail, CPF, plano e duplicidades.
-  private async validate(ownerId: string, input: StudentInput, currentId?: string) {
+  private async validate(ownerId: string, input: EntradaAluno, currentId?: string) {
     if (!isValidEmail(input.email)) {
       throw new AppError(400, 'Informe um e-mail valido para o aluno.');
     }

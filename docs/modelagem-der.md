@@ -6,13 +6,13 @@ Este documento apresenta a proposta inicial de modelagem de dados do Shape. A mo
 
 ## Estrategia de Modelagem
 
-A base antiga do SHAPEUP possui 5 modelos principais:
+A base antiga do SHAPEUP possuia 5 modelos principais:
 
-- User;
-- Plan;
-- Student;
-- Workout;
-- PasswordResetToken.
+- Usuario;
+- Plano;
+- Aluno;
+- Treino;
+- TokenRecuperacaoSenha.
 
 Para a nova versao Shape, a modelagem sera ampliada para representar uma academia completa, incluindo:
 
@@ -38,7 +38,7 @@ Para a nova versao Shape, a modelagem sera ampliada para representar uma academi
 A proposta inicial possui 27 tabelas.
 
 Decisao de nomenclatura:
-As tabelas fisicas do banco foram traduzidas para PT-BR para deixar o projeto mais natural para a equipe e para a apresentacao. Os nomes internos dos modelos Prisma foram preservados em ingles por estabilidade tecnica, evitando quebrar os CRUDs ja existentes enquanto a interface evolui.
+As tabelas fisicas do banco e os models do Prisma usam nomes em PT-BR. Essa decisao deixa o schema mais coerente com o dominio da academia e facilita a leitura do projeto no VS Code e no DBeaver.
 
 | Numero | Tabela | Modulo | Prioridade | Finalidade |
 | --- | --- | --- | --- | --- |
@@ -580,11 +580,11 @@ Representa registros de auditoria para eventos importantes do sistema.
 
 | Schema antigo | Novo equivalente | Observacao |
 | --- | --- | --- |
-| User | usuarios | Sera mantido e ampliado com academia, status e perfis. |
-| Plan | planos | Nome mais especifico para planos de matricula. |
-| Student | alunos | Sera mantido e ampliado sem depender diretamente de planId. |
-| Workout | treinos | Sera mantido e ampliado com professor, status e exercicios. |
-| PasswordResetToken | tokens_recuperacao_senha | Sera mantido com a mesma finalidade. |
+| Usuario | usuarios | Foi mantido e ampliado com academia, status e perfis. |
+| Plano | planos | Representa os planos vendidos pela academia. |
+| Aluno | alunos | Representa os alunos e seus vinculos com plano, treino e frequencia. |
+| Treino | treinos | Foi ampliado com professor, status e exercicios. |
+| TokenRecuperacaoSenha | tokens_recuperacao_senha | Mantem a finalidade de recuperacao segura de senha. |
 
 Nova estrutura importante:
 
@@ -614,11 +614,12 @@ Status de implementacao:
 - A modelagem foi implementada no `backend/prisma/schema.prisma`.
 - A migration `20260804010935_expand_shape_model` foi criada.
 - A migration `20260804223000_traduzir_tabelas_ptbr` traduziu os nomes fisicos das tabelas para PT-BR.
+- A migration `20260805013000_traduzir_valores_enum_ptbr` traduziu os valores de status e nivel, como `ATIVO`, `INATIVO`, `INICIANTE`, `INTERMEDIARIO` e `AVANCADO`.
 - O seed foi expandido para popular dados dos principais modulos.
 - O banco local foi validado com 27 tabelas de aplicacao e a tabela `_prisma_migrations`.
 
 Observacao tecnica:
-A implementacao no Prisma preserva os modelos legados `User`, `Plan`, `Student`, `Workout` e `PasswordResetToken` para manter compatibilidade com os CRUDs ja existentes. As tabelas fisicas usam nomes em PT-BR por meio de `@@map`, enquanto os modelos internos continuam estaveis para o codigo atual.
+A implementacao no Prisma usa models em PT-BR, como `Academia`, `Usuario`, `Plano`, `Aluno`, `Treino` e `TokenRecuperacaoSenha`. As tabelas fisicas continuam ligadas por `@@map`, preservando o banco ja traduzido e deixando o codigo de acesso mais coerente. Os enums tambem foram ajustados para evitar mistura visual entre banco em portugues e valores em ingles.
 
 Antes de evoluir a interface para os novos modulos, a dupla deve revisar:
 

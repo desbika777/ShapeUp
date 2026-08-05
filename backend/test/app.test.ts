@@ -2,24 +2,24 @@
 // Validam regras de negocio sem depender do MySQL.
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { DashboardMetrics, PaginatedResponse, Plan, PlanInput, Student, StudentInput, Workout, WorkoutInput } from '@shape/shared';
+import type { IndicadoresPainel, RespostaPaginada, Plano, EntradaPlano, Aluno, EntradaAluno, Treino, EntradaTreino } from '@shape/shared';
 import { createApp } from '../src/app.js';
 import type {
-  IPlanRepository,
-  IStudentRepository,
-  IUserRepository,
-  IWorkoutRepository,
-  PaginationParams,
-  PasswordResetTokenRecord,
-  PlanListParams,
-  StudentListParams,
-  WorkoutListParams,
-  UserRecord,
+  IRepositorioPlano,
+  IRepositorioAluno,
+  IRepositorioUsuario,
+  IRepositorioTreino,
+  ParametrosPaginacao,
+  RegistroTokenRecuperacaoSenha,
+  ParametrosListagemPlanos,
+  ParametrosListagemAlunos,
+  ParametrosListagemTreinos,
+  RegistroUsuario,
 } from '../src/repositories/interfaces.js';
-import type { IMailService, MailMessage } from '../src/services/mail-service.js';
+import type { IServicoEmail, MensagemEmail } from '../src/services/mail-service.js';
 
-function paginate<T>(items: T[], params: PaginationParams): PaginatedResponse<T> {
-  // Simula a paginacao usada nos repositories reais.
+function paginate<T>(items: T[], params: ParametrosPaginacao): RespostaPaginada<T> {
+  // Simula a paginacao usada nos repositorios reais.
   const sliced = items.slice(params.skip, params.skip + params.pageSize);
   return {
     data: sliced,
@@ -32,14 +32,14 @@ function paginate<T>(items: T[], params: PaginationParams): PaginatedResponse<T>
   };
 }
 
-type OwnedPlan = Plan & { ownerId: string };
-type OwnedStudent = Student & { ownerId: string };
-type OwnedWorkout = Workout & { ownerId: string };
+type PlanoComDono = Plano & { ownerId: string };
+type AlunoComDono = Aluno & { ownerId: string };
+type TreinoComDono = Treino & { ownerId: string };
 
-class InMemoryUserRepository implements IUserRepository {
+class RepositorioMemoriaUsuario implements IRepositorioUsuario {
   // Repositorio fake para cadastro, login, perfil e recuperacao de senha.
-  users: UserRecord[] = [];
-  passwordResetTokens: PasswordResetTokenRecord[] = [];
+  users: RegistroUsuario[] = [];
+  passwordResetTokens: RegistroTokenRecuperacaoSenha[] = [];
 
   async create(input: { name: string; email: string; passwordHash: string; cpf: string }) {
     const user = { id: crypto.randomUUID(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), ...input };
@@ -57,7 +57,7 @@ class InMemoryUserRepository implements IUserRepository {
     user.updatedAt = new Date().toISOString();
     return user;
   }
-  async createPasswordResetToken(input: { userId: string; tokenHash: string; expiresAt: Date }) {
+  async criarTokenRecuperacaoSenha(input: { userId: string; tokenHash: string; expiresAt: Date }) {
     const token = {
       id: crypto.randomUUID(),
       userId: input.userId,
@@ -69,33 +69,33 @@ class InMemoryUserRepository implements IUserRepository {
     this.passwordResetTokens.push(token);
     return token;
   }
-  async findPasswordResetTokenByHash(tokenHash: string) {
+  async buscarTokenRecuperacaoSenhaPorHash(tokenHash: string) {
     return this.passwordResetTokens.find((token) => token.tokenHash === tokenHash) ?? null;
   }
-  async markPasswordResetTokenUsed(id: string) {
+  async marcarTokenRecuperacaoSenhaUsado(id: string) {
     const token = this.passwordResetTokens.find((item) => item.id === id);
     if (token) {
       token.usedAt = new Date().toISOString();
     }
   }
-  async deletePasswordResetTokensByUserId(userId: string) {
+  async excluirTokensRecuperacaoSenhaPorUsuario(userId: string) {
     this.passwordResetTokens = this.passwordResetTokens.filter((token) => token.userId !== userId);
   }
 }
 
-class InMemoryMailService implements IMailService {
+class ServicoEmailMemoria implements IServicoEmail {
   // Guarda mensagens enviadas para validar o fluxo de reset.
-  messages: MailMessage[] = [];
+  messages: MensagemEmail[] = [];
 
-  async send(message: MailMessage) {
+  async send(message: MensagemEmail) {
     this.messages.push(message);
   }
 }
 
-class InMemoryPlanRepository implements IPlanRepository {
-  // Simula planos em memoria para testar CRUD e regras de exclusao.
-  plans: OwnedPlan[] = [];
-  async list(params: PlanListParams) {
+class RepositorioMemoriaPlano implements IRepositorioPlano {
+  // Simula planos em memoria para testar cadastro, edicao e regras de exclusao.
+  plans: PlanoComDono[] = [];
+  async list(params: ParametrosListagemPlanos) {
     const search = params.search?.trim().toLowerCase();
     const filtered = this.plans.filter((plan) => {
       if (plan.ownerId !== params.ownerId) return false;
@@ -108,30 +108,30 @@ class InMemoryPlanRepository implements IPlanRepository {
     });
     return paginate(filtered, params);
   }
-  async create(ownerId: string, input: PlanInput) {
+  async create(ownerId: string, input: EntradaPlano) {
     const plan = { id: crypto.randomUUID(), ownerId, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), ...input };
     this.plans.unshift(plan);
     return plan;
   }
   async findById(ownerId: string, id: string) { return this.plans.find((plan) => plan.id === id && plan.ownerId === ownerId) ?? null; }
-  async update(_ownerId: string, id: string, input: PlanInput) {
+  async update(_ownerId: string, id: string, input: EntradaPlano) {
     const plan = this.plans.find((item) => item.id === id)!;
     Object.assign(plan, input, { updatedAt: new Date().toISOString() });
     return plan;
   }
   async delete(_ownerId: string, id: string) { this.plans = this.plans.filter((plan) => plan.id !== id); }
-  async countActive(ownerId: string) { return this.plans.filter((plan) => plan.ownerId === ownerId && plan.status === 'ACTIVE').length; }
-  async countStudentsByPlan(ownerId: string) {
+  async contarAtivos(ownerId: string) { return this.plans.filter((plan) => plan.ownerId === ownerId && plan.status === 'ATIVO').length; }
+  async contarAlunosPorPlano(ownerId: string) {
     return this.plans
       .filter((plan) => plan.ownerId === ownerId)
       .map((plan) => ({ name: plan.name, students: 0 }));
   }
 }
 
-class InMemoryStudentRepository implements IStudentRepository {
+class RepositorioMemoriaAluno implements IRepositorioAluno {
   // Simula alunos, incluindo buscas por CPF/e-mail e contadores.
-  students: OwnedStudent[] = [];
-  async list(params: StudentListParams) {
+  students: AlunoComDono[] = [];
+  async list(params: ParametrosListagemAlunos) {
     const rawSearch = params.search?.trim().toLowerCase();
     const digits = rawSearch ? rawSearch.replace(/\D/g, '') : '';
     const filtered = this.students.filter((student) => {
@@ -147,7 +147,7 @@ class InMemoryStudentRepository implements IStudentRepository {
     });
     return paginate(filtered, params);
   }
-  async create(ownerId: string, input: StudentInput) {
+  async create(ownerId: string, input: EntradaAluno) {
     const student = { id: crypto.randomUUID(), ownerId, planName: undefined, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), ...input };
     this.students.unshift(student);
     return student;
@@ -155,16 +155,16 @@ class InMemoryStudentRepository implements IStudentRepository {
   async findById(ownerId: string, id: string) { return this.students.find((student) => student.id === id && student.ownerId === ownerId) ?? null; }
   async findByEmail(ownerId: string, email: string) { return this.students.find((student) => student.ownerId === ownerId && student.email === email) ?? null; }
   async findByCpf(ownerId: string, cpf: string) { return this.students.find((student) => student.ownerId === ownerId && student.cpf === cpf) ?? null; }
-  async update(_ownerId: string, id: string, input: StudentInput) {
+  async update(_ownerId: string, id: string, input: EntradaAluno) {
     const student = this.students.find((item) => item.id === id)!;
     Object.assign(student, input, { updatedAt: new Date().toISOString() });
     return student;
   }
   async delete(_ownerId: string, id: string) { this.students = this.students.filter((student) => student.id !== id); }
-  async countAll(ownerId: string) { return this.students.filter((student) => student.ownerId === ownerId).length; }
-  async countByPlan(ownerId: string, planId: string) { return this.students.filter((student) => student.ownerId === ownerId && student.planId === planId).length; }
-  async countNewInCurrentMonth(ownerId: string) { return this.students.filter((student) => student.ownerId === ownerId).length; }
-  async findRecent(ownerId: string, limit: number): Promise<DashboardMetrics['recentStudents']> {
+  async contarTodos(ownerId: string) { return this.students.filter((student) => student.ownerId === ownerId).length; }
+  async contarPorPlano(ownerId: string, planId: string) { return this.students.filter((student) => student.ownerId === ownerId && student.planId === planId).length; }
+  async contarNovosNoMesAtual(ownerId: string) { return this.students.filter((student) => student.ownerId === ownerId).length; }
+  async buscarRecentes(ownerId: string, limit: number): Promise<IndicadoresPainel['recentStudents']> {
     return this.students
       .filter((student) => student.ownerId === ownerId)
       .slice(0, limit)
@@ -172,10 +172,10 @@ class InMemoryStudentRepository implements IStudentRepository {
   }
 }
 
-class InMemoryWorkoutRepository implements IWorkoutRepository {
-  // Simula treinos para testar filtros, CRUD e metricas.
-  workouts: OwnedWorkout[] = [];
-  async list(params: WorkoutListParams) {
+class RepositorioMemoriaTreino implements IRepositorioTreino {
+  // Simula treinos para testar filtros, cadastro, edicao e metricas.
+  workouts: TreinoComDono[] = [];
+  async list(params: ParametrosListagemTreinos) {
     const rawSearch = params.search?.trim().toLowerCase();
     const filtered = this.workouts.filter((workout) => {
       if (workout.ownerId !== params.ownerId) return false;
@@ -189,22 +189,22 @@ class InMemoryWorkoutRepository implements IWorkoutRepository {
     });
     return paginate(filtered, params);
   }
-  async create(ownerId: string, input: WorkoutInput) {
+  async create(ownerId: string, input: EntradaTreino) {
     const workout = { id: crypto.randomUUID(), ownerId, studentName: undefined, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), ...input };
     this.workouts.unshift(workout);
     return workout;
   }
   async findById(ownerId: string, id: string) { return this.workouts.find((workout) => workout.id === id && workout.ownerId === ownerId) ?? null; }
-  async update(_ownerId: string, id: string, input: WorkoutInput) {
+  async update(_ownerId: string, id: string, input: EntradaTreino) {
     const workout = this.workouts.find((item) => item.id === id)!;
     Object.assign(workout, input, { updatedAt: new Date().toISOString() });
     return workout;
   }
   async delete(_ownerId: string, id: string) { this.workouts = this.workouts.filter((workout) => workout.id !== id); }
-  async countAll(ownerId: string) { return this.workouts.filter((workout) => workout.ownerId === ownerId).length; }
-  async countByLevel(ownerId: string) {
-    return ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'].map((level) => ({
-      level: level as Workout['level'],
+  async contarTodos(ownerId: string) { return this.workouts.filter((workout) => workout.ownerId === ownerId).length; }
+  async contarPorNivel(ownerId: string) {
+    return ['INICIANTE', 'INTERMEDIARIO', 'AVANCADO'].map((level) => ({
+      level: level as Treino['level'],
       workouts: this.workouts.filter((workout) => workout.ownerId === ownerId && workout.level === level).length,
     }));
   }
@@ -212,19 +212,19 @@ class InMemoryWorkoutRepository implements IWorkoutRepository {
 
 describe('Shape API', () => {
   // Cada teste recebe dependencias novas para evitar vazamento de estado.
-  let userRepository: InMemoryUserRepository;
-  let planRepository: InMemoryPlanRepository;
-  let studentRepository: InMemoryStudentRepository;
-  let workoutRepository: InMemoryWorkoutRepository;
-  let mailService: InMemoryMailService;
+  let userRepository: RepositorioMemoriaUsuario;
+  let planRepository: RepositorioMemoriaPlano;
+  let studentRepository: RepositorioMemoriaAluno;
+  let workoutRepository: RepositorioMemoriaTreino;
+  let mailService: ServicoEmailMemoria;
   let app: ReturnType<typeof createApp>;
 
   beforeEach(() => {
-    userRepository = new InMemoryUserRepository();
-    planRepository = new InMemoryPlanRepository();
-    studentRepository = new InMemoryStudentRepository();
-    workoutRepository = new InMemoryWorkoutRepository();
-    mailService = new InMemoryMailService();
+    userRepository = new RepositorioMemoriaUsuario();
+    planRepository = new RepositorioMemoriaPlano();
+    studentRepository = new RepositorioMemoriaAluno();
+    workoutRepository = new RepositorioMemoriaTreino();
+    mailService = new ServicoEmailMemoria();
     app = createApp({ userRepository, planRepository, studentRepository, workoutRepository, mailService });
   });
 
@@ -379,15 +379,15 @@ describe('Shape API', () => {
 
     const token = register.body.token as string;
 
-    await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Start', description: 'Plano inicial com suporte mensal.', price: 99.9, durationMonths: 3, status: 'ACTIVE' });
-    await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Pro', description: 'Plano avancado com consultoria completa.', price: 189.9, durationMonths: 6, status: 'ACTIVE' });
+    await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Start', description: 'Plano inicial com suporte mensal.', price: 99.9, durationMonths: 3, status: 'ATIVO' });
+    await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Pro', description: 'Plano avancado com consultoria completa.', price: 189.9, durationMonths: 6, status: 'ATIVO' });
 
     const list = await request(app).get('/api/planos?page=1&pageSize=1').set('Authorization', `Bearer ${token}`);
     expect(list.status).toBe(200);
     expect(list.body.meta.totalItems).toBe(2);
     expect(list.body.data).toHaveLength(1);
 
-    const update = await request(app).put('/api/planos/inexistente').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Teste', description: 'Descricao valida com 10 caracteres.', price: 100, durationMonths: 6, status: 'ACTIVE' });
+    const update = await request(app).put('/api/planos/inexistente').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Teste', description: 'Descricao valida com 10 caracteres.', price: 100, durationMonths: 6, status: 'ATIVO' });
     expect(update.status).toBe(404);
   });
 
@@ -402,10 +402,10 @@ describe('Shape API', () => {
 
     const token = register.body.token as string;
 
-    await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Start', description: 'Plano inicial com suporte mensal.', price: 99.9, durationMonths: 3, status: 'ACTIVE' });
-    await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Pausado', description: 'Plano inativo para testes.', price: 129.9, durationMonths: 3, status: 'INACTIVE' });
+    await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Start', description: 'Plano inicial com suporte mensal.', price: 99.9, durationMonths: 3, status: 'ATIVO' });
+    await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Pausado', description: 'Plano inativo para testes.', price: 129.9, durationMonths: 3, status: 'INATIVO' });
 
-    const activeOnly = await request(app).get('/api/planos?status=ACTIVE').set('Authorization', `Bearer ${token}`);
+    const activeOnly = await request(app).get('/api/planos?status=ATIVO').set('Authorization', `Bearer ${token}`);
     expect(activeOnly.status).toBe(200);
     expect(activeOnly.body.meta.totalItems).toBe(1);
     expect(activeOnly.body.data[0].name).toContain('Start');
@@ -413,7 +413,7 @@ describe('Shape API', () => {
     const search = await request(app).get('/api/planos?search=pausado').set('Authorization', `Bearer ${token}`);
     expect(search.status).toBe(200);
     expect(search.body.meta.totalItems).toBe(1);
-    expect(search.body.data[0].status).toBe('INACTIVE');
+    expect(search.body.data[0].status).toBe('INATIVO');
   });
 
   it('retorna 409 ao excluir plano vinculado a alunos', async () => {
@@ -432,7 +432,7 @@ describe('Shape API', () => {
       description: 'Plano premium anual com acompanhamento.',
       price: 249.9,
       durationMonths: 12,
-      status: 'ACTIVE',
+      status: 'ATIVO',
     });
 
     await request(app).post('/api/alunos').set('Authorization', `Bearer ${token}`).send({
@@ -442,7 +442,7 @@ describe('Shape API', () => {
       phone: '11999999999',
       birthDate: '1997-07-15',
       goal: 'Hipertrofia com foco em pernas',
-      status: 'ACTIVE',
+      status: 'ATIVO',
       planId: plan.body.id,
     });
 
@@ -463,21 +463,21 @@ describe('Shape API', () => {
 
     const token = register.body.token as string;
 
-    const planA = await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano A', description: 'Descricao valida com 10 caracteres.', price: 100, durationMonths: 6, status: 'ACTIVE' });
-    const planB = await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano B', description: 'Descricao valida com 10 caracteres.', price: 120, durationMonths: 6, status: 'ACTIVE' });
+    const planA = await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano A', description: 'Descricao valida com 10 caracteres.', price: 100, durationMonths: 6, status: 'ATIVO' });
+    const planB = await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano B', description: 'Descricao valida com 10 caracteres.', price: 120, durationMonths: 6, status: 'ATIVO' });
 
-    await request(app).post('/api/alunos').set('Authorization', `Bearer ${token}`).send({ name: 'Ana Silva', email: 'ana@shape.com.br', cpf: '39053344705', phone: '11999999999', birthDate: '1997-07-15', goal: 'Hipertrofia com foco em pernas', status: 'ACTIVE', planId: planA.body.id });
-    await request(app).post('/api/alunos').set('Authorization', `Bearer ${token}`).send({ name: 'Bruno Lima', email: 'bruno@shape.com.br', cpf: '11144477735', phone: '11988887777', birthDate: '1996-07-15', goal: 'Reducao de gordura e condicionamento', status: 'INACTIVE', planId: planB.body.id });
+    await request(app).post('/api/alunos').set('Authorization', `Bearer ${token}`).send({ name: 'Ana Silva', email: 'ana@shape.com.br', cpf: '39053344705', phone: '11999999999', birthDate: '1997-07-15', goal: 'Hipertrofia com foco em pernas', status: 'ATIVO', planId: planA.body.id });
+    await request(app).post('/api/alunos').set('Authorization', `Bearer ${token}`).send({ name: 'Bruno Lima', email: 'bruno@shape.com.br', cpf: '11144477735', phone: '11988887777', birthDate: '1996-07-15', goal: 'Reducao de gordura e condicionamento', status: 'INATIVO', planId: planB.body.id });
 
     const byPlan = await request(app).get(`/api/alunos?planId=${planA.body.id}`).set('Authorization', `Bearer ${token}`);
     expect(byPlan.status).toBe(200);
     expect(byPlan.body.meta.totalItems).toBe(1);
     expect(byPlan.body.data[0].name).toContain('Ana');
 
-    const activeSearch = await request(app).get('/api/alunos?status=ACTIVE&search=ana').set('Authorization', `Bearer ${token}`);
+    const activeSearch = await request(app).get('/api/alunos?status=ATIVO&search=ana').set('Authorization', `Bearer ${token}`);
     expect(activeSearch.status).toBe(200);
     expect(activeSearch.body.meta.totalItems).toBe(1);
-    expect(activeSearch.body.data[0].status).toBe('ACTIVE');
+    expect(activeSearch.body.data[0].status).toBe('ATIVO');
 
     const cpfSearch = await request(app).get('/api/alunos?search=111444').set('Authorization', `Bearer ${token}`);
     expect(cpfSearch.status).toBe(200);
@@ -495,14 +495,14 @@ describe('Shape API', () => {
     });
     const token = register.body.token as string;
 
-    const plan = await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Premium', description: 'Plano premium anual com acompanhamento.', price: 249.9, durationMonths: 12, status: 'ACTIVE' });
-    const studentA = await request(app).post('/api/alunos').set('Authorization', `Bearer ${token}`).send({ name: 'Ana Silva', email: 'ana@shape.com.br', cpf: '39053344705', phone: '11999999999', birthDate: '1997-07-15', goal: 'Hipertrofia com foco em pernas', status: 'ACTIVE', planId: plan.body.id });
-    const studentB = await request(app).post('/api/alunos').set('Authorization', `Bearer ${token}`).send({ name: 'Bruno Lima', email: 'bruno@shape.com.br', cpf: '11144477735', phone: '11988887777', birthDate: '1996-07-15', goal: 'Reducao de gordura e condicionamento', status: 'ACTIVE', planId: plan.body.id });
+    const plan = await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Premium', description: 'Plano premium anual com acompanhamento.', price: 249.9, durationMonths: 12, status: 'ATIVO' });
+    const studentA = await request(app).post('/api/alunos').set('Authorization', `Bearer ${token}`).send({ name: 'Ana Silva', email: 'ana@shape.com.br', cpf: '39053344705', phone: '11999999999', birthDate: '1997-07-15', goal: 'Hipertrofia com foco em pernas', status: 'ATIVO', planId: plan.body.id });
+    const studentB = await request(app).post('/api/alunos').set('Authorization', `Bearer ${token}`).send({ name: 'Bruno Lima', email: 'bruno@shape.com.br', cpf: '11144477735', phone: '11988887777', birthDate: '1996-07-15', goal: 'Reducao de gordura e condicionamento', status: 'ATIVO', planId: plan.body.id });
 
-    await request(app).post('/api/treinos').set('Authorization', `Bearer ${token}`).send({ studentId: studentA.body.id, title: 'Treino A', objective: 'Base de forca', level: 'INTERMEDIATE', notes: 'Subir carga gradualmente', startDate: '2026-03-10', endDate: '2026-04-10' });
-    await request(app).post('/api/treinos').set('Authorization', `Bearer ${token}`).send({ studentId: studentB.body.id, title: 'Treino B', objective: 'Emagrecimento', level: 'BEGINNER', notes: 'Foco em volume', startDate: '2026-03-10', endDate: '2026-04-10' });
+    await request(app).post('/api/treinos').set('Authorization', `Bearer ${token}`).send({ studentId: studentA.body.id, title: 'Treino A', objective: 'Base de forca', level: 'INTERMEDIARIO', notes: 'Subir carga gradualmente', startDate: '2026-03-10', endDate: '2026-04-10' });
+    await request(app).post('/api/treinos').set('Authorization', `Bearer ${token}`).send({ studentId: studentB.body.id, title: 'Treino B', objective: 'Emagrecimento', level: 'INICIANTE', notes: 'Foco em volume', startDate: '2026-03-10', endDate: '2026-04-10' });
 
-    const byLevel = await request(app).get('/api/treinos?level=BEGINNER').set('Authorization', `Bearer ${token}`);
+    const byLevel = await request(app).get('/api/treinos?level=INICIANTE').set('Authorization', `Bearer ${token}`);
     expect(byLevel.status).toBe(200);
     expect(byLevel.body.meta.totalItems).toBe(1);
     expect(byLevel.body.data[0].title).toBe('Treino B');
@@ -528,13 +528,13 @@ describe('Shape API', () => {
     });
     const token = register.body.token as string;
 
-    const plan = await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Premium', description: 'Plano premium anual com acompanhamento.', price: 249.9, durationMonths: 12, status: 'ACTIVE' });
-    const student = await request(app).post('/api/alunos').set('Authorization', `Bearer ${token}`).send({ name: 'Ana Silva', email: 'ana@shape.com.br', cpf: '39053344705', phone: '11999999999', birthDate: '1997-07-15', goal: 'Hipertrofia com foco em pernas', status: 'ACTIVE', planId: plan.body.id });
+    const plan = await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Premium', description: 'Plano premium anual com acompanhamento.', price: 249.9, durationMonths: 12, status: 'ATIVO' });
+    const student = await request(app).post('/api/alunos').set('Authorization', `Bearer ${token}`).send({ name: 'Ana Silva', email: 'ana@shape.com.br', cpf: '39053344705', phone: '11999999999', birthDate: '1997-07-15', goal: 'Hipertrofia com foco em pernas', status: 'ATIVO', planId: plan.body.id });
 
     expect(student.status).toBe(201);
     expect(student.body.planId).toBe(plan.body.id);
 
-    const workout = await request(app).post('/api/treinos').set('Authorization', `Bearer ${token}`).send({ studentId: student.body.id, title: 'Treino A', objective: 'Base de forca', level: 'INTERMEDIATE', notes: 'Subir carga gradualmente', startDate: '2026-03-10', endDate: '2026-04-10' });
+    const workout = await request(app).post('/api/treinos').set('Authorization', `Bearer ${token}`).send({ studentId: student.body.id, title: 'Treino A', objective: 'Base de forca', level: 'INTERMEDIARIO', notes: 'Subir carga gradualmente', startDate: '2026-03-10', endDate: '2026-04-10' });
 
     expect(workout.status).toBe(201);
     expect(workout.body.studentId).toBe(student.body.id);
@@ -564,7 +564,7 @@ describe('Shape API', () => {
       description: 'Plano exclusivo da academia do Enzo.',
       price: 159.9,
       durationMonths: 6,
-      status: 'ACTIVE',
+      status: 'ATIVO',
     });
 
     const firstList = await request(app).get('/api/planos').set('Authorization', `Bearer ${firstToken}`);

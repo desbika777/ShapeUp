@@ -64,7 +64,7 @@ async function createPlan(request: APIRequestContext, token: string, name: strin
       description: 'Plano criado para preparar cenarios E2E.',
       price: 149.9,
       durationMonths: 6,
-      status: 'ACTIVE',
+      status: 'ATIVO',
     },
   });
   await expectApiOk(response);
@@ -97,7 +97,7 @@ async function createStudent(request: APIRequestContext, token: string, input: {
       phone: '11999997777',
       birthDate: '1996-08-20',
       goal: 'Condicionamento geral com acompanhamento',
-      status: 'ACTIVE',
+      status: 'ATIVO',
       planId: input.planId,
     },
   });
@@ -179,7 +179,7 @@ test.describe('CRUDs principais', () => {
     await page.getByLabel('Descricao').fill('Plano E2E com acompanhamento completo.');
     await page.getByLabel('Valor').fill('199.90');
     await page.getByLabel('Duracao (meses)').fill('12');
-    await page.getByLabel('Status').selectOption('ACTIVE');
+    await page.getByLabel('Status').selectOption('ATIVO');
     await page.getByRole('button', { name: 'Salvar plano' }).click();
 
     await expect(page.getByRole('row', { name: new RegExp(planName) })).toBeVisible();
@@ -227,7 +227,7 @@ test.describe('CRUDs principais', () => {
     await page.getByLabel('Nascimento').fill('1998-04-15');
     await page.getByLabel('Objetivo').fill('Hipertrofia com ganho de forca');
     await page.getByLabel('Plano').selectOption(plan.id);
-    await page.getByLabel('Status').selectOption('ACTIVE');
+    await page.getByLabel('Status').selectOption('ATIVO');
     await page.getByRole('button', { name: 'Salvar aluno' }).click();
 
     await expect(page.getByRole('row', { name: new RegExp(studentName) })).toBeVisible();
@@ -240,7 +240,7 @@ test.describe('CRUDs principais', () => {
     await page.getByLabel('Nascimento').fill('1999-05-12');
     await page.getByLabel('Objetivo').fill('Condicionamento fisico geral');
     await page.getByLabel('Plano').selectOption(plan.id);
-    await page.getByLabel('Status').selectOption('ACTIVE');
+    await page.getByLabel('Status').selectOption('ATIVO');
     await page.getByRole('button', { name: 'Salvar aluno' }).click();
     await expect(page.getByText('Ja existe um aluno com este e-mail.')).toBeVisible();
     await page.goto('/alunos');
