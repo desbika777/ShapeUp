@@ -9,7 +9,7 @@ export class SmtpMailService implements IMailService {
   async send(message: MailMessage): Promise<void> {
     // Em ambiente sem SMTP configurado, registra no console para facilitar testes locais.
     if (!this.transport || !env.MAIL_FROM) {
-      console.info('[ShapeUp] Link de redefinicao gerado em ambiente local:', message.text);
+      console.info('[Shape] Link de redefinicao gerado em ambiente local:', message.text);
       return;
     }
 

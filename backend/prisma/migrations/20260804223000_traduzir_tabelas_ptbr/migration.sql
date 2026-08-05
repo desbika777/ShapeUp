@@ -1,5 +1,5 @@
 -- Renomeia as tabelas fisicas para PT-BR sem alterar os nomes internos usados pelo Prisma.
--- Essa abordagem preserva dados e deixa o banco mais natural para apresentacao em banca.
+-- Essa abordagem preserva dados e deixa o banco mais natural para apresentacao do projeto.
 
 RENAME TABLE
   `Academy` TO `academias`,

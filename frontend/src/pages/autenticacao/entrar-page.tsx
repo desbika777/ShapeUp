@@ -1,9 +1,9 @@
 // Pagina de login: autentica o gestor e inicia a sessao no painel.
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import type { UserLoginInput } from '@shapeup/shared';
+import type { UserLoginInput } from '@shape/shared';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { AuthLayout } from '@/pages/auth/auth-layout';
+import { LayoutAutenticacao } from '@/pages/autenticacao/layout-autenticacao';
 import { loginFormSchema } from '@/lib/schemas';
 import { FormField, inputClassName } from '@/components/ui/form-field';
 import { useToast } from '@/components/ui/toast';
@@ -13,7 +13,7 @@ type LoginFormInput = UserLoginInput & {
   rememberAccess: boolean;
 };
 
-export function LoginPage() {
+export function EntrarPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
@@ -36,10 +36,10 @@ export function LoginPage() {
   }
 
   return (
-    <AuthLayout>
+    <LayoutAutenticacao>
       {/* Formulario principal de acesso do gestor. */}
       <p className="text-xs font-semibold uppercase tracking-[0.32em] text-teal">Acesso seguro</p>
-      <h2 className="mt-4 font-display text-4xl font-semibold text-slateblue">Entrar na central ShapeUp</h2>
+      <h2 className="mt-4 font-display text-4xl font-semibold text-slateblue">Entrar na central Shape</h2>
       <p className="mt-3 text-sm text-slate-500">Use seu e-mail e senha para acessar o painel de gestao da academia.</p>
       <form className="mt-8 space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
         <FormField label="E-mail" error={form.formState.errors.email?.message}>
@@ -57,13 +57,13 @@ export function LoginPage() {
             />
             Lembrar meu acesso
           </label>
-          <Link className="text-sm font-semibold text-teal" to="/forgot-password">Esqueci minha senha</Link>
+          <Link className="text-sm font-semibold text-teal" to="/recuperar-senha">Esqueci minha senha</Link>
         </div>
         <button disabled={form.formState.isSubmitting} className="w-full rounded-full bg-slateblue px-5 py-3 font-semibold text-white transition hover:translate-y-[-1px] disabled:opacity-60">
           {form.formState.isSubmitting ? 'Entrando...' : 'Entrar agora'}
         </button>
       </form>
-      <p className="mt-6 text-sm text-slate-500">Primeiro acesso? <Link className="font-semibold text-teal" to="/register">Crie sua conta</Link>.</p>
-    </AuthLayout>
+      <p className="mt-6 text-sm text-slate-500">Primeiro acesso? <Link className="font-semibold text-teal" to="/cadastro">Crie sua conta</Link>.</p>
+    </LayoutAutenticacao>
   );
 }

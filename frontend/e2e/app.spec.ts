@@ -2,7 +2,7 @@
 import { expect, test, type APIRequestContext, type Page, type TestInfo } from '@playwright/test';
 
 const API_URL = process.env.E2E_API_URL ?? 'http://127.0.0.1:3333/api';
-const PASSWORD = 'ShapeUp@123';
+const PASSWORD = 'Shape@123';
 let sequence = 0;
 
 function nextSeed(testInfo: TestInfo) {
@@ -33,7 +33,7 @@ function managerData(testInfo: TestInfo) {
   const seed = nextSeed(testInfo);
   return {
     name: `Gestor E2E ${seed}`,
-    email: `gestor.${seed}@shapeup.test`,
+    email: `gestor.${seed}@shape.test`,
     cpf: validCpf(seed),
     password: PASSWORD,
     confirmPassword: PASSWORD,
@@ -49,7 +49,7 @@ async function expectApiOk(response: Awaited<ReturnType<APIRequestContext['post'
 async function createManager(request: APIRequestContext, testInfo: TestInfo) {
   // Cria gestor diretamente pela API para preparar cenarios autenticados.
   const manager = managerData(testInfo);
-  const response = await request.post(`${API_URL}/auth/register`, { data: manager });
+  const response = await request.post(`${API_URL}/autenticacao/cadastro`, { data: manager });
   await expectApiOk(response);
   const payload = await response.json() as { token: string };
   return { ...manager, token: payload.token };
@@ -57,7 +57,7 @@ async function createManager(request: APIRequestContext, testInfo: TestInfo) {
 
 async function createPlan(request: APIRequestContext, token: string, name: string) {
   // Plano auxiliar usado nos testes de alunos e treinos.
-  const response = await request.post(`${API_URL}/plans`, {
+  const response = await request.post(`${API_URL}/planos`, {
     headers: { Authorization: `Bearer ${token}` },
     data: {
       name,
@@ -72,7 +72,7 @@ async function createPlan(request: APIRequestContext, token: string, name: strin
 }
 
 async function findPlanByName(request: APIRequestContext, token: string, name: string) {
-  const response = await request.get(`${API_URL}/plans?search=${encodeURIComponent(name)}&page=1&pageSize=20`, {
+  const response = await request.get(`${API_URL}/planos?search=${encodeURIComponent(name)}&page=1&pageSize=20`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   await expectApiOk(response);
@@ -88,11 +88,11 @@ async function findPlanByName(request: APIRequestContext, token: string, name: s
 
 async function createStudent(request: APIRequestContext, token: string, input: { planId: string; seed: number; name?: string }) {
   // Aluno auxiliar criado pela API para preparar cenarios de treino.
-  const response = await request.post(`${API_URL}/students`, {
+  const response = await request.post(`${API_URL}/alunos`, {
     headers: { Authorization: `Bearer ${token}` },
     data: {
       name: input.name ?? `Aluno Apoio ${input.seed}`,
-      email: `apoio.${input.seed}@shapeup.test`,
+      email: `apoio.${input.seed}@shape.test`,
       cpf: validCpf(input.seed + 700),
       phone: '11999997777',
       birthDate: '1996-08-20',
@@ -106,7 +106,7 @@ async function createStudent(request: APIRequestContext, token: string, input: {
 }
 
 async function deleteStudent(request: APIRequestContext, token: string, id: string) {
-  const response = await request.delete(`${API_URL}/students/${id}`, {
+  const response = await request.delete(`${API_URL}/alunos/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   await expectApiOk(response);
@@ -115,7 +115,7 @@ async function deleteStudent(request: APIRequestContext, token: string, id: stri
 async function authenticate(page: Page, token: string) {
   // Injeta token no navegador para acessar telas internas sem repetir login manual.
   await page.addInitScript((storedToken) => {
-    window.localStorage.setItem('shapeup:token', storedToken);
+    window.localStorage.setItem('shape:token', storedToken);
   }, token);
 }
 
@@ -131,7 +131,7 @@ async function fillRegisterForm(page: Page, input: ReturnType<typeof managerData
 test.describe('autenticacao', () => {
   // Garante que cadastro e login funcionam tambem pela interface.
   test('bloqueia cadastro invalido e cria usuario com sucesso', async ({ page }, testInfo) => {
-    await page.goto('/register');
+    await page.goto('/cadastro');
 
     await page.getByRole('button', { name: 'Cadastrar e entrar' }).click();
     await expect(page.getByText('Informe um nome com ao menos 3 caracteres.')).toBeVisible();
@@ -147,7 +147,7 @@ test.describe('autenticacao', () => {
   test('exibe falha de login e autentica com credenciais validas', async ({ page, request }, testInfo) => {
     const manager = await createManager(request, testInfo);
 
-    await page.goto('/login');
+    await page.goto('/entrar');
     await page.getByLabel('E-mail').fill(manager.email);
     await page.getByLabel('Senha').fill('SenhaErrada@123');
     await page.getByRole('button', { name: 'Entrar agora' }).click();
@@ -168,7 +168,7 @@ test.describe('CRUDs principais', () => {
     const editedName = `${planName} Plus`;
 
     await authenticate(page, manager.token);
-    await page.goto('/plans');
+    await page.goto('/planos');
     await expect(page.getByText('Catalogo comercial da academia')).toBeVisible();
 
     await page.getByRole('link', { name: 'Novo plano' }).click();
@@ -211,7 +211,7 @@ test.describe('CRUDs principais', () => {
     const editedName = `${studentName} Atualizado`;
 
     await authenticate(page, manager.token);
-    await page.goto('/students');
+    await page.goto('/alunos');
     await expect(page.getByText('Carteira de alunos')).toBeVisible();
 
     await page.getByRole('link', { name: 'Novo aluno' }).click();
@@ -219,7 +219,7 @@ test.describe('CRUDs principais', () => {
     await expect(page.getByText('Informe o nome do aluno.')).toBeVisible();
 
     await page.getByLabel('Nome').fill(studentName);
-    const studentEmail = `aluno.${seed}@shapeup.test`;
+    const studentEmail = `aluno.${seed}@shape.test`;
     const studentCpf = validCpf(seed + 200);
     await page.getByLabel('E-mail').fill(studentEmail);
     await page.getByLabel('CPF').fill(studentCpf);
@@ -243,7 +243,7 @@ test.describe('CRUDs principais', () => {
     await page.getByLabel('Status').selectOption('ACTIVE');
     await page.getByRole('button', { name: 'Salvar aluno' }).click();
     await expect(page.getByText('Ja existe um aluno com este e-mail.')).toBeVisible();
-    await page.goto('/students');
+    await page.goto('/alunos');
 
     await page.getByRole('row', { name: new RegExp(studentName) }).getByRole('link', { name: 'Editar' }).click();
     await page.getByLabel('Nome').fill(editedName);

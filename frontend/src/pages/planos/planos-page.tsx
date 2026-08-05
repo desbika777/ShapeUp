@@ -1,6 +1,6 @@
 // Pagina de planos: lista, filtra, pagina e exclui planos comerciais.
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { PaginatedResponse, Plan, PlanStatus } from '@shapeup/shared';
+import type { PaginatedResponse, Plan, PlanStatus } from '@shape/shared';
 import { Link } from 'react-router-dom';
 import { useDeferredValue, useMemo, useState } from 'react';
 import { DataTable } from '@/components/ui/data-table';
@@ -15,7 +15,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { apiRequest } from '@/lib/api';
 import { formatCurrency, formatPlanStatus } from '@/lib/format';
 
-export function PlansPage() {
+export function PlanosPage() {
   const { token } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -40,20 +40,20 @@ export function PlansPage() {
       const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
       if (filters.search) params.set('search', filters.search);
       if (filters.status) params.set('status', filters.status);
-      return apiRequest<PaginatedResponse<Plan>>(`/plans?${params.toString()}`, { method: 'GET' }, token ?? undefined);
+      return apiRequest<PaginatedResponse<Plan>>(`/planos?${params.toString()}`, { method: 'GET' }, token ?? undefined);
     },
     placeholderData: keepPreviousData,
   });
 
   // Mutation de exclusao; ao concluir, recarrega a lista.
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => apiRequest<void>(`/plans/${id}`, { method: 'DELETE' }, token ?? undefined),
+    mutationFn: (id: string) => apiRequest<void>(`/planos/${id}`, { method: 'DELETE' }, token ?? undefined),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['plans'] }),
   });
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Planos" title="Catalogo comercial da academia" description="Gerencie planos, duracao, ticket medio e status de venda com uma operacao organizada e escalavel." action={<Link to="/plans/new" className="rounded-full bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo plano</Link>} />
+      <PageHeader eyebrow="Planos" title="Catalogo comercial da academia" description="Gerencie planos, duracao, ticket medio e status de venda com uma operacao organizada e escalavel." action={<Link to="/planos/novo" className="rounded-full bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo plano</Link>} />
       {/* Filtros de busca e status usados para reduzir a tabela. */}
       <div className="grid gap-3 rounded-[28px] border border-white/70 bg-white p-4 shadow-panel md:grid-cols-[1.4fr_0.6fr]">
         <input
@@ -102,7 +102,7 @@ export function PlansPage() {
                 label: 'Acoes',
                 render: (row) => (
                   <div className="flex gap-3 text-sm">
-                    <Link className="font-semibold text-teal" to={`/plans/${row.id}/edit`}>Editar</Link>
+                    <Link className="font-semibold text-teal" to={`/planos/${row.id}/editar`}>Editar</Link>
                     <button className="font-semibold text-rose-500" onClick={() => setDeleteTarget(row)}>Excluir</button>
                   </div>
                 ),

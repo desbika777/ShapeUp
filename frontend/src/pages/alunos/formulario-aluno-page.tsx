@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import type { PaginatedResponse, Plan, Student, StudentInput } from '@shapeup/shared';
+import type { PaginatedResponse, Plan, Student, StudentInput } from '@shape/shared';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FormField, inputClassName } from '@/components/ui/form-field';
 import { PageHeader } from '@/components/ui/page-header';
@@ -14,7 +14,7 @@ import { apiRequest } from '@/lib/api';
 import { formatCpf } from '@/lib/format';
 import { studentSchema } from '@/lib/schemas';
 
-export function StudentFormPage() {
+export function FormularioAlunoPage() {
   const { token } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -30,13 +30,13 @@ export function StudentFormPage() {
   // Planos ativos/opcoes aparecem no select de vinculo do aluno.
   const { data: plans } = useQuery({
     queryKey: ['plans-options'],
-    queryFn: () => apiRequest<PaginatedResponse<Plan>>('/plans?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
+    queryFn: () => apiRequest<PaginatedResponse<Plan>>('/planos?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
   });
 
   // Em modo edicao, carrega o aluno atual.
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['student', id],
-    queryFn: () => apiRequest<Student>(`/students/${id}`, { method: 'GET' }, token ?? undefined),
+    queryFn: () => apiRequest<Student>(`/alunos/${id}`, { method: 'GET' }, token ?? undefined),
     enabled: isEdit,
   });
 
@@ -49,7 +49,7 @@ export function StudentFormPage() {
 
   // Envia POST para novo aluno e PUT para edicao.
   const mutation = useMutation({
-    mutationFn: (values: StudentInput) => apiRequest<Student>(isEdit ? `/students/${id}` : '/students', {
+    mutationFn: (values: StudentInput) => apiRequest<Student>(isEdit ? `/alunos/${id}` : '/alunos', {
       method: isEdit ? 'PUT' : 'POST',
       body: JSON.stringify({ ...values, cpf: values.cpf.replace(/\D/g, '') }),
     }, token ?? undefined),
@@ -62,7 +62,7 @@ export function StudentFormPage() {
         isEdit ? queryClient.invalidateQueries({ queryKey: ['student', id] }) : Promise.resolve(),
       ]);
       toast({ variant: 'success', title: 'Aluno salvo', message: 'Alteracoes aplicadas com sucesso.' });
-      navigate('/students');
+      navigate('/alunos');
     },
   });
 
@@ -76,7 +76,7 @@ export function StudentFormPage() {
         onRetry={() => void refetch()}
         loadingFallback={<div className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel">Carregando aluno...</div>}
       >
-        {/* Formulario validado por Zod antes do envio para /students. */}
+        {/* Formulario validado por Zod antes do envio para /alunos. */}
         <form
           className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel"
           onSubmit={form.handleSubmit(async (values) => {

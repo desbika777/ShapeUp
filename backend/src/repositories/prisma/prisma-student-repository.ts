@@ -1,5 +1,5 @@
 // Repositorio Prisma dos alunos: concentra consultas e gravacoes da carteira de alunos.
-import type { DashboardMetrics, PaginatedResponse, Student, StudentInput } from '@shapeup/shared';
+import type { DashboardMetrics, PaginatedResponse, Student, StudentInput } from '@shape/shared';
 import type { IStudentRepository, StudentListParams } from '../interfaces.js';
 import { prisma } from '../../lib/prisma.js';
 

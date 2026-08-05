@@ -2,15 +2,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import type { ApiMessageResponse, ResetPasswordInput } from '@shapeup/shared';
+import type { ApiMessageResponse, ResetPasswordInput } from '@shape/shared';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { AuthLayout } from '@/pages/auth/auth-layout';
+import { LayoutAutenticacao } from '@/pages/autenticacao/layout-autenticacao';
 import { FormField, inputClassName } from '@/components/ui/form-field';
 import { useToast } from '@/components/ui/toast';
 import { apiRequest } from '@/lib/api';
 import { resetPasswordSchema } from '@/lib/schemas';
 
-export function ResetPasswordPage() {
+export function RedefinirSenhaPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -32,7 +32,7 @@ export function ResetPasswordPage() {
   async function onSubmit(values: ResetPasswordInput) {
     try {
       // Envia token e nova senha para o backend encerrar o fluxo de reset.
-      const response = await apiRequest<ApiMessageResponse>('/auth/reset-password', {
+      const response = await apiRequest<ApiMessageResponse>('/autenticacao/redefinir-senha', {
         method: 'POST',
         body: JSON.stringify({
           token: values.token,
@@ -42,7 +42,7 @@ export function ResetPasswordPage() {
       });
 
       toast({ variant: 'success', title: 'Senha redefinida', message: response.message });
-      navigate('/login', { replace: true });
+      navigate('/entrar', { replace: true });
     } catch (error) {
       toast({ variant: 'error', title: 'Falha ao redefinir', message: error instanceof Error ? error.message : 'Nao foi possivel redefinir a senha.' });
     }
@@ -51,19 +51,19 @@ export function ResetPasswordPage() {
   if (!token) {
     // Sem token nao ha como redefinir; orienta o usuario a gerar novo link.
     return (
-      <AuthLayout>
+      <LayoutAutenticacao>
         <p className="text-xs font-semibold uppercase tracking-[0.32em] text-teal">Link invalido</p>
         <h2 className="mt-4 font-display text-4xl font-semibold text-slateblue">Solicite um novo acesso</h2>
         <p className="mt-3 text-sm text-slate-500">O link de redefinicao esta incompleto ou expirou. Gere um novo e-mail para continuar com seguranca.</p>
-        <Link className="mt-8 inline-flex rounded-full bg-slateblue px-5 py-3 font-semibold text-white" to="/forgot-password">
+        <Link className="mt-8 inline-flex rounded-full bg-slateblue px-5 py-3 font-semibold text-white" to="/recuperar-senha">
           Solicitar novo link
         </Link>
-      </AuthLayout>
+      </LayoutAutenticacao>
     );
   }
 
   return (
-    <AuthLayout>
+    <LayoutAutenticacao>
       {/* Formulario exibido apenas quando o link contem token. */}
       <p className="text-xs font-semibold uppercase tracking-[0.32em] text-teal">Nova senha</p>
       <h2 className="mt-4 font-display text-4xl font-semibold text-slateblue">Crie uma nova senha</h2>
@@ -79,7 +79,7 @@ export function ResetPasswordPage() {
           {form.formState.isSubmitting ? 'Salvando nova senha...' : 'Salvar nova senha'}
         </button>
       </form>
-      <p className="mt-6 text-sm text-slate-500">Voltar para <Link className="font-semibold text-teal" to="/login">login</Link>.</p>
-    </AuthLayout>
+      <p className="mt-6 text-sm text-slate-500">Voltar para <Link className="font-semibold text-teal" to="/entrar">login</Link>.</p>
+    </LayoutAutenticacao>
   );
 }

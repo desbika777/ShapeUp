@@ -1,5 +1,5 @@
 // Service de alunos: valida dados cadastrais e vinculo com plano.
-import type { StudentInput, StudentStatus } from '@shapeup/shared';
+import type { StudentInput, StudentStatus } from '@shape/shared';
 import { AppError } from '../core/app-error.js';
 import type { IPlanRepository, IStudentRepository } from '../repositories/interfaces.js';
 import { isValidCpf, isValidEmail, normalizeCpf } from '../utils/validators.js';

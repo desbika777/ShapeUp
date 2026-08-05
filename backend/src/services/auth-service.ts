@@ -11,7 +11,7 @@ import type {
   UserLoginInput,
   UserRegistrationInput,
   UserUpdateInput,
-} from '@shapeup/shared';
+} from '@shape/shared';
 import { env } from '../config/env.js';
 import { AppError } from '../core/app-error.js';
 import type { IUserRepository } from '../repositories/interfaces.js';
@@ -184,18 +184,18 @@ export class AuthService {
 
     await this.mailService.send({
       to: user.email,
-      subject: 'Redefinicao de senha ShapeUp',
+      subject: 'Redefinicao de senha Shape',
       text: [
         `Ola, ${user.name}.`,
         '',
-        'Recebemos uma solicitacao para redefinir a senha da sua conta ShapeUp.',
+        'Recebemos uma solicitacao para redefinir a senha da sua conta Shape.',
         `Acesse o link abaixo para criar uma nova senha: ${resetUrl}`,
         '',
         'Se voce nao solicitou essa alteracao, ignore este e-mail.',
       ].join('\n'),
       html: [
         `<p>Ola, ${user.name}.</p>`,
-        '<p>Recebemos uma solicitacao para redefinir a senha da sua conta ShapeUp.</p>',
+        '<p>Recebemos uma solicitacao para redefinir a senha da sua conta Shape.</p>',
         `<p><a href="${resetUrl}">Clique aqui para criar uma nova senha</a>.</p>`,
         '<p>Se voce nao solicitou essa alteracao, ignore este e-mail.</p>',
       ].join(''),
@@ -266,7 +266,7 @@ export class AuthService {
 
   // Monta a URL que o usuario recebe para redefinir a senha.
   private buildPasswordResetUrl(token: string): string {
-    const resetUrl = env.PASSWORD_RESET_URL ? new URL(env.PASSWORD_RESET_URL) : new URL('/reset-password', env.FRONTEND_URL);
+    const resetUrl = env.PASSWORD_RESET_URL ? new URL(env.PASSWORD_RESET_URL) : new URL('/redefinir-senha', env.FRONTEND_URL);
     resetUrl.searchParams.set('token', token);
     return resetUrl.toString();
   }

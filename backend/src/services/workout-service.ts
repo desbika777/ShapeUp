@@ -1,5 +1,5 @@
 // Service de treinos: valida aluno e periodo antes da persistencia.
-import type { WorkoutInput, WorkoutLevel } from '@shapeup/shared';
+import type { WorkoutInput, WorkoutLevel } from '@shape/shared';
 import { AppError } from '../core/app-error.js';
 import type { IStudentRepository, IWorkoutRepository } from '../repositories/interfaces.js';
 

@@ -2,7 +2,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { BarChart3, Sparkles } from 'lucide-react';
 import { PieChart, Pie, ResponsiveContainer, Cell, Tooltip, BarChart, Bar, CartesianGrid, XAxis, YAxis } from 'recharts';
-import type { DashboardMetrics } from '@shapeup/shared';
+import type { DashboardMetrics } from '@shape/shared';
 import { Link } from 'react-router-dom';
 import { MetricCard } from '@/components/ui/metric-card';
 import { PageHeader } from '@/components/ui/page-header';
@@ -39,12 +39,12 @@ function DashboardSkeleton() {
   );
 }
 
-export function DashboardPage() {
+export function PainelPage() {
   const { token } = useAuth();
   // Busca metricas consolidadas no backend com React Query.
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['dashboard', token],
-    queryFn: () => apiRequest<DashboardMetrics>('/dashboard/metrics', { method: 'GET' }, token ?? undefined),
+    queryFn: () => apiRequest<DashboardMetrics>('/painel/indicadores', { method: 'GET' }, token ?? undefined),
     enabled: Boolean(token),
   });
   // Quando a conta ainda nao tem dados, exibimos um roteiro de primeiros passos.
@@ -82,15 +82,15 @@ export function DashboardPage() {
               </div>
               <div className="rounded-[28px] bg-hero-mesh p-5">
                 <div className="space-y-3">
-                  <Link to="/plans/new" className="block rounded-3xl bg-white px-5 py-4 shadow-panel transition hover:translate-y-[-1px]">
+                  <Link to="/planos/novo" className="block rounded-3xl bg-white px-5 py-4 shadow-panel transition hover:translate-y-[-1px]">
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal">Passo 1</p>
                     <p className="mt-2 font-display text-2xl font-semibold text-slateblue">Criar o primeiro plano</p>
                   </Link>
-                  <Link to="/students/new" className="block rounded-3xl bg-white px-5 py-4 shadow-panel transition hover:translate-y-[-1px]">
+                  <Link to="/alunos/novo" className="block rounded-3xl bg-white px-5 py-4 shadow-panel transition hover:translate-y-[-1px]">
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal">Passo 2</p>
                     <p className="mt-2 font-display text-2xl font-semibold text-slateblue">Cadastrar o primeiro aluno</p>
                   </Link>
-                  <Link to="/workouts/new" className="block rounded-3xl bg-white px-5 py-4 shadow-panel transition hover:translate-y-[-1px]">
+                  <Link to="/treinos/novo" className="block rounded-3xl bg-white px-5 py-4 shadow-panel transition hover:translate-y-[-1px]">
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal">Passo 3</p>
                     <p className="mt-2 font-display text-2xl font-semibold text-slateblue">Montar o primeiro treino</p>
                   </Link>

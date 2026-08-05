@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import type { PaginatedResponse, Student, Workout, WorkoutInput } from '@shapeup/shared';
+import type { PaginatedResponse, Student, Workout, WorkoutInput } from '@shape/shared';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FormField, inputClassName } from '@/components/ui/form-field';
 import { PageHeader } from '@/components/ui/page-header';
@@ -13,7 +13,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { apiRequest } from '@/lib/api';
 import { workoutSchema } from '@/lib/schemas';
 
-export function WorkoutFormPage() {
+export function FormularioTreinoPage() {
   const { token } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -29,13 +29,13 @@ export function WorkoutFormPage() {
   // Alunos cadastrados alimentam o select de destino do treino.
   const { data: students } = useQuery({
     queryKey: ['students-options'],
-    queryFn: () => apiRequest<PaginatedResponse<Student>>('/students?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
+    queryFn: () => apiRequest<PaginatedResponse<Student>>('/alunos?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
   });
 
   // Em edicao, busca o treino atual para preencher os campos.
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['workout', id],
-    queryFn: () => apiRequest<Workout>(`/workouts/${id}`, { method: 'GET' }, token ?? undefined),
+    queryFn: () => apiRequest<Workout>(`/treinos/${id}`, { method: 'GET' }, token ?? undefined),
     enabled: isEdit,
   });
 
@@ -48,7 +48,7 @@ export function WorkoutFormPage() {
 
   // Envia POST para criar e PUT para atualizar.
   const mutation = useMutation({
-    mutationFn: (values: WorkoutInput) => apiRequest<Workout>(isEdit ? `/workouts/${id}` : '/workouts', {
+    mutationFn: (values: WorkoutInput) => apiRequest<Workout>(isEdit ? `/treinos/${id}` : '/treinos', {
       method: isEdit ? 'PUT' : 'POST',
       body: JSON.stringify(values),
     }, token ?? undefined),
@@ -60,7 +60,7 @@ export function WorkoutFormPage() {
         isEdit ? queryClient.invalidateQueries({ queryKey: ['workout', id] }) : Promise.resolve(),
       ]);
       toast({ variant: 'success', title: 'Treino salvo', message: 'Alteracoes aplicadas com sucesso.' });
-      navigate('/workouts');
+      navigate('/treinos');
     },
   });
 

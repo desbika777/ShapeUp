@@ -4,7 +4,7 @@ import type { PropsWithChildren } from 'react';
 import { Link } from 'react-router-dom';
 import { BrandLogo } from '@/components/brand/brand-logo';
 
-export function AuthLayout({ children }: PropsWithChildren) {
+export function LayoutAutenticacao({ children }: PropsWithChildren) {
   return (
     <div className="grid min-h-screen lg:grid-cols-[1.05fr_0.95fr]">
       {/* Painel institucional exibido no desktop para reforcar identidade visual. */}
@@ -15,7 +15,7 @@ export function AuthLayout({ children }: PropsWithChildren) {
           <div className="absolute inset-8 rounded-[40px] border border-white/10" />
         </div>
         <div className="relative rounded-3xl bg-white/10 p-8 backdrop-blur">
-          <Link to="/login" className="inline-flex">
+          <Link to="/entrar" className="inline-flex">
             <BrandLogo theme="light" size="lg" subtitle="gestao premium para academias" />
           </Link>
           <h1 className="mt-10 max-w-lg font-display text-5xl font-semibold leading-tight">Uma identidade premium para academias que querem crescer com autoridade.</h1>
@@ -35,10 +35,10 @@ export function AuthLayout({ children }: PropsWithChildren) {
       <section className="flex items-center justify-center bg-hero-mesh p-5">
         <div className="w-full max-w-xl animate-fade-up rounded-[36px] border border-white/65 bg-white/88 p-8 shadow-panel backdrop-blur">
           <div className="mb-8 flex items-center justify-between">
-            <Link to="/login" className="inline-flex">
+            <Link to="/entrar" className="inline-flex">
               <BrandLogo size="sm" theme="dark" />
             </Link>
-            <Link to="/register" className="inline-flex items-center gap-2 rounded-full bg-slateblue px-4 py-2 text-sm font-semibold text-white">
+            <Link to="/cadastro" className="inline-flex items-center gap-2 rounded-full bg-slateblue px-4 py-2 text-sm font-semibold text-white">
               Criar acesso <ArrowRight size={16} />
             </Link>
           </div>

@@ -1,5 +1,5 @@
 // Service do dashboard: consolida dados de diferentes modulos para os graficos.
-import type { DashboardMetrics } from '@shapeup/shared';
+import type { DashboardMetrics } from '@shape/shared';
 import type { IPlanRepository, IStudentRepository, IWorkoutRepository } from '../repositories/interfaces.js';
 
 export class DashboardService {

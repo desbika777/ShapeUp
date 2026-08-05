@@ -38,7 +38,7 @@ Para a nova versao Shape, a modelagem sera ampliada para representar uma academi
 A proposta inicial possui 27 tabelas.
 
 Decisao de nomenclatura:
-As tabelas fisicas do banco foram traduzidas para PT-BR para deixar o projeto mais natural para a equipe e para a banca. Os nomes internos dos modelos Prisma foram preservados em ingles por estabilidade tecnica, evitando quebrar os CRUDs ja existentes enquanto a interface evolui.
+As tabelas fisicas do banco foram traduzidas para PT-BR para deixar o projeto mais natural para a equipe e para a apresentacao. Os nomes internos dos modelos Prisma foram preservados em ingles por estabilidade tecnica, evitando quebrar os CRUDs ja existentes enquanto a interface evolui.
 
 | Numero | Tabela | Modulo | Prioridade | Finalidade |
 | --- | --- | --- | --- | --- |
@@ -74,14 +74,14 @@ As tabelas fisicas do banco foram traduzidas para PT-BR para deixar o projeto ma
 
 Para a primeira entrega funcional, as tabelas prioritarias sao:
 
-- academies;
-- users;
-- password_reset_tokens;
-- students;
-- membership_plans;
-- memberships;
-- payments;
-- workouts.
+- academias;
+- usuarios;
+- tokens_recuperacao_senha;
+- alunos;
+- planos;
+- matriculas;
+- pagamentos;
+- treinos.
 
 Essas tabelas permitem demonstrar o fluxo minimo:
 
@@ -99,55 +99,55 @@ O diagrama abaixo representa a proposta conceitual inicial. Ele pode ser refinad
 
 ```mermaid
 erDiagram
-    ACADEMIES ||--o{ USERS : possui
-    ACADEMIES ||--o{ STAFF_MEMBERS : possui
-    ACADEMIES ||--o{ STUDENTS : possui
-    ACADEMIES ||--o{ MEMBERSHIP_PLANS : oferece
-    ACADEMIES ||--o{ PAYMENT_METHODS : aceita
-    ACADEMIES ||--o{ EXERCISES : cataloga
-    ACADEMIES ||--o{ MUSCLE_GROUPS : cataloga
-    ACADEMIES ||--o{ CLASS_TYPES : oferece
-    ACADEMIES ||--o{ EQUIPMENTS : possui
-    ACADEMIES ||--o{ NOTIFICATIONS : gera
-    ACADEMIES ||--o{ AUDIT_LOGS : registra
+    ACADEMIAS ||--o{ USUARIOS : possui
+    ACADEMIAS ||--o{ FUNCIONARIOS : possui
+    ACADEMIAS ||--o{ ALUNOS : possui
+    ACADEMIAS ||--o{ PLANOS : oferece
+    ACADEMIAS ||--o{ FORMAS_PAGAMENTO : aceita
+    ACADEMIAS ||--o{ EXERCICIOS : cataloga
+    ACADEMIAS ||--o{ GRUPOS_MUSCULARES : cataloga
+    ACADEMIAS ||--o{ TIPOS_AULA : oferece
+    ACADEMIAS ||--o{ EQUIPAMENTOS : possui
+    ACADEMIAS ||--o{ NOTIFICACOES : gera
+    ACADEMIAS ||--o{ LOGS_AUDITORIA : registra
 
-    USERS ||--o{ USER_ROLES : recebe
-    ROLES ||--o{ USER_ROLES : define
-    USERS ||--o{ PASSWORD_RESET_TOKENS : solicita
-    USERS ||--o| STAFF_MEMBERS : representa
-    USERS ||--o| STUDENTS : representa
+    USUARIOS ||--o{ USUARIO_PERFIS : recebe
+    PERFIS ||--o{ USUARIO_PERFIS : define
+    USUARIOS ||--o{ TOKENS_RECUPERACAO_SENHA : solicita
+    USUARIOS ||--o| FUNCIONARIOS : representa
+    USUARIOS ||--o| ALUNOS : representa
 
-    STUDENTS ||--o{ MEMBERSHIPS : possui
-    MEMBERSHIP_PLANS ||--o{ MEMBERSHIPS : compoe
-    MEMBERSHIPS ||--o{ PAYMENTS : gera
-    PAYMENT_METHODS ||--o{ PAYMENTS : utiliza
+    ALUNOS ||--o{ MATRICULAS : possui
+    PLANOS ||--o{ MATRICULAS : compoe
+    MATRICULAS ||--o{ PAGAMENTOS : gera
+    FORMAS_PAGAMENTO ||--o{ PAGAMENTOS : utiliza
 
-    STUDENTS ||--o{ WORKOUTS : recebe
-    STAFF_MEMBERS ||--o{ WORKOUTS : orienta
-    WORKOUTS ||--o{ WORKOUT_EXERCISES : contem
-    EXERCISES ||--o{ WORKOUT_EXERCISES : compoe
-    EXERCISES ||--o{ EXERCISE_MUSCLE_GROUPS : ativa
-    MUSCLE_GROUPS ||--o{ EXERCISE_MUSCLE_GROUPS : classifica
+    ALUNOS ||--o{ TREINOS : recebe
+    FUNCIONARIOS ||--o{ TREINOS : orienta
+    TREINOS ||--o{ TREINO_EXERCICIOS : contem
+    EXERCICIOS ||--o{ TREINO_EXERCICIOS : compoe
+    EXERCICIOS ||--o{ EXERCICIO_GRUPOS_MUSCULARES : ativa
+    GRUPOS_MUSCULARES ||--o{ EXERCICIO_GRUPOS_MUSCULARES : classifica
 
-    STUDENTS ||--o{ PHYSICAL_ASSESSMENTS : realiza
-    STAFF_MEMBERS ||--o{ PHYSICAL_ASSESSMENTS : avalia
-    PHYSICAL_ASSESSMENTS ||--o{ BODY_MEASUREMENTS : detalha
+    ALUNOS ||--o{ AVALIACOES_FISICAS : realiza
+    FUNCIONARIOS ||--o{ AVALIACOES_FISICAS : avalia
+    AVALIACOES_FISICAS ||--o{ MEDIDAS_CORPORAIS : detalha
 
-    STUDENTS ||--o{ ATTENDANCE_RECORDS : registra
-    CLASS_SCHEDULES ||--o{ ATTENDANCE_RECORDS : opcionalmente_relaciona
+    ALUNOS ||--o{ REGISTROS_FREQUENCIA : registra
+    HORARIOS_AULA ||--o{ REGISTROS_FREQUENCIA : opcionalmente_relaciona
 
-    CLASS_TYPES ||--o{ CLASS_SCHEDULES : agenda
-    STAFF_MEMBERS ||--o{ CLASS_SCHEDULES : ministra
-    CLASS_SCHEDULES ||--o{ CLASS_ENROLLMENTS : recebe
-    STUDENTS ||--o{ CLASS_ENROLLMENTS : participa
+    TIPOS_AULA ||--o{ HORARIOS_AULA : agenda
+    FUNCIONARIOS ||--o{ HORARIOS_AULA : ministra
+    HORARIOS_AULA ||--o{ INSCRICOES_AULA : recebe
+    ALUNOS ||--o{ INSCRICOES_AULA : participa
 
-    EQUIPMENTS ||--o{ EQUIPMENT_MAINTENANCES : possui
+    EQUIPAMENTOS ||--o{ MANUTENCOES_EQUIPAMENTOS : possui
 
-    STUDENTS ||--o{ GOALS : define
-    USERS ||--o{ NOTIFICATIONS : recebe
-    USERS ||--o{ AUDIT_LOGS : executa
+    ALUNOS ||--o{ METAS : define
+    USUARIOS ||--o{ NOTIFICACOES : recebe
+    USUARIOS ||--o{ LOGS_AUDITORIA : executa
 
-    ACADEMIES {
+    ACADEMIAS {
         string id PK
         string name
         string document
@@ -158,7 +158,7 @@ erDiagram
         datetime updatedAt
     }
 
-    USERS {
+    USUARIOS {
         string id PK
         string academyId FK
         string name
@@ -170,7 +170,7 @@ erDiagram
         datetime updatedAt
     }
 
-    ROLES {
+    PERFIS {
         string id PK
         string name
         string description
@@ -178,14 +178,14 @@ erDiagram
         datetime updatedAt
     }
 
-    USER_ROLES {
+    USUARIO_PERFIS {
         string id PK
         string userId FK
         string roleId FK
         datetime createdAt
     }
 
-    PASSWORD_RESET_TOKENS {
+    TOKENS_RECUPERACAO_SENHA {
         string id PK
         string userId FK
         string tokenHash
@@ -194,7 +194,7 @@ erDiagram
         datetime createdAt
     }
 
-    STAFF_MEMBERS {
+    FUNCIONARIOS {
         string id PK
         string academyId FK
         string userId FK
@@ -207,7 +207,7 @@ erDiagram
         datetime updatedAt
     }
 
-    STUDENTS {
+    ALUNOS {
         string id PK
         string academyId FK
         string userId FK
@@ -222,7 +222,7 @@ erDiagram
         datetime updatedAt
     }
 
-    MEMBERSHIP_PLANS {
+    PLANOS {
         string id PK
         string academyId FK
         string name
@@ -234,7 +234,7 @@ erDiagram
         datetime updatedAt
     }
 
-    MEMBERSHIPS {
+    MATRICULAS {
         string id PK
         string studentId FK
         string planId FK
@@ -246,7 +246,7 @@ erDiagram
         datetime updatedAt
     }
 
-    PAYMENT_METHODS {
+    FORMAS_PAGAMENTO {
         string id PK
         string academyId FK
         string name
@@ -255,7 +255,7 @@ erDiagram
         datetime updatedAt
     }
 
-    PAYMENTS {
+    PAGAMENTOS {
         string id PK
         string membershipId FK
         string paymentMethodId FK
@@ -267,7 +267,7 @@ erDiagram
         datetime updatedAt
     }
 
-    WORKOUTS {
+    TREINOS {
         string id PK
         string studentId FK
         string staffMemberId FK
@@ -281,7 +281,7 @@ erDiagram
         datetime updatedAt
     }
 
-    EXERCISES {
+    EXERCICIOS {
         string id PK
         string academyId FK
         string name
@@ -292,7 +292,7 @@ erDiagram
         datetime updatedAt
     }
 
-    MUSCLE_GROUPS {
+    GRUPOS_MUSCULARES {
         string id PK
         string academyId FK
         string name
@@ -300,13 +300,13 @@ erDiagram
         datetime updatedAt
     }
 
-    EXERCISE_MUSCLE_GROUPS {
+    EXERCICIO_GRUPOS_MUSCULARES {
         string id PK
         string exerciseId FK
         string muscleGroupId FK
     }
 
-    WORKOUT_EXERCISES {
+    TREINO_EXERCICIOS {
         string id PK
         string workoutId FK
         string exerciseId FK
@@ -318,7 +318,7 @@ erDiagram
         string notes
     }
 
-    PHYSICAL_ASSESSMENTS {
+    AVALIACOES_FISICAS {
         string id PK
         string studentId FK
         string staffMemberId FK
@@ -331,7 +331,7 @@ erDiagram
         datetime updatedAt
     }
 
-    BODY_MEASUREMENTS {
+    MEDIDAS_CORPORAIS {
         string id PK
         string assessmentId FK
         string bodyPart
@@ -340,7 +340,7 @@ erDiagram
         datetime createdAt
     }
 
-    ATTENDANCE_RECORDS {
+    REGISTROS_FREQUENCIA {
         string id PK
         string studentId FK
         string classScheduleId FK
@@ -349,7 +349,7 @@ erDiagram
         datetime createdAt
     }
 
-    CLASS_TYPES {
+    TIPOS_AULA {
         string id PK
         string academyId FK
         string name
@@ -360,7 +360,7 @@ erDiagram
         datetime updatedAt
     }
 
-    CLASS_SCHEDULES {
+    HORARIOS_AULA {
         string id PK
         string classTypeId FK
         string staffMemberId FK
@@ -372,7 +372,7 @@ erDiagram
         datetime updatedAt
     }
 
-    CLASS_ENROLLMENTS {
+    INSCRICOES_AULA {
         string id PK
         string classScheduleId FK
         string studentId FK
@@ -381,7 +381,7 @@ erDiagram
         datetime updatedAt
     }
 
-    EQUIPMENTS {
+    EQUIPAMENTOS {
         string id PK
         string academyId FK
         string name
@@ -392,7 +392,7 @@ erDiagram
         datetime updatedAt
     }
 
-    EQUIPMENT_MAINTENANCES {
+    MANUTENCOES_EQUIPAMENTOS {
         string id PK
         string equipmentId FK
         string description
@@ -404,7 +404,7 @@ erDiagram
         datetime updatedAt
     }
 
-    GOALS {
+    METAS {
         string id PK
         string studentId FK
         string title
@@ -415,7 +415,7 @@ erDiagram
         datetime updatedAt
     }
 
-    NOTIFICATIONS {
+    NOTIFICACOES {
         string id PK
         string academyId FK
         string userId FK
@@ -425,7 +425,7 @@ erDiagram
         datetime createdAt
     }
 
-    AUDIT_LOGS {
+    LOGS_AUDITORIA {
         string id PK
         string academyId FK
         string userId FK
@@ -438,7 +438,7 @@ erDiagram
 
 ## Dicionario de Dados Resumido
 
-### academies
+### academias
 
 Representa a academia cadastrada no sistema. Serve como entidade principal para separar dados operacionais.
 
@@ -453,7 +453,7 @@ Campos principais:
 - createdAt;
 - updatedAt.
 
-### users
+### usuarios
 
 Representa usuarios que acessam o sistema.
 
@@ -469,7 +469,7 @@ Campos principais:
 - createdAt;
 - updatedAt.
 
-### roles
+### perfis
 
 Representa perfis de acesso.
 
@@ -480,99 +480,99 @@ Exemplos:
 - Professor;
 - Financeiro.
 
-### user_roles
+### usuario_perfis
 
 Tabela de relacionamento entre usuarios e perfis.
 
-### password_reset_tokens
+### tokens_recuperacao_senha
 
 Armazena tokens de recuperacao de senha, com hash, expiracao e data de uso.
 
-### staff_members
+### funcionarios
 
 Representa funcionarios e professores da academia.
 
-### students
+### alunos
 
 Representa alunos da academia.
 
-### membership_plans
+### planos
 
 Representa planos contrataveis pelos alunos.
 
-### memberships
+### matriculas
 
 Representa matriculas de alunos em planos.
 
-### payment_methods
+### formas_pagamento
 
 Representa formas de pagamento aceitas pela academia.
 
-### payments
+### pagamentos
 
 Representa pagamentos vinculados a matriculas.
 
-### workouts
+### treinos
 
 Representa treinos criados para alunos.
 
-### exercises
+### exercicios
 
 Representa exercicios disponiveis no catalogo da academia.
 
-### muscle_groups
+### grupos_musculares
 
 Representa grupos musculares.
 
-### exercise_muscle_groups
+### exercicio_grupos_musculares
 
 Relaciona exercicios com grupos musculares.
 
-### workout_exercises
+### treino_exercicios
 
 Representa os exercicios que fazem parte de cada treino.
 
-### physical_assessments
+### avaliacoes_fisicas
 
 Representa avaliacoes fisicas de alunos.
 
-### body_measurements
+### medidas_corporais
 
 Representa medidas corporais coletadas em uma avaliacao.
 
-### attendance_records
+### registros_frequencia
 
 Representa registros de frequencia dos alunos.
 
-### class_types
+### tipos_aula
 
 Representa tipos de aulas coletivas.
 
-### class_schedules
+### horarios_aula
 
 Representa horarios/turmas de aulas coletivas.
 
-### class_enrollments
+### inscricoes_aula
 
 Representa inscricoes de alunos em aulas coletivas.
 
-### equipments
+### equipamentos
 
 Representa equipamentos da academia.
 
-### equipment_maintenances
+### manutencoes_equipamentos
 
 Representa registros de manutencao de equipamentos.
 
-### goals
+### metas
 
 Representa metas definidas para alunos.
 
-### notifications
+### notificacoes
 
 Representa notificacoes internas.
 
-### audit_logs
+### logs_auditoria
 
 Representa registros de auditoria para eventos importantes do sistema.
 
@@ -580,20 +580,20 @@ Representa registros de auditoria para eventos importantes do sistema.
 
 | Schema antigo | Novo equivalente | Observacao |
 | --- | --- | --- |
-| User | users | Sera mantido e ampliado com academia, status e perfis. |
-| Plan | membership_plans | Nome mais especifico para planos de matricula. |
-| Student | students | Sera mantido e ampliado sem depender diretamente de planId. |
-| Workout | workouts | Sera mantido e ampliado com professor, status e exercicios. |
-| PasswordResetToken | password_reset_tokens | Sera mantido com a mesma finalidade. |
+| User | usuarios | Sera mantido e ampliado com academia, status e perfis. |
+| Plan | planos | Nome mais especifico para planos de matricula. |
+| Student | alunos | Sera mantido e ampliado sem depender diretamente de planId. |
+| Workout | treinos | Sera mantido e ampliado com professor, status e exercicios. |
+| PasswordResetToken | tokens_recuperacao_senha | Sera mantido com a mesma finalidade. |
 
 Nova estrutura importante:
 
-- `memberships` substitui o relacionamento direto aluno -> plano.
-- `payments` passa a controlar o financeiro basico.
-- `workout_exercises` permite montar treinos reais.
-- `physical_assessments` e `body_measurements` permitem acompanhar evolucao fisica.
-- `class_schedules` e `class_enrollments` permitem agenda de aulas.
-- `equipments` e `equipment_maintenances` ampliam a gestao operacional.
+- `matriculas` substitui o relacionamento direto aluno -> plano.
+- `pagamentos` passa a controlar o financeiro basico.
+- `treino_exercicios` permite montar treinos reais.
+- `avaliacoes_fisicas` e `medidas_corporais` permitem acompanhar evolucao fisica.
+- `horarios_aula` e `inscricoes_aula` permitem agenda de aulas.
+- `equipamentos` e `manutencoes_equipamentos` ampliam a gestao operacional.
 
 ## Decisoes de Modelagem
 

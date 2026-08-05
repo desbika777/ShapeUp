@@ -9,10 +9,10 @@ import { cn } from '@/lib/cn';
 const navigation = [
   // Itens usados tanto no menu lateral desktop quanto no menu inferior mobile.
   { label: 'Painel', icon: LayoutDashboard, to: '/' },
-  { label: 'Planos', icon: BadgeDollarSign, to: '/plans' },
-  { label: 'Alunos', icon: Users, to: '/students' },
-  { label: 'Treinos', icon: Dumbbell, to: '/workouts' },
-  { label: 'Perfil', icon: UserCircle2, to: '/profile' },
+  { label: 'Planos', icon: BadgeDollarSign, to: '/planos' },
+  { label: 'Alunos', icon: Users, to: '/alunos' },
+  { label: 'Treinos', icon: Dumbbell, to: '/treinos' },
+  { label: 'Perfil', icon: UserCircle2, to: '/perfil' },
 ];
 
 export function AppShell({ children }: PropsWithChildren) {
@@ -50,7 +50,7 @@ export function AppShell({ children }: PropsWithChildren) {
           <button
             onClick={() => {
               logout();
-              navigate('/login');
+              navigate('/entrar');
             }}
             className="flex items-center gap-3 rounded-2xl border border-white/15 px-4 py-3 text-sm text-white/88 hover:bg-white/10"
           >
@@ -79,7 +79,7 @@ export function AppShell({ children }: PropsWithChildren) {
                   type="button"
                   onClick={() => {
                     logout();
-                    navigate('/login');
+                    navigate('/entrar');
                   }}
                   className="lg:hidden rounded-3xl border border-white/60 bg-white/80 px-4 py-4 text-slateblue shadow-sm"
                   aria-label="Sair"

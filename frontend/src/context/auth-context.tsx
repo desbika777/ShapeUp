@@ -1,12 +1,12 @@
 // Contexto de autenticacao: guarda token, usuario logado e acoes de conta.
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import type { PropsWithChildren } from 'react';
-import type { AuthResponse, AuthUser, UserLoginInput, UserRegistrationInput, UserUpdateInput } from '@shapeup/shared';
+import type { AuthResponse, AuthUser, UserLoginInput, UserRegistrationInput, UserUpdateInput } from '@shape/shared';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { apiRequest } from '@/lib/api';
 
-const STORAGE_KEY = 'shapeup:token';
+const STORAGE_KEY = 'shape:token';
 
 function getStoredToken() {
   // Procura primeiro sessao persistente e depois sessao temporaria.
@@ -90,7 +90,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       }
 
       try {
-        const currentUser = await apiRequest<AuthUser>('/users/me', { method: 'GET' }, token);
+        const currentUser = await apiRequest<AuthUser>('/usuarios/me', { method: 'GET' }, token);
         setUser(currentUser);
       } catch {
         logout();
@@ -106,11 +106,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
     function handleUnauthorized() {
       // Qualquer 401 global redireciona para login e encerra a sessao.
       logout();
-      navigate('/login', { replace: true });
+      navigate('/entrar', { replace: true });
     }
 
-    window.addEventListener('shapeup:unauthorized', handleUnauthorized);
-    return () => window.removeEventListener('shapeup:unauthorized', handleUnauthorized);
+    window.addEventListener('shape:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('shape:unauthorized', handleUnauthorized);
   }, [logout, navigate]);
 
   const value = useMemo<AuthContextValue>(() => ({
@@ -120,7 +120,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     isLoading,
     async login(input, options) {
       // Login autentica e salva o token conforme a escolha do usuario.
-      const response = await apiRequest<AuthResponse>('/auth/login', {
+      const response = await apiRequest<AuthResponse>('/autenticacao/entrar', {
         method: 'POST',
         body: JSON.stringify(input),
       });
@@ -131,7 +131,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     },
     async register(input) {
       // Cadastro ja cria sessao para reduzir passos no primeiro acesso.
-      const response = await apiRequest<AuthResponse>('/auth/register', {
+      const response = await apiRequest<AuthResponse>('/autenticacao/cadastro', {
         method: 'POST',
         body: JSON.stringify(input),
       });
@@ -144,13 +144,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
     async refreshUser() {
       // Recarrega dados do usuario quando alguma tela precisa de informacao atualizada.
       if (!token) return;
-      const currentUser = await apiRequest<AuthUser>('/users/me', { method: 'GET' }, token);
+      const currentUser = await apiRequest<AuthUser>('/usuarios/me', { method: 'GET' }, token);
       setUser(currentUser);
     },
     async updateProfile(input) {
       // Atualiza perfil mantendo o token atual.
       if (!token) return;
-      const updatedUser = await apiRequest<AuthUser>('/users/me', {
+      const updatedUser = await apiRequest<AuthUser>('/usuarios/me', {
         method: 'PUT',
         body: JSON.stringify(input),
       }, token);

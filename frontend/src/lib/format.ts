@@ -1,5 +1,5 @@
 // Formatadores usados para mostrar dados tecnicos em formato brasileiro.
-import type { PlanStatus, StudentStatus, WorkoutLevel } from '@shapeup/shared';
+import type { PlanStatus, StudentStatus, WorkoutLevel } from '@shape/shared';
 
 export function formatCurrency(value: number) {
   return new Intl.NumberFormat('pt-BR', {

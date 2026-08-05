@@ -1,4 +1,4 @@
-// Componentes da marca ShapeUp usados no login, sidebar e estados de carregamento.
+// Componentes da marca Shape usados no login, sidebar e estados de carregamento.
 import { useId } from 'react';
 import { cn } from '@/lib/cn';
 
@@ -97,7 +97,6 @@ export function BrandLogo({
   // O tema muda contraste da marca conforme fundo claro ou escuro.
   const styles = sizeStyles[size];
   const titleColor = theme === 'light' ? 'text-white' : 'text-slateblue';
-  const accentColor = theme === 'light' ? 'text-mint' : 'text-teal';
   const subtitleColor = theme === 'light' ? 'text-white/68' : 'text-slate-500';
 
   return (
@@ -105,9 +104,8 @@ export function BrandLogo({
       <BrandMark className={cn('shrink-0', styles.mark)} />
       {!markOnly && (
         <div className="min-w-0">
-          <p className={cn('font-display font-semibold leading-none tracking-[-0.04em]', styles.title, titleColor)}>
+          <p className={cn('font-display font-semibold leading-none tracking-normal', styles.title, titleColor)}>
             <span>Shape</span>
-            <span className={accentColor}>Up</span>
           </p>
           {subtitle ? (
             <p className={cn('mt-1 font-body font-medium tracking-[0.08em] uppercase', styles.subtitle, subtitleColor)}>{subtitle}</p>

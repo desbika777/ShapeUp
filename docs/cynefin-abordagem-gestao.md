@@ -48,7 +48,7 @@ Existem incertezas sobre:
 - quais regras de negocio serao mais importantes para a demonstracao;
 - como equilibrar escopo academico e viabilidade tecnica;
 - como organizar as entregas parciais;
-- quais telas e fluxos serao mais relevantes para a banca;
+- quais telas e fluxos serao mais relevantes para a apresentacao;
 - como manter o banco com 20 ou mais tabelas sem criar entidades artificiais.
 
 Nesse contexto, o projeto exige ciclos de experimentacao, revisao e adaptacao.

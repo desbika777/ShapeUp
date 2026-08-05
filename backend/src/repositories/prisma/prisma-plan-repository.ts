@@ -1,5 +1,5 @@
 // Repositorio Prisma dos planos: traduz chamadas do service para consultas MySQL.
-import type { PaginatedResponse, Plan, PlanInput } from '@shapeup/shared';
+import type { PaginatedResponse, Plan, PlanInput } from '@shape/shared';
 import type { IPlanRepository, PlanListParams } from '../interfaces.js';
 import { prisma } from '../../lib/prisma.js';
 

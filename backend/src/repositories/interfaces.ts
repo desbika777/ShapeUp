@@ -13,7 +13,7 @@ import type {
   WorkoutInput,
   WorkoutLevel,
   DashboardMetrics,
-} from '@shapeup/shared';
+} from '@shape/shared';
 
 export type PaginationParams = {
   page: number;

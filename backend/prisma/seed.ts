@@ -1,5 +1,5 @@
-// Seed local do ShapeUp.
-// Cria dados iniciais para testar o sistema e demonstrar a modelagem na banca.
+// Seed local do Shape.
+// Cria dados iniciais para testar o sistema e demonstrar a modelagem do projeto.
 import 'dotenv/config';
 import {
   AttendanceSource,
@@ -25,8 +25,8 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Senha padrao do usuario administrador: ShapeUp@123.
-  const passwordHash = await bcrypt.hash('ShapeUp@123', 10);
+  // Senha padrao do usuario administrador: Shape@123.
+  const passwordHash = await bcrypt.hash('Shape@123', 10);
   const now = new Date();
 
   // Academia base usada para relacionar usuarios, alunos e operacao.
@@ -63,7 +63,7 @@ async function main() {
 
   // Gestor principal usado para acessar o sistema localmente.
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@shapeup.com' },
+    where: { email: 'admin@shape.com.br' },
     update: {
       academyId: academy.id,
       name: 'Administrador Shape',
@@ -74,7 +74,7 @@ async function main() {
     create: {
       academyId: academy.id,
       name: 'Administrador Shape',
-      email: 'admin@shapeup.com',
+      email: 'admin@shape.com.br',
       passwordHash,
       cpf: '11144477735',
       status: 'ACTIVE',
@@ -147,7 +147,7 @@ async function main() {
       academyId: academy.id,
       ownerId: admin.id,
       name: 'Ana Silva',
-      email: 'ana.silva@shapeup.com',
+      email: 'ana.silva@shape.com.br',
       cpf: '39053344705',
       phone: '11987654321',
       birthDate: new Date('1997-07-15'),
@@ -159,7 +159,7 @@ async function main() {
       academyId: academy.id,
       ownerId: admin.id,
       name: 'Ana Silva',
-      email: 'ana.silva@shapeup.com',
+      email: 'ana.silva@shape.com.br',
       cpf: '39053344705',
       phone: '11987654321',
       birthDate: new Date('1997-07-15'),

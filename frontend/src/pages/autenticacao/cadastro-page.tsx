@@ -1,16 +1,16 @@
 // Pagina de cadastro: cria a primeira conta de gestor da academia.
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import type { UserRegistrationInput } from '@shapeup/shared';
+import type { UserRegistrationInput } from '@shape/shared';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthLayout } from '@/pages/auth/auth-layout';
+import { LayoutAutenticacao } from '@/pages/autenticacao/layout-autenticacao';
 import { registerSchema } from '@/lib/schemas';
 import { FormField, inputClassName } from '@/components/ui/form-field';
 import { useToast } from '@/components/ui/toast';
 import { useAuth } from '@/hooks/use-auth';
 import { formatCpf } from '@/lib/format';
 
-export function RegisterPage() {
+export function CadastroPage() {
   const navigate = useNavigate();
   const { register } = useAuth();
   const { toast } = useToast();
@@ -30,7 +30,7 @@ export function RegisterPage() {
   }
 
   return (
-    <AuthLayout>
+    <LayoutAutenticacao>
       {/* Formulario de primeiro acesso com validacao de senha forte e CPF. */}
       <p className="text-xs font-semibold uppercase tracking-[0.32em] text-teal">Cadastro de usuario</p>
       <h2 className="mt-4 font-display text-4xl font-semibold text-slateblue">Criar conta de gestao</h2>
@@ -45,7 +45,7 @@ export function RegisterPage() {
           {form.formState.isSubmitting ? 'Cadastrando...' : 'Cadastrar e entrar'}
         </button>
       </form>
-      <p className="mt-6 text-sm text-slate-500">Ja possui cadastro? <Link className="font-semibold text-teal" to="/login">Voltar para login</Link>.</p>
-    </AuthLayout>
+      <p className="mt-6 text-sm text-slate-500">Ja possui cadastro? <Link className="font-semibold text-teal" to="/entrar">Voltar para login</Link>.</p>
+    </LayoutAutenticacao>
   );
 }

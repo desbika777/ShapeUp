@@ -1,5 +1,5 @@
 {
-  "name": "shapeup-platform",
+  "name": "shape-platform",
   "private": true,
   "version": "1.0.0",
   "workspaces": [
@@ -23,5 +23,8 @@
   },
   "dependencies": {
     "@prisma/client": "^6.16.2"
+  },
+  "overrides": {
+    "esbuild": "0.28.1"
   }
 }

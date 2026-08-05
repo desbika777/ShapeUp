@@ -1,7 +1,7 @@
 // Pagina de perfil: atualiza dados do gestor e permite troca de senha.
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import type { UserUpdateInput } from '@shapeup/shared';
+import type { UserUpdateInput } from '@shape/shared';
 import { FormField, inputClassName } from '@/components/ui/form-field';
 import { PageHeader } from '@/components/ui/page-header';
 import { useToast } from '@/components/ui/toast';
@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { updateUserSchema } from '@/lib/schemas';
 import { formatCpf } from '@/lib/format';
 
-export function ProfilePage() {
+export function PerfilPage() {
   const { user, updateProfile } = useAuth();
   const { toast } = useToast();
   const form = useForm<UserUpdateInput>({
@@ -65,7 +65,7 @@ export function ProfilePage() {
             <p>Seu e-mail nao pode ser alterado nesta versao para preservar a integridade da autenticacao.</p>
           </div>
         </div>
-        {/* Formulario de atualizacao envia dados para /users/me. */}
+        {/* Formulario de atualizacao envia dados para /usuarios/me. */}
         <form className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="grid gap-5 md:grid-cols-2">
             <div className="md:col-span-2"><FormField label="Nome" error={form.formState.errors.name?.message}><input className={inputClassName(!!form.formState.errors.name)} {...form.register('name')} /></FormField></div>

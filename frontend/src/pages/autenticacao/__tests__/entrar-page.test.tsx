@@ -6,9 +6,9 @@ import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import { ToastProvider } from '@/components/ui/toast';
 import { AuthProvider } from '@/context/auth-context';
-import { LoginPage } from '@/pages/auth/login-page';
+import { EntrarPage } from '@/pages/autenticacao/entrar-page';
 
-function renderLoginPage() {
+function renderEntrarPage() {
   // Renderiza a pagina com os provedores necessarios para o teste.
   const queryClient = new QueryClient();
   return render(
@@ -16,7 +16,7 @@ function renderLoginPage() {
       <MemoryRouter>
         <ToastProvider>
           <AuthProvider>
-            <LoginPage />
+            <EntrarPage />
           </AuthProvider>
         </ToastProvider>
       </MemoryRouter>
@@ -24,16 +24,16 @@ function renderLoginPage() {
   );
 }
 
-describe('LoginPage', () => {
+describe('EntrarPage', () => {
   it('exibe opcao para lembrar o acesso marcada por padrao', () => {
-    renderLoginPage();
+    renderEntrarPage();
 
     expect(screen.getByRole('checkbox', { name: 'Lembrar meu acesso' })).toBeChecked();
   });
 
   it('valida campos obrigatorios e email invalido', async () => {
     const user = userEvent.setup();
-    renderLoginPage();
+    renderEntrarPage();
 
     await user.type(screen.getByLabelText('E-mail'), 'email-invalido');
     await user.click(screen.getByRole('button', { name: 'Entrar agora' }));

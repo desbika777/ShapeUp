@@ -2,7 +2,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { AuthResponse } from '@shapeup/shared';
+import type { AuthResponse } from '@shape/shared';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AuthProvider } from '@/context/auth-context';
@@ -13,8 +13,8 @@ function Harness() {
   const { login, user } = useAuth();
   return (
     <div>
-      <button onClick={() => login({ email: 'gestor@shapeup.com', password: 'ShapeUp@123' })}>lembrar</button>
-      <button onClick={() => login({ email: 'gestor@shapeup.com', password: 'ShapeUp@123' }, { rememberAccess: false })}>sessao</button>
+      <button onClick={() => login({ email: 'gestor@shape.com.br', password: 'Shape@123' })}>lembrar</button>
+      <button onClick={() => login({ email: 'gestor@shape.com.br', password: 'Shape@123' }, { rememberAccess: false })}>sessao</button>
       <span>{user?.email ?? 'sem-usuario'}</span>
     </div>
   );
@@ -34,7 +34,7 @@ describe('AuthProvider', () => {
       user: {
         id: '1',
         name: 'Gestor',
-        email: 'gestor@shapeup.com',
+        email: 'gestor@shape.com.br',
         cpf: '11144477735',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -45,7 +45,7 @@ describe('AuthProvider', () => {
       'fetch',
       vi.fn().mockImplementation(async (input: RequestInfo | URL) => {
         const url = String(input);
-        if (url.endsWith('/auth/login')) {
+        if (url.endsWith('/autenticacao/entrar')) {
           return { ok: true, status: 200, json: async () => response };
         }
         return { ok: true, status: 200, json: async () => response.user };
@@ -67,9 +67,9 @@ describe('AuthProvider', () => {
 
     await user.click(screen.getByRole('button', { name: 'lembrar' }));
 
-    await waitFor(() => expect(localStorage.getItem('shapeup:token')).toBe('jwt-token'));
-    expect(sessionStorage.getItem('shapeup:token')).toBeNull();
-    await waitFor(() => expect(screen.getByText('gestor@shapeup.com')).toBeInTheDocument());
+    await waitFor(() => expect(localStorage.getItem('shape:token')).toBe('jwt-token'));
+    expect(sessionStorage.getItem('shape:token')).toBeNull();
+    await waitFor(() => expect(screen.getByText('gestor@shape.com.br')).toBeInTheDocument());
   });
 
   it('armazena token no sessionStorage quando login nao deve ser lembrado', async () => {
@@ -78,7 +78,7 @@ describe('AuthProvider', () => {
       user: {
         id: '1',
         name: 'Gestor',
-        email: 'gestor@shapeup.com',
+        email: 'gestor@shape.com.br',
         cpf: '11144477735',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -89,7 +89,7 @@ describe('AuthProvider', () => {
       'fetch',
       vi.fn().mockImplementation(async (input: RequestInfo | URL) => {
         const url = String(input);
-        if (url.endsWith('/auth/login')) {
+        if (url.endsWith('/autenticacao/entrar')) {
           return { ok: true, status: 200, json: async () => response };
         }
         return { ok: true, status: 200, json: async () => response.user };
@@ -111,8 +111,8 @@ describe('AuthProvider', () => {
 
     await user.click(screen.getByRole('button', { name: 'sessao' }));
 
-    await waitFor(() => expect(sessionStorage.getItem('shapeup:token')).toBe('jwt-token'));
-    expect(localStorage.getItem('shapeup:token')).toBeNull();
-    await waitFor(() => expect(screen.getByText('gestor@shapeup.com')).toBeInTheDocument());
+    await waitFor(() => expect(sessionStorage.getItem('shape:token')).toBe('jwt-token'));
+    expect(localStorage.getItem('shape:token')).toBeNull();
+    await waitFor(() => expect(screen.getByText('gestor@shape.com.br')).toBeInTheDocument());
   });
 });

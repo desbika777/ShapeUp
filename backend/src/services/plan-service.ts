@@ -1,5 +1,5 @@
 // Service de planos: aplica regras antes de acessar o repositorio.
-import type { PlanInput, PlanStatus } from '@shapeup/shared';
+import type { PlanInput, PlanStatus } from '@shape/shared';
 import { AppError } from '../core/app-error.js';
 import type { IPlanRepository, IStudentRepository } from '../repositories/interfaces.js';
 

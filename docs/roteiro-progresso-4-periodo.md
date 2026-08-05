@@ -349,6 +349,8 @@ O sistema pode ser demonstrado de ponta a ponta sem depender de explicacao verba
 
 ## Fase 6 - Diagramas UML
 
+Status: concluida em versao inicial.
+
 Objetivo:
 Documentar os fluxos que mais representam o sistema.
 
@@ -367,10 +369,16 @@ Entregaveis:
 - 2 diagramas de atividade;
 - 2 diagramas de sequencia.
 
+Documento criado:
+
+- `docs/diagramas-uml.md`.
+
 Criterio de pronto:
 Os diagramas batem com funcionalidades reais do sistema.
 
 ## Fase 7 - Evolucao e Polimento
+
+Status: polimento inicial concluido; proximas evolucoes continuam em andamento.
 
 Objetivo:
 Melhorar a qualidade da entrega e reduzir riscos.
@@ -395,13 +403,26 @@ Entregaveis:
 - evidencias de testes;
 - documentacao atualizada.
 
+Progresso atual:
+
+- comentarios em PT-BR adicionados ao codigo;
+- rotas do frontend traduzidas para PT-BR;
+- endpoints da API traduzidos para PT-BR;
+- paginas principais do frontend organizadas em pastas em PT-BR;
+- marca visual ajustada para Shape;
+- e-mails, senha seed e textos de recuperacao alinhados ao nome Shape;
+- documento de arquitetura e evidencias criado;
+- documento de validacao de usabilidade, compatibilidade e seguranca criado;
+- documento de nomenclatura PT-BR criado;
+- validacao tecnica executada com `git diff --check`, `npm run lint`, `npm run test`, `npm run build` e `npm run e2e`.
+
 Criterio de pronto:
 O projeto parece consistente, nao apenas funcional.
 
 ## Fase 8 - Fechamento e Apresentacao
 
 Objetivo:
-Preparar a entrega final para banca/professor.
+Preparar a entrega final para apresentacao/professor.
 
 Atividades:
 
@@ -493,6 +514,7 @@ Ainda precisamos decidir:
 
 Documentos ja criados:
 
+- mapa da rubrica para apresentacao;
 - contextualizacao do problema;
 - objetivo geral;
 - objetivos especificos;
@@ -505,11 +527,15 @@ Documentos ja criados:
 - requisitos nao funcionais;
 - regras de negocio;
 - DER proposto com 27 tabelas;
+- diagramas UML exigidos pela rubrica;
+- arquitetura e evidencias tecnicas;
+- validacao de usabilidade, compatibilidade e seguranca;
+- padrao de nomenclatura PT-BR;
 - backlog inicial para Jira.
 
 Proxima acao:
 
-- revisar DER e backlog com a dupla;
+- revisar Jira real e anexar evidencias/prints;
 - abrir Pull Request da branch atual quando os commits estiverem no GitHub;
 - alinhar merge para `dev`;
 - criar branch de funcionalidade para endpoints e telas de matriculas/pagamentos.

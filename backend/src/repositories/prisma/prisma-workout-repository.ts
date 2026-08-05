@@ -1,5 +1,5 @@
 // Repositorio Prisma dos treinos: consulta e grava prescricoes vinculadas a alunos.
-import type { PaginatedResponse, Workout, WorkoutInput } from '@shapeup/shared';
+import type { PaginatedResponse, Workout, WorkoutInput } from '@shape/shared';
 import type { IWorkoutRepository, WorkoutListParams } from '../interfaces.js';
 import { prisma } from '../../lib/prisma.js';
 

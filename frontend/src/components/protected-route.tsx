@@ -21,7 +21,7 @@ export function ProtectedRoute() {
 
   if (!isAuthenticated) {
     // Redireciona para login guardando a rota desejada para voltar apos autenticar.
-    return <Navigate to="/login" replace state={{ from: location }} />;
+    return <Navigate to="/entrar" replace state={{ from: location }} />;
   }
 
   return <Outlet />;

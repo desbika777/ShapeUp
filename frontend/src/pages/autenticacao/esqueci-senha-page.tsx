@@ -2,15 +2,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import type { ApiMessageResponse, ForgotPasswordInput } from '@shapeup/shared';
+import type { ApiMessageResponse, ForgotPasswordInput } from '@shape/shared';
 import { Link } from 'react-router-dom';
-import { AuthLayout } from '@/pages/auth/auth-layout';
+import { LayoutAutenticacao } from '@/pages/autenticacao/layout-autenticacao';
 import { FormField, inputClassName } from '@/components/ui/form-field';
 import { useToast } from '@/components/ui/toast';
 import { apiRequest } from '@/lib/api';
 import { forgotPasswordSchema } from '@/lib/schemas';
 
-export function ForgotPasswordPage() {
+export function EsqueciSenhaPage() {
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const { toast } = useToast();
   const form = useForm<ForgotPasswordInput>({
@@ -21,7 +21,7 @@ export function ForgotPasswordPage() {
   async function onSubmit(values: ForgotPasswordInput) {
     try {
       // Normaliza o e-mail antes de enviar para a API.
-      const response = await apiRequest<ApiMessageResponse>('/auth/forgot-password', {
+      const response = await apiRequest<ApiMessageResponse>('/autenticacao/esqueci-senha', {
         method: 'POST',
         body: JSON.stringify({ email: values.email.trim().toLowerCase() }),
       });
@@ -35,7 +35,7 @@ export function ForgotPasswordPage() {
   }
 
   return (
-    <AuthLayout>
+    <LayoutAutenticacao>
       {/* Mensagem generica evita revelar se o e-mail existe no sistema. */}
       <p className="text-xs font-semibold uppercase tracking-[0.32em] text-teal">Recuperacao de acesso</p>
       <h2 className="mt-4 font-display text-4xl font-semibold text-slateblue">Redefinir senha</h2>
@@ -53,7 +53,7 @@ export function ForgotPasswordPage() {
           Se o e-mail estiver cadastrado, o link chegara em instantes na sua caixa de entrada.
         </div>
       ) : null}
-      <p className="mt-6 text-sm text-slate-500">Lembrou a senha? <Link className="font-semibold text-teal" to="/login">Voltar para login</Link>.</p>
-    </AuthLayout>
+      <p className="mt-6 text-sm text-slate-500">Lembrou a senha? <Link className="font-semibold text-teal" to="/entrar">Voltar para login</Link>.</p>
+    </LayoutAutenticacao>
   );
 }

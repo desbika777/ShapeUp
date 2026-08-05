@@ -1,6 +1,6 @@
-// Pagina de alunos: gerencia carteira, filtros, paginacao e exclusao.
+// Pagina de treinos: lista prescricoes, filtra por nivel/aluno e exclui registros.
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { PaginatedResponse, Plan, Student, StudentStatus } from '@shapeup/shared';
+import type { PaginatedResponse, Student, Workout, WorkoutLevel } from '@shape/shared';
 import { Link } from 'react-router-dom';
 import { useDeferredValue, useMemo, useState } from 'react';
 import { DataTable } from '@/components/ui/data-table';
@@ -13,9 +13,9 @@ import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useToast } from '@/components/ui/toast';
 import { useAuth } from '@/hooks/use-auth';
 import { apiRequest } from '@/lib/api';
-import { formatStudentStatus } from '@/lib/format';
+import { formatDate, formatWorkoutLevel } from '@/lib/format';
 
-export function StudentsPage() {
+export function TreinosPage() {
   const { token } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -24,78 +24,79 @@ export function StudentsPage() {
   const [pageSize, setPageSize] = useState(6);
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
-  const [status, setStatus] = useState<StudentStatus | 'ALL'>('ALL');
-  const [planId, setPlanId] = useState('');
-  const [deleteTarget, setDeleteTarget] = useState<Student | null>(null);
+  const [level, setLevel] = useState<WorkoutLevel | 'ALL'>('ALL');
+  const [studentId, setStudentId] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<Workout | null>(null);
 
-  // Filtros combinam texto, status e plano escolhido.
+  // Filtros unem busca textual, nivel e aluno selecionado.
   const filters = useMemo(() => ({
     search: deferredSearch.trim(),
-    status: status === 'ALL' ? undefined : status,
-    planId: planId || undefined,
-  }), [deferredSearch, planId, status]);
+    level: level === 'ALL' ? undefined : level,
+    studentId: studentId || undefined,
+  }), [deferredSearch, level, studentId]);
 
-  // Busca alunos paginados respeitando filtros.
+  // Consulta a lista paginada de treinos.
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
-    queryKey: ['students', page, pageSize, filters],
+    queryKey: ['workouts', page, pageSize, filters],
     queryFn: () => {
       const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
       if (filters.search) params.set('search', filters.search);
-      if (filters.status) params.set('status', filters.status);
-      if (filters.planId) params.set('planId', filters.planId);
-      return apiRequest<PaginatedResponse<Student>>(`/students?${params.toString()}`, { method: 'GET' }, token ?? undefined);
+      if (filters.level) params.set('level', filters.level);
+      if (filters.studentId) params.set('studentId', filters.studentId);
+      return apiRequest<PaginatedResponse<Workout>>(`/treinos?${params.toString()}`, { method: 'GET' }, token ?? undefined);
     },
     placeholderData: keepPreviousData,
   });
 
-  // Lista de planos para popular o filtro e manter o cadastro consistente.
-  const { data: plansOptions } = useQuery({
-    queryKey: ['plans-options'],
-    queryFn: () => apiRequest<PaginatedResponse<Plan>>('/plans?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
+  // Carrega alunos para o filtro de treino por aluno.
+  const { data: studentsOptions } = useQuery({
+    queryKey: ['students-options'],
+    queryFn: () => apiRequest<PaginatedResponse<Student>>('/alunos?page=1&pageSize=100', { method: 'GET' }, token ?? undefined),
   });
 
-  // Exclusao de aluno com atualizacao da lista apos sucesso.
+  // Exclui treino e atualiza a lista apos sucesso.
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => apiRequest<void>(`/students/${id}`, { method: 'DELETE' }, token ?? undefined),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['students'] }),
+    mutationFn: (id: string) => apiRequest<void>(`/treinos/${id}`, { method: 'DELETE' }, token ?? undefined),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['workouts'] }),
   });
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Alunos" title="Carteira de alunos" description="Centralize dados cadastrais, objetivos, plano atual e situacao operacional dos alunos." action={<Link to="/students/new" className="rounded-full bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo aluno</Link>} />
-      {/* Filtros permitem encontrar alunos por texto, status ou plano. */}
-      <div className="grid gap-3 rounded-[28px] border border-white/70 bg-white p-4 shadow-panel md:grid-cols-[1.2fr_0.8fr_0.8fr]">
+      <PageHeader eyebrow="Treinos" title="Prescricao de treinos" description="Organize treinos por aluno, nivel, periodo e objetivo, com historico claro e operacao padronizada." action={<Link to="/treinos/novo" className="rounded-full bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo treino</Link>} />
+      {/* Filtros ajudam a localizar treinos por objetivo, nivel ou aluno. */}
+      <div className="grid gap-3 rounded-[28px] border border-white/70 bg-white p-4 shadow-panel md:grid-cols-[1.2fr_0.7fr_1.1fr]">
         <input
           value={search}
           onChange={(event) => {
             setSearch(event.target.value);
             setPage(1);
           }}
-          placeholder="Buscar por nome, e-mail ou CPF..."
+          placeholder="Buscar por treino, objetivo ou aluno..."
           className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slateblue"
         />
         <select
-          value={status}
+          value={level}
           onChange={(event) => {
-            setStatus(event.target.value as StudentStatus | 'ALL');
+            setLevel(event.target.value as WorkoutLevel | 'ALL');
             setPage(1);
           }}
           className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slateblue"
         >
-          <option value="ALL">Status (todos)</option>
-          <option value="ACTIVE">Ativos</option>
-          <option value="INACTIVE">Inativos</option>
+          <option value="ALL">Nivel (todos)</option>
+          <option value="BEGINNER">Iniciante</option>
+          <option value="INTERMEDIATE">Intermediario</option>
+          <option value="ADVANCED">Avancado</option>
         </select>
         <select
-          value={planId}
+          value={studentId}
           onChange={(event) => {
-            setPlanId(event.target.value);
+            setStudentId(event.target.value);
             setPage(1);
           }}
           className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slateblue"
         >
-          <option value="">Plano (todos)</option>
-          {plansOptions?.data.map((plan) => <option key={plan.id} value={plan.id}>{plan.name}</option>)}
+          <option value="">Aluno (todos)</option>
+          {studentsOptions?.data.map((student) => <option key={student.id} value={student.id}>{student.name}</option>)}
         </select>
       </div>
 
@@ -106,29 +107,29 @@ export function StudentsPage() {
         onRetry={() => void refetch()}
         isEmpty={Boolean(data && data.data.length === 0)}
         loadingFallback={<TableSkeleton columns={6} rows={6} />}
-        emptyFallback={<EmptyState title="Nenhum aluno encontrado" description="Ajuste os filtros ou cadastre o primeiro aluno para iniciar a operacao da academia." />}
+        emptyFallback={<EmptyState title="Nenhum treino encontrado" description="Ajuste os filtros ou cadastre o primeiro treino para iniciar a prescricao estruturada." />}
       >
         <>
-          {/* Tabela mostra os principais dados de cada aluno. */}
+          {/* Tabela resume aluno, nivel e periodo de cada treino. */}
           <DataTable columns={[
-            { key: 'name', label: 'Aluno' },
-            { key: 'email', label: 'E-mail' },
-            { key: 'goal', label: 'Objetivo' },
-            { key: 'planName', label: 'Plano' },
-            { key: 'status', label: 'Status', render: (row) => formatStudentStatus(row.status) },
+            { key: 'title', label: 'Treino' },
+            { key: 'studentName', label: 'Aluno' },
+            { key: 'level', label: 'Nivel', render: (row) => formatWorkoutLevel(row.level) },
+            { key: 'startDate', label: 'Inicio', render: (row) => formatDate(row.startDate) },
+            { key: 'endDate', label: 'Fim', render: (row) => formatDate(row.endDate) },
             {
               key: 'actions',
               label: 'Acoes',
               render: (row) => (
                 <div className="flex gap-3">
-                  <Link className="font-semibold text-teal" to={`/students/${row.id}/edit`}>Editar</Link>
+                  <Link className="font-semibold text-teal" to={`/treinos/${row.id}/editar`}>Editar</Link>
                   <button className="font-semibold text-rose-500" onClick={() => setDeleteTarget(row)}>Excluir</button>
                 </div>
               ),
             },
           ]} rows={data?.data ?? []} />
           {data ? (
-            /* Paginacao conserva a navegacao mesmo durante novas buscas. */
+            /* Paginacao mantem a navegacao entre prescricoes. */
             <Pagination
               page={data.meta.page}
               totalPages={data.meta.totalPages}
@@ -145,22 +146,22 @@ export function StudentsPage() {
         </>
       </QueryState>
 
-      {/* Confirmacao evita remover aluno sem intencao. */}
+      {/* Confirmacao protege contra exclusao acidental de treino. */}
       <ConfirmModal
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
         tone="danger"
-        title="Excluir aluno"
-        description={deleteTarget ? `Tem certeza que deseja excluir ${deleteTarget.name}? Essa acao nao pode ser desfeita.` : ''}
+        title="Excluir treino"
+        description={deleteTarget ? `Tem certeza que deseja excluir ${deleteTarget.title}? Essa acao nao pode ser desfeita.` : ''}
         confirmLabel="Excluir"
         isLoading={deleteMutation.isPending}
         onConfirm={async () => {
           if (!deleteTarget) return;
           try {
             await deleteMutation.mutateAsync(deleteTarget.id);
-            toast({ variant: 'success', title: 'Aluno excluido', message: 'O aluno foi removido com sucesso.' });
+            toast({ variant: 'success', title: 'Treino excluido', message: 'O treino foi removido com sucesso.' });
             setDeleteTarget(null);
           } catch (err) {
             toast({ variant: 'error', title: 'Falha ao excluir', message: err instanceof Error ? err.message : 'Nao foi possivel excluir agora.' });

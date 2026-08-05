@@ -1,5 +1,5 @@
 // Cliente HTTP centralizado para conversar com a API do backend.
-import type { ApiErrorPayload } from '@shapeup/shared';
+import type { ApiErrorPayload } from '@shape/shared';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3333/api';
 
@@ -39,7 +39,7 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}, tok
 
     if (response.status === 401) {
       // Avisa o AuthProvider para encerrar sessao expirada ou invalida.
-      window.dispatchEvent(new CustomEvent('shapeup:unauthorized'));
+      window.dispatchEvent(new CustomEvent('shape:unauthorized'));
     }
 
     throw new ApiError(payload?.message ?? 'Erro inesperado na API.', payload?.details, response.status);

@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import type { Plan, PlanInput } from '@shapeup/shared';
+import type { Plan, PlanInput } from '@shape/shared';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FormField, inputClassName } from '@/components/ui/form-field';
 import { PageHeader } from '@/components/ui/page-header';
@@ -13,7 +13,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { apiRequest } from '@/lib/api';
 import { planSchema } from '@/lib/schemas';
 
-export function PlanFormPage() {
+export function FormularioPlanoPage() {
   const { token } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -29,7 +29,7 @@ export function PlanFormPage() {
   // Em modo edicao, carrega os dados atuais do plano.
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['plan', id],
-    queryFn: () => apiRequest<Plan>(`/plans/${id}`, { method: 'GET' }, token ?? undefined),
+    queryFn: () => apiRequest<Plan>(`/planos/${id}`, { method: 'GET' }, token ?? undefined),
     enabled: isEdit,
   });
 
@@ -43,7 +43,7 @@ export function PlanFormPage() {
   // Salva via POST no cadastro e via PUT na edicao.
   const mutation = useMutation({
     mutationFn: (values: PlanInput) =>
-      apiRequest<Plan>(isEdit ? `/plans/${id}` : '/plans', {
+      apiRequest<Plan>(isEdit ? `/planos/${id}` : '/planos', {
         method: isEdit ? 'PUT' : 'POST',
         body: JSON.stringify(values),
       }, token ?? undefined),
@@ -56,7 +56,7 @@ export function PlanFormPage() {
         isEdit ? queryClient.invalidateQueries({ queryKey: ['plan', id] }) : Promise.resolve(),
       ]);
       toast({ variant: 'success', title: 'Plano salvo', message: 'Alteracoes aplicadas com sucesso.' });
-      navigate('/plans');
+      navigate('/planos');
     },
   });
 
