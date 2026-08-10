@@ -27,16 +27,16 @@ npm run e2e
 
 ## Ultima Execucao Registrada
 
-Data: 05/08/2026.
+Data: 10/08/2026.
 
 | Comando | Resultado | Observacao |
 | --- | --- | --- |
 | `git diff --check` | Passou | Sem espacos finais ou conflitos de diff |
 | `npm run lint` | Passou | Shared, backend e frontend sem erro de TypeScript/ESLint |
 | `npm run test` | Passou | 13 testes de backend e 7 testes de frontend |
-| `npm run build` | Passou | Build de producao gerado; houve apenas aviso de bundle acima de 500 KB |
-| `npm run e2e` | Passou | 4 testes Playwright: autenticacao e CRUDs principais |
-| `npm audit --omit=dev` | Alerta residual | 2 alertas altos no `react-router`, relacionados a RSC/SSR/actions nao usados pelo Shape |
+| `npm run build` | Passou | Build de producao gerado; houve aviso de bundle acima de 500 KB e Browserslist antigo |
+| `npm run e2e` | Pendente de nova execucao | Sera executado novamente apos permissao por perfil e upload de imagens |
+| `npm install` | Passou com alerta | 1 vulnerabilidade baixa apontada pelo npm |
 
 ## Usabilidade
 
@@ -77,21 +77,24 @@ Pontos aplicados:
 
 ## Audit de Dependencias
 
-Foi executado `npm audit fix` sem `--force` para corrigir dependencias vulneraveis sem aplicar quebras arriscadas no projeto. Tambem foram atualizados:
+Foi executado `npm install` para reconstruir corretamente os links dos workspaces apos a mudanca de pasta do projeto. A validacao corrigiu os links de `@shape/shared`, `@shape/backend` e `@shape/frontend`.
+
+Historicamente tambem foi executado `npm audit fix` sem `--force` para corrigir dependencias vulneraveis sem aplicar quebras arriscadas no projeto. Tambem foram atualizados:
 
 - `nodemailer` para `9.0.4`;
 - `react-router-dom` para `7.18.2`;
 - `esbuild` para `0.28.1` via override.
 
 Observacao:
-O `npm audit --omit=dev` ainda aponta alerta alto no `react-router` relacionado a recursos RSC/SSR/actions. O Shape e uma SPA cliente com Vite e nao utiliza RSC, SSR, actions do React Router ou renderizacao no servidor. Mesmo assim, o risco fica registrado para monitoramento e futura atualizacao quando houver versao sem conflito de advisory.
+Na revisao de 10/08/2026, o `npm install` apontou 1 vulnerabilidade baixa. O risco fica registrado para acompanhamento e deve ser revisado novamente antes da entrega final.
 
 ## Riscos e Melhorias Futuras
 
 | Risco | Plano de melhoria |
 | --- | --- |
-| Advisory residual do React Router em recurso nao utilizado pelo projeto | Monitorar nova versao segura e atualizar assim que disponivel |
+| Alerta baixo de dependencia informado pelo npm | Rodar `npm audit` antes da entrega final e corrigir sem `--force` quando possivel |
 | Ainda nao ha controle completo de permissoes por perfil na interface | Evoluir perfis `perfis` e `usuario_perfis` |
+| Ainda nao ha upload de imagens com Multer | Criar endpoint de upload e validacoes de arquivo |
 | Ainda nao ha logs visiveis no painel | Criar tela de auditoria |
 | Teste E2E cobre CRUDs principais, mas nao todos os modulos novos | Expandir testes conforme novos modulos entrarem |
 | Bundle frontend acima de 500 KB | Aplicar code splitting futuramente |
