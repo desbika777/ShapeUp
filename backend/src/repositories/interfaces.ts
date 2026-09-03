@@ -1,6 +1,7 @@
 // Contratos dos repositorios usados pelos services.
 // Eles separam regras de negocio da tecnologia de banco de dados.
 import type {
+  PerfilAcesso,
   UsuarioAutenticado,
   RespostaPaginada,
   Plano,
@@ -58,7 +59,8 @@ export type RegistroTokenRecuperacaoSenha = {
 
 // Operacoes necessarias para cadastro, login, perfil e recuperacao de senha.
 export interface IRepositorioUsuario {
-  create(input: { name: string; email: string; passwordHash: string; cpf: string }): Promise<RegistroUsuario>;
+  create(input: { name: string; email: string; passwordHash: string; cpf: string; perfil: PerfilAcesso }): Promise<RegistroUsuario>;
+  list(): Promise<UsuarioAutenticado[]>;
   findByEmail(email: string): Promise<RegistroUsuario | null>;
   findByCpf(cpf: string): Promise<RegistroUsuario | null>;
   findById(id: string): Promise<RegistroUsuario | null>;

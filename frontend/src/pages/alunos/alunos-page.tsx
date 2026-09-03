@@ -16,9 +16,10 @@ import { apiRequest } from '@/lib/api';
 import { formatarStatusAluno } from '@/lib/format';
 
 export function AlunosPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const isAdmin = user?.perfil === 'ADMIN';
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
@@ -62,7 +63,7 @@ export function AlunosPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Alunos" title="Carteira de alunos" description="Centralize dados cadastrais, objetivos, plano atual e situacao operacional dos alunos." action={<Link to="/alunos/novo" className="rounded-full bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo aluno</Link>} />
+      <PageHeader eyebrow="Alunos" title="Carteira de alunos" description="Centralize dados cadastrais, objetivos, plano atual e situacao operacional dos alunos." action={isAdmin ? <Link to="/alunos/novo" className="rounded-full bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo aluno</Link> : undefined} />
       {/* Filtros permitem encontrar alunos por texto, status ou plano. */}
       <div className="grid gap-3 rounded-[28px] border border-white/70 bg-white p-4 shadow-panel md:grid-cols-[1.2fr_0.8fr_0.8fr]">
         <input
@@ -110,22 +111,22 @@ export function AlunosPage() {
       >
         <>
           {/* Tabela mostra os principais dados de cada aluno. */}
-          <DataTable columns={[
+          <DataTable<Aluno> columns={[
             { key: 'name', label: 'Aluno' },
             { key: 'email', label: 'E-mail' },
             { key: 'goal', label: 'Objetivo' },
             { key: 'planName', label: 'Plano' },
-            { key: 'status', label: 'Status', render: (row) => formatarStatusAluno(row.status) },
-            {
+            { key: 'status', label: 'Status', render: (row: Aluno) => formatarStatusAluno(row.status) },
+            ...(isAdmin ? [{
               key: 'actions',
               label: 'Acoes',
-              render: (row) => (
+              render: (row: Aluno) => (
                 <div className="flex gap-3">
                   <Link className="font-semibold text-teal" to={`/alunos/${row.id}/editar`}>Editar</Link>
                   <button className="font-semibold text-rose-500" onClick={() => setDeleteTarget(row)}>Excluir</button>
                 </div>
               ),
-            },
+            }] : []),
           ]} rows={data?.data ?? []} />
           {data ? (
             /* Paginacao conserva a navegacao mesmo durante novas buscas. */

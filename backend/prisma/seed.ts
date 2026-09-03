@@ -48,11 +48,17 @@ async function main() {
     },
   });
 
-  // Perfis de acesso preparados para evoluir permissoes no projeto.
+  // Perfis de acesso usados para demonstrar controle entre administrador e usuario.
   const adminRole = await prisma.perfil.upsert({
     where: { name: 'ADMIN' },
     update: { description: 'Acesso administrativo completo.' },
     create: { id: 'seed-role-admin', name: 'ADMIN', description: 'Acesso administrativo completo.' },
+  });
+
+  const userRole = await prisma.perfil.upsert({
+    where: { name: 'USUARIO' },
+    update: { description: 'Acesso operacional limitado.' },
+    create: { id: 'seed-role-user', name: 'USUARIO', description: 'Acesso operacional limitado.' },
   });
 
   const teacherRole = await prisma.perfil.upsert({
@@ -95,6 +101,43 @@ async function main() {
     where: { userId_roleId: { userId: admin.id, roleId: adminRole.id } },
     update: {},
     create: { userId: admin.id, roleId: adminRole.id },
+  });
+
+  // Usuario operacional usado para demonstrar acesso limitado.
+  // Senha padrao do usuario operacional: Usuario@123.
+  const operationalPasswordHash = await bcrypt.hash('Usuario@123', 10);
+  const usuarioExistente = await prisma.usuario.findFirst({
+    where: { OR: [{ email: 'usuario@shape.com.br' }, { cpf: '52998224725' }] },
+  });
+
+  const usuarioOperacional = usuarioExistente
+    ? await prisma.usuario.update({
+      where: { id: usuarioExistente.id },
+      data: {
+        academyId: academy.id,
+        name: 'Usuario Operacional',
+        email: 'usuario@shape.com.br',
+        passwordHash: operationalPasswordHash,
+        cpf: '52998224725',
+        status: 'ATIVO',
+      },
+    })
+    : await prisma.usuario.create({
+      data: {
+        id: 'seed-user-operacional',
+        academyId: academy.id,
+        name: 'Usuario Operacional',
+        email: 'usuario@shape.com.br',
+        passwordHash: operationalPasswordHash,
+        cpf: '52998224725',
+        status: 'ATIVO',
+      },
+    });
+
+  await prisma.usuarioPerfil.upsert({
+    where: { userId_roleId: { userId: usuarioOperacional.id, roleId: userRole.id } },
+    update: {},
+    create: { userId: usuarioOperacional.id, roleId: userRole.id },
   });
 
   // Professor/instrutor usado nos treinos, aulas e avaliacoes.

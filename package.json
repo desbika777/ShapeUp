@@ -25,5 +25,8 @@
   "overrides": {
     "esbuild": "0.28.1",
     "prisma": "6.19.3"
+  },
+  "dependencies": {
+    "nvm": "^0.0.4"
   }
 }

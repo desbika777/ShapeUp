@@ -4,6 +4,7 @@ import { ServicoAutenticacao } from '../services/auth-service.js';
 import {
   forgotPasswordSchema,
   loginSchema,
+  createUserSchema,
   registerSchema,
   resetPasswordSchema,
   updateUserSchema,
@@ -52,5 +53,18 @@ export class ControladorAutenticacao {
     const payload = updateUserSchema.parse(request.body);
     const result = await this.service.updateProfile(request.userId ?? '', payload);
     return response.status(200).json(result);
+  };
+
+  // Lista usuarios cadastrados para administracao dos acessos.
+  listUsers = async (_request: RequisicaoAutenticada, response: Response) => {
+    const result = await this.service.listUsers();
+    return response.status(200).json(result);
+  };
+
+  // Cria usuario interno com perfil administrativo ou operacional.
+  createUser = async (request: RequisicaoAutenticada, response: Response) => {
+    const payload = createUserSchema.parse(request.body);
+    const result = await this.service.createUser(payload);
+    return response.status(201).json(result);
   };
 }

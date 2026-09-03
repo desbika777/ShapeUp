@@ -1,5 +1,5 @@
 // Formatadores usados para mostrar dados tecnicos em formato brasileiro.
-import type { StatusPlano, StatusAluno, NivelTreino } from '@shape/shared';
+import type { StatusPlano, StatusAluno, NivelTreino, PerfilAcesso } from '@shape/shared';
 
 export function formatCurrency(value: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -38,4 +38,8 @@ export function formatarNivelTreino(value: NivelTreino) {
     case 'AVANCADO':
       return 'Avancado';
   }
+}
+
+export function formatarPerfil(value: PerfilAcesso) {
+  return value === 'ADMIN' ? 'Administrador' : 'Usuario';
 }

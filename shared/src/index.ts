@@ -1,5 +1,7 @@
 // Tipos compartilhados entre frontend e backend.
 // Mantem os contratos da API iguais nos dois lados do projeto.
+export type PerfilAcesso = 'ADMIN' | 'USUARIO';
+
 export type RespostaPaginada<T> = {
   data: T[];
   meta: {
@@ -16,6 +18,7 @@ export type UsuarioAutenticado = {
   name: string;
   email: string;
   cpf: string;
+  perfil: PerfilAcesso;
   createdAt: string;
   updatedAt: string;
 };
@@ -56,6 +59,15 @@ export type EntradaAtualizacaoUsuario = {
   currentPassword?: string;
   password?: string;
   confirmPassword?: string;
+};
+
+export type EntradaCriacaoUsuario = {
+  name: string;
+  email: string;
+  cpf: string;
+  password: string;
+  confirmPassword: string;
+  perfil: PerfilAcesso;
 };
 
 // Status e niveis controlam valores permitidos em selects e banco.

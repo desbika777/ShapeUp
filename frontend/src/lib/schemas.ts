@@ -45,6 +45,11 @@ export const registerSchema = z
     message: 'A confirmacao da senha nao confere.',
   });
 
+// Criacao interna de usuario inclui o perfil de acesso que sera aplicado pela API.
+export const createUserSchema = registerSchema.extend({
+  perfil: z.enum(['ADMIN', 'USUARIO']),
+});
+
 // Recuperacao de senha pede somente o e-mail cadastrado.
 export const forgotPasswordSchema = z.object({
   email: z.string().regex(emailRegex, 'Informe um e-mail valido.'),

@@ -16,9 +16,10 @@ import { apiRequest } from '@/lib/api';
 import { formatCurrency, formatarStatusPlano } from '@/lib/format';
 
 export function PlanosPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const isAdmin = user?.perfil === 'ADMIN';
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
@@ -53,7 +54,7 @@ export function PlanosPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Planos" title="Catalogo comercial da academia" description="Gerencie planos, duracao, ticket medio e status de venda com uma operacao organizada e escalavel." action={<Link to="/planos/novo" className="rounded-full bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo plano</Link>} />
+      <PageHeader eyebrow="Planos" title="Catalogo comercial da academia" description="Gerencie planos, duracao, ticket medio e status de venda com uma operacao organizada e escalavel." action={isAdmin ? <Link to="/planos/novo" className="rounded-full bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo plano</Link> : undefined} />
       {/* Filtros de busca e status usados para reduzir a tabela. */}
       <div className="grid gap-3 rounded-[28px] border border-white/70 bg-white p-4 shadow-panel md:grid-cols-[1.4fr_0.6fr]">
         <input
@@ -90,23 +91,23 @@ export function PlanosPage() {
       >
         <>
           {/* Tabela generica recebe as colunas especificas de planos. */}
-          <DataTable
+          <DataTable<Plano>
             columns={[
               { key: 'name', label: 'Plano' },
               { key: 'description', label: 'Descricao' },
-              { key: 'price', label: 'Valor', render: (row) => formatCurrency(row.price) },
-              { key: 'durationMonths', label: 'Duracao', render: (row) => `${row.durationMonths} meses` },
-              { key: 'status', label: 'Status', render: (row) => formatarStatusPlano(row.status) },
-              {
+              { key: 'price', label: 'Valor', render: (row: Plano) => formatCurrency(row.price) },
+              { key: 'durationMonths', label: 'Duracao', render: (row: Plano) => `${row.durationMonths} meses` },
+              { key: 'status', label: 'Status', render: (row: Plano) => formatarStatusPlano(row.status) },
+              ...(isAdmin ? [{
                 key: 'actions',
                 label: 'Acoes',
-                render: (row) => (
+                render: (row: Plano) => (
                   <div className="flex gap-3 text-sm">
                     <Link className="font-semibold text-teal" to={`/planos/${row.id}/editar`}>Editar</Link>
                     <button className="font-semibold text-rose-500" onClick={() => setDeleteTarget(row)}>Excluir</button>
                   </div>
                 ),
-              },
+              }] : []),
             ]}
             rows={data?.data ?? []}
           />

@@ -2,7 +2,7 @@
 // Validam regras de negocio sem depender do MySQL.
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { IndicadoresPainel, RespostaPaginada, Plano, EntradaPlano, Aluno, EntradaAluno, Treino, EntradaTreino } from '@shape/shared';
+import type { IndicadoresPainel, RespostaPaginada, Plano, EntradaPlano, Aluno, EntradaAluno, Treino, EntradaTreino, PerfilAcesso } from '@shape/shared';
 import { createApp } from '../src/app.js';
 import type {
   IRepositorioPlano,
@@ -41,10 +41,13 @@ class RepositorioMemoriaUsuario implements IRepositorioUsuario {
   users: RegistroUsuario[] = [];
   passwordResetTokens: RegistroTokenRecuperacaoSenha[] = [];
 
-  async create(input: { name: string; email: string; passwordHash: string; cpf: string }) {
+  async create(input: { name: string; email: string; passwordHash: string; cpf: string; perfil: PerfilAcesso }) {
     const user = { id: crypto.randomUUID(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), ...input };
     this.users.push(user);
     return user;
+  }
+  async list() {
+    return this.users.map(({ passwordHash: _passwordHash, ...user }) => user);
   }
   async findByEmail(email: string) { return this.users.find((user) => user.email === email) ?? null; }
   async findByCpf(cpf: string) { return this.users.find((user) => user.cpf === cpf) ?? null; }
@@ -240,6 +243,7 @@ describe('Shape API', () => {
     expect(response.status).toBe(201);
     expect(response.body.token).toBeTypeOf('string');
     expect(response.body.user.email).toBe('gestor@shape.com.br');
+    expect(response.body.user.perfil).toBe('ADMIN');
   });
 
   it('bloqueia login com credenciais invalidas', async () => {
@@ -366,6 +370,57 @@ describe('Shape API', () => {
   it('nao permite acesso autenticado sem token', async () => {
     const response = await request(app).get('/api/planos');
     expect(response.status).toBe(401);
+  });
+
+  it('aplica controle funcional entre administrador e usuario operacional', async () => {
+    const register = await request(app).post('/api/autenticacao/cadastro').send({
+      name: 'Gestor Teste',
+      email: 'gestor@shape.com.br',
+      password: 'Shape@123',
+      confirmPassword: 'Shape@123',
+      cpf: '11144477735',
+    });
+
+    const adminToken = register.body.token as string;
+
+    const createdUser = await request(app).post('/api/usuarios').set('Authorization', `Bearer ${adminToken}`).send({
+      name: 'Usuario Operacional',
+      email: 'usuario@shape.com.br',
+      password: 'Usuario@123',
+      confirmPassword: 'Usuario@123',
+      cpf: '39053344705',
+      perfil: 'USUARIO',
+    });
+
+    expect(createdUser.status).toBe(201);
+    expect(createdUser.body.perfil).toBe('USUARIO');
+
+    const users = await request(app).get('/api/usuarios').set('Authorization', `Bearer ${adminToken}`);
+    expect(users.status).toBe(200);
+    expect(users.body).toHaveLength(2);
+    expect(users.body[0].passwordHash).toBeUndefined();
+
+    const login = await request(app).post('/api/autenticacao/entrar').send({
+      email: 'usuario@shape.com.br',
+      password: 'Usuario@123',
+    });
+    const userToken = login.body.token as string;
+
+    const allowedList = await request(app).get('/api/planos').set('Authorization', `Bearer ${userToken}`);
+    expect(allowedList.status).toBe(200);
+
+    const blockedPlanCreate = await request(app).post('/api/planos').set('Authorization', `Bearer ${userToken}`).send({
+      name: 'Plano Bloqueado',
+      description: 'Tentativa de cadastro sem permissao administrativa.',
+      price: 99.9,
+      durationMonths: 3,
+      status: 'ATIVO',
+    });
+    expect(blockedPlanCreate.status).toBe(403);
+    expect(blockedPlanCreate.body.message).toBe('Seu perfil nao permite executar esta acao.');
+
+    const blockedUsers = await request(app).get('/api/usuarios').set('Authorization', `Bearer ${userToken}`);
+    expect(blockedUsers.status).toBe(403);
   });
 
   it('pagina planos e retorna 404 ao editar recurso inexistente', async () => {

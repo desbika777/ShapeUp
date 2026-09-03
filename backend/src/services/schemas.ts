@@ -36,6 +36,10 @@ export const registerSchema = z.object({
   cpf: z.string().min(11),
 });
 
+export const createUserSchema = registerSchema.extend({
+  perfil: z.enum(['ADMIN', 'USUARIO']),
+});
+
 export const updateUserSchema = z.object({
   name: z.string().min(3),
   cpf: z.string().min(11),

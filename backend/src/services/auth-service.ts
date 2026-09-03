@@ -11,6 +11,7 @@ import type {
   EntradaLoginUsuario,
   EntradaCadastroUsuario,
   EntradaAtualizacaoUsuario,
+  EntradaCriacaoUsuario,
 } from '@shape/shared';
 import { env } from '../config/env.js';
 import { AppError } from '../core/app-error.js';
@@ -29,6 +30,40 @@ export class ServicoAutenticacao {
 
   // Valida dados do gestor, protege a senha com hash e cria a conta.
   async register(input: EntradaCadastroUsuario): Promise<RespostaAutenticacao> {
+    await this.validateNewUser(input);
+    const passwordHash = await bcrypt.hash(input.password, 10);
+    const user = await this.userRepository.create({
+      name: input.name.trim(),
+      email: input.email.trim().toLowerCase(),
+      passwordHash,
+      cpf: normalizeCpf(input.cpf),
+      perfil: 'ADMIN',
+    });
+
+    return this.buildAuthResponse(user);
+  }
+
+  // Lista usuarios para que o administrador acompanhe os acessos existentes.
+  listUsers() {
+    return this.userRepository.list();
+  }
+
+  // Cria usuario operacional com perfil escolhido pelo administrador.
+  async createUser(input: EntradaCriacaoUsuario): Promise<UsuarioAutenticado> {
+    await this.validateNewUser(input);
+    const passwordHash = await bcrypt.hash(input.password, 10);
+    const user = await this.userRepository.create({
+      name: input.name.trim(),
+      email: input.email.trim().toLowerCase(),
+      passwordHash,
+      cpf: normalizeCpf(input.cpf),
+      perfil: input.perfil,
+    });
+
+    return this.toAuthUser(user);
+  }
+
+  private async validateNewUser(input: EntradaCadastroUsuario | EntradaCriacaoUsuario) {
     if (!isValidEmail(input.email)) {
       throw new AppError(400, 'Informe um e-mail valido.');
     }
@@ -45,10 +80,11 @@ export class ServicoAutenticacao {
       throw new AppError(400, 'A confirmacao da senha nao confere.');
     }
 
+    const email = input.email.trim().toLowerCase();
     const normalizedCpf = normalizeCpf(input.cpf);
 
     const [emailAlreadyExists, cpfAlreadyExists] = await Promise.all([
-      this.userRepository.findByEmail(input.email),
+      this.userRepository.findByEmail(email),
       this.userRepository.findByCpf(normalizedCpf),
     ]);
 
@@ -59,16 +95,6 @@ export class ServicoAutenticacao {
     if (cpfAlreadyExists) {
       throw new AppError(409, 'Ja existe um usuario com este CPF.');
     }
-
-    const passwordHash = await bcrypt.hash(input.password, 10);
-    const user = await this.userRepository.create({
-      name: input.name.trim(),
-      email: input.email.trim().toLowerCase(),
-      passwordHash,
-      cpf: normalizedCpf,
-    });
-
-    return this.buildAuthResponse(user);
   }
 
   // Confere e-mail e senha para gerar uma sessao JWT.
@@ -242,7 +268,7 @@ export class ServicoAutenticacao {
   // Monta o retorno padrao usado em cadastro e login.
   private buildAuthResponse(user: Awaited<ReturnType<IRepositorioUsuario['create']>>): RespostaAutenticacao {
     return {
-      token: jwt.sign({}, env.JWT_SECRET, { subject: user.id, expiresIn: '8h' }),
+      token: jwt.sign({ perfil: user.perfil }, env.JWT_SECRET, { subject: user.id, expiresIn: '8h' }),
       user: this.toAuthUser(user),
     };
   }
@@ -254,6 +280,7 @@ export class ServicoAutenticacao {
       name: user.name,
       email: user.email,
       cpf: user.cpf,
+      perfil: user.perfil,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

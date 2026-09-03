@@ -16,9 +16,10 @@ import { apiRequest } from '@/lib/api';
 import { formatDate, formatarNivelTreino } from '@/lib/format';
 
 export function TreinosPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const isAdmin = user?.perfil === 'ADMIN';
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
@@ -62,7 +63,7 @@ export function TreinosPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Treinos" title="Prescricao de treinos" description="Organize treinos por aluno, nivel, periodo e objetivo, com historico claro e operacao padronizada." action={<Link to="/treinos/novo" className="rounded-full bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo treino</Link>} />
+      <PageHeader eyebrow="Treinos" title="Prescricao de treinos" description="Organize treinos por aluno, nivel, periodo e objetivo, com historico claro e operacao padronizada." action={isAdmin ? <Link to="/treinos/novo" className="rounded-full bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo treino</Link> : undefined} />
       {/* Filtros ajudam a localizar treinos por objetivo, nivel ou aluno. */}
       <div className="grid gap-3 rounded-[28px] border border-white/70 bg-white p-4 shadow-panel md:grid-cols-[1.2fr_0.7fr_1.1fr]">
         <input
@@ -111,22 +112,22 @@ export function TreinosPage() {
       >
         <>
           {/* Tabela resume aluno, nivel e periodo de cada treino. */}
-          <DataTable columns={[
+          <DataTable<Treino> columns={[
             { key: 'title', label: 'Treino' },
             { key: 'studentName', label: 'Aluno' },
-            { key: 'level', label: 'Nivel', render: (row) => formatarNivelTreino(row.level) },
-            { key: 'startDate', label: 'Inicio', render: (row) => formatDate(row.startDate) },
-            { key: 'endDate', label: 'Fim', render: (row) => formatDate(row.endDate) },
-            {
+            { key: 'level', label: 'Nivel', render: (row: Treino) => formatarNivelTreino(row.level) },
+            { key: 'startDate', label: 'Inicio', render: (row: Treino) => formatDate(row.startDate) },
+            { key: 'endDate', label: 'Fim', render: (row: Treino) => formatDate(row.endDate) },
+            ...(isAdmin ? [{
               key: 'actions',
               label: 'Acoes',
-              render: (row) => (
+              render: (row: Treino) => (
                 <div className="flex gap-3">
                   <Link className="font-semibold text-teal" to={`/treinos/${row.id}/editar`}>Editar</Link>
                   <button className="font-semibold text-rose-500" onClick={() => setDeleteTarget(row)}>Excluir</button>
                 </div>
               ),
-            },
+            }] : []),
           ]} rows={data?.data ?? []} />
           {data ? (
             /* Paginacao mantem a navegacao entre prescricoes. */
