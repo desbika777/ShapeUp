@@ -1,19 +1,22 @@
+// Controlador dos treinos: expoe as operacoes de prescricao pela API.
 import type { Request, Response } from 'express';
 import { workoutListSchema, workoutSchema } from '../services/schemas.js';
-import { WorkoutService } from '../services/workout-service.js';
-import { getPagination } from '../utils/pagination.js';
-import type { AuthenticatedRequest } from '../middlewares/auth-middleware.js';
+import { ServicoTreino } from '../services/workout-service.js';
+import { obterPaginacao } from '../utils/pagination.js';
+import type { RequisicaoAutenticada } from '../middlewares/auth-middleware.js';
 
 function routeId(request: Request) {
+  // Normaliza o id vindo da rota para evitar tratamentos repetidos.
   return Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
 }
 
-export class WorkoutController {
-  constructor(private readonly service: WorkoutService) {}
+export class ControladorTreino {
+  constructor(private readonly service: ServicoTreino) {}
 
-  list = async (request: AuthenticatedRequest, response: Response) => {
+  // Lista treinos com filtro por texto, nivel e aluno.
+  list = async (request: RequisicaoAutenticada, response: Response) => {
     const query = workoutListSchema.parse(request.query);
-    const pagination = getPagination(query.page, query.pageSize);
+    const pagination = obterPaginacao(query.page, query.pageSize);
     const result = await this.service.list(request.userId ?? '', pagination.page, pagination.pageSize, pagination.skip, {
       search: query.search,
       level: query.level,
@@ -22,24 +25,28 @@ export class WorkoutController {
     return response.status(200).json(result);
   };
 
-  getById = async (request: AuthenticatedRequest, response: Response) => {
+  // Busca treino especifico pertencente ao usuario logado.
+  getById = async (request: RequisicaoAutenticada, response: Response) => {
     const result = await this.service.getById(request.userId ?? '', routeId(request));
     return response.status(200).json(result);
   };
 
-  create = async (request: AuthenticatedRequest, response: Response) => {
+  // Cria um treino para um aluno ja cadastrado.
+  create = async (request: RequisicaoAutenticada, response: Response) => {
     const payload = workoutSchema.parse(request.body);
     const result = await this.service.create(request.userId ?? '', payload);
     return response.status(201).json(result);
   };
 
-  update = async (request: AuthenticatedRequest, response: Response) => {
+  // Atualiza informacoes do treino e periodo de execucao.
+  update = async (request: RequisicaoAutenticada, response: Response) => {
     const payload = workoutSchema.parse(request.body);
     const result = await this.service.update(request.userId ?? '', routeId(request), payload);
     return response.status(200).json(result);
   };
 
-  delete = async (request: AuthenticatedRequest, response: Response) => {
+  // Exclui treino quando o usuario confirma a acao.
+  delete = async (request: RequisicaoAutenticada, response: Response) => {
     await this.service.delete(request.userId ?? '', routeId(request));
     return response.status(204).send();
   };

@@ -1,5 +1,5 @@
 {
-  "name": "shapeup-platform",
+  "name": "shape-platform",
   "private": true,
   "version": "1.0.0",
   "workspaces": [
@@ -19,9 +19,14 @@
   },
   "devDependencies": {
     "fast-check": "^4.6.0",
-    "husky": "^9.1.7"
+    "husky": "^9.1.7",
+    "prisma": "6.19.3"
+  },
+  "overrides": {
+    "esbuild": "0.28.1",
+    "prisma": "6.19.3"
   },
   "dependencies": {
-    "@prisma/client": "^6.16.2"
+    "nvm": "^0.0.4"
   }
 }

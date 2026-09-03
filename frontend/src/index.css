@@ -1,8 +1,11 @@
+/* Estilos globais do app e entrada do Tailwind. */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+  /* Cores base usadas antes dos componentes carregarem. */
 
 :root {
+  /* Cores base usadas antes dos componentes carregarem. */
   color: #0b1720;
   background: #f4f8f9;
 }
@@ -31,6 +34,7 @@ textarea {
 }
 
 @keyframes fade-up {
+  /* Animacao sutil usada nos cards e telas de autenticacao. */
   from {
     opacity: 0;
     transform: translateY(18px);

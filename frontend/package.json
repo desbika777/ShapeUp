@@ -1,5 +1,5 @@
 {
-  "name": "@shapeup/frontend",
+  "name": "@shape/frontend",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -23,7 +23,7 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-hook-form": "^7.71.2",
-    "react-router-dom": "^7.13.1",
+    "react-router-dom": "7.18.2",
     "recharts": "^3.8.0",
     "tailwind-merge": "^3.5.0",
     "zod": "^4.3.6"

@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+// Configuracao visual do frontend: cores, fontes, sombras e fundo base.
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {

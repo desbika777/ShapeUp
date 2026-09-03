@@ -1,3 +1,4 @@
+// Tabela generica usada nos CRUDs de planos, alunos e treinos.
 type Column<T> = {
   key: keyof T | string;
   label: string;
@@ -26,6 +27,7 @@ export function DataTable<T extends { id: string }>({ columns, rows }: DataTable
               <tr key={row.id} className="text-slateblue">
                 {columns.map((column) => (
                   <td key={String(column.key)} className="px-6 py-4 align-top">
+                    {/* render permite customizar celulas como status, dinheiro e acoes. */}
                     {column.render ? column.render(row) : String(row[column.key as keyof T] ?? '')}
                   </td>
                 ))}

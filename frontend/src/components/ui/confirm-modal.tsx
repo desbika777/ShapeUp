@@ -1,3 +1,4 @@
+// Modal de confirmacao usado antes de acoes criticas, como exclusao.
 import * as Dialog from '@radix-ui/react-dialog';
 import { AlertTriangle, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
@@ -25,6 +26,7 @@ export function ConfirmModal({
   isLoading,
   onConfirm,
 }: ConfirmModalProps) {
+  // O tom danger muda icone e botao para indicar risco de exclusao.
   const confirmClass = tone === 'danger' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-slateblue hover:bg-slateblue/90';
   const iconClass = tone === 'danger' ? 'text-rose-600' : 'text-teal';
 
@@ -79,4 +81,3 @@ export function ConfirmModal({
     </Dialog.Root>
   );
 }
-

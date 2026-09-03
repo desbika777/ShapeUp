@@ -40,6 +40,7 @@ COPY --from=production-deps /app/package.json ./package.json
 COPY --from=production-deps /app/backend/package.json ./backend/package.json
 COPY --from=production-deps /app/shared/package.json ./shared/package.json
 COPY --from=production-deps /app/node_modules ./node_modules
+COPY --from=production-deps /app/backend/node_modules ./backend/node_modules
 COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=build /app/shared/dist ./shared/dist
 COPY --from=build /app/backend/dist ./backend/dist

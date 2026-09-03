@@ -1,3 +1,4 @@
+// Skeleton de tabela para melhorar percepcao de carregamento nas listagens.
 type TableSkeletonProps = {
   columns?: number;
   rows?: number;
@@ -25,4 +26,3 @@ export function TableSkeleton({ columns = 6, rows = 6 }: TableSkeletonProps) {
     </div>
   );
 }
-

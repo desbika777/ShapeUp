@@ -1,13 +1,15 @@
+// Implementacao real de e-mail via SMTP.
 import nodemailer from 'nodemailer';
 import { env } from '../config/env.js';
-import type { IMailService, MailMessage } from './mail-service.js';
+import type { IServicoEmail, MensagemEmail } from './mail-service.js';
 
-export class SmtpMailService implements IMailService {
+export class ServicoEmailSmtp implements IServicoEmail {
   private readonly transport = this.createTransport();
 
-  async send(message: MailMessage): Promise<void> {
+  async send(message: MensagemEmail): Promise<void> {
+    // Em ambiente sem SMTP configurado, registra no console para facilitar testes locais.
     if (!this.transport || !env.MAIL_FROM) {
-      console.info('[ShapeUp] Link de redefinicao gerado em ambiente local:', message.text);
+      console.info('[Shape] Link de redefinicao gerado em ambiente local:', message.text);
       return;
     }
 
@@ -21,6 +23,7 @@ export class SmtpMailService implements IMailService {
   }
 
   private createTransport() {
+    // Se faltar qualquer credencial SMTP, a aplicacao segue funcionando sem envio real.
     if (!env.SMTP_HOST || !env.SMTP_PORT || !env.SMTP_USER || !env.SMTP_PASS) {
       return null;
     }

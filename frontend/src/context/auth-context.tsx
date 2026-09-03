@@ -1,17 +1,20 @@
+// Contexto de autenticacao: guarda token, usuario logado e acoes de conta.
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import type { PropsWithChildren } from 'react';
-import type { AuthResponse, AuthUser, UserLoginInput, UserRegistrationInput, UserUpdateInput } from '@shapeup/shared';
+import type { RespostaAutenticacao, UsuarioAutenticado, EntradaLoginUsuario, EntradaCadastroUsuario, EntradaAtualizacaoUsuario } from '@shape/shared';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { apiRequest } from '@/lib/api';
 
-const STORAGE_KEY = 'shapeup:token';
+const STORAGE_KEY = 'shape:token';
 
 function getStoredToken() {
+  // Procura primeiro sessao persistente e depois sessao temporaria.
   return localStorage.getItem(STORAGE_KEY) ?? sessionStorage.getItem(STORAGE_KEY);
 }
 
 function persistToken(token: string, rememberAccess = true) {
+  // "Lembrar acesso" usa localStorage; sem marcar, usa sessionStorage.
   if (rememberAccess) {
     localStorage.setItem(STORAGE_KEY, token);
     sessionStorage.removeItem(STORAGE_KEY);
@@ -23,6 +26,7 @@ function persistToken(token: string, rememberAccess = true) {
 }
 
 function decodeJwtExp(token: string): number | null {
+  // Lemos apenas o exp do JWT para derrubar sessoes expiradas no carregamento.
   const parts = token.split('.');
   if (parts.length < 2) return null;
   if (typeof atob !== 'function') return null;
@@ -42,26 +46,27 @@ function decodeJwtExp(token: string): number | null {
 
 type AuthContextValue = {
   token: string | null;
-  user: AuthUser | null;
+  user: UsuarioAutenticado | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (input: UserLoginInput, options?: { rememberAccess?: boolean }) => Promise<void>;
-  register: (input: UserRegistrationInput) => Promise<void>;
+  login: (input: EntradaLoginUsuario, options?: { rememberAccess?: boolean }) => Promise<void>;
+  register: (input: EntradaCadastroUsuario) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
-  updateProfile: (input: UserUpdateInput) => Promise<void>;
+  updateProfile: (input: EntradaAtualizacaoUsuario) => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [token, setToken] = useState<string | null>(() => getStoredToken());
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<UsuarioAutenticado | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const logout = useCallback(() => {
+    // Logout limpa tokens, usuario e cache das consultas privadas.
     localStorage.removeItem(STORAGE_KEY);
     sessionStorage.removeItem(STORAGE_KEY);
     setToken(null);
@@ -71,6 +76,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     async function bootstrap() {
+      // Ao abrir o app, valida token salvo e busca o usuario atual na API.
       if (!token) {
         setIsLoading(false);
         return;
@@ -84,7 +90,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       }
 
       try {
-        const currentUser = await apiRequest<AuthUser>('/users/me', { method: 'GET' }, token);
+        const currentUser = await apiRequest<UsuarioAutenticado>('/usuarios/me', { method: 'GET' }, token);
         setUser(currentUser);
       } catch {
         logout();
@@ -98,12 +104,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     function handleUnauthorized() {
+      // Qualquer 401 global redireciona para login e encerra a sessao.
       logout();
-      navigate('/login', { replace: true });
+      navigate('/entrar', { replace: true });
     }
 
-    window.addEventListener('shapeup:unauthorized', handleUnauthorized);
-    return () => window.removeEventListener('shapeup:unauthorized', handleUnauthorized);
+    window.addEventListener('shape:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('shape:unauthorized', handleUnauthorized);
   }, [logout, navigate]);
 
   const value = useMemo<AuthContextValue>(() => ({
@@ -112,7 +119,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
     isAuthenticated: Boolean(token && user),
     isLoading,
     async login(input, options) {
-      const response = await apiRequest<AuthResponse>('/auth/login', {
+      // Login autentica e salva o token conforme a escolha do usuario.
+      const response = await apiRequest<RespostaAutenticacao>('/autenticacao/entrar', {
         method: 'POST',
         body: JSON.stringify(input),
       });
@@ -122,7 +130,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
       queryClient.clear();
     },
     async register(input) {
-      const response = await apiRequest<AuthResponse>('/auth/register', {
+      // Cadastro ja cria sessao para reduzir passos no primeiro acesso.
+      const response = await apiRequest<RespostaAutenticacao>('/autenticacao/cadastro', {
         method: 'POST',
         body: JSON.stringify(input),
       });
@@ -133,13 +142,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
     },
     logout,
     async refreshUser() {
+      // Recarrega dados do usuario quando alguma tela precisa de informacao atualizada.
       if (!token) return;
-      const currentUser = await apiRequest<AuthUser>('/users/me', { method: 'GET' }, token);
+      const currentUser = await apiRequest<UsuarioAutenticado>('/usuarios/me', { method: 'GET' }, token);
       setUser(currentUser);
     },
     async updateProfile(input) {
+      // Atualiza perfil mantendo o token atual.
       if (!token) return;
-      const updatedUser = await apiRequest<AuthUser>('/users/me', {
+      const updatedUser = await apiRequest<UsuarioAutenticado>('/usuarios/me', {
         method: 'PUT',
         body: JSON.stringify(input),
       }, token);

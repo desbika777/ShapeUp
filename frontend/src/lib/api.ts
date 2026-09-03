@@ -1,8 +1,9 @@
-import type { ApiErrorPayload } from '@shapeup/shared';
+// Cliente HTTP centralizado para conversar com a API do backend.
+import type { PayloadErroApi } from '@shape/shared';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3333/api';
 
-export class ApiError extends Error {
+export class ErroApi extends Error {
   details?: string[];
   statusCode?: number;
 
@@ -15,11 +16,13 @@ export class ApiError extends Error {
 
 export async function apiRequest<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
   const headers = new Headers(options.headers);
+  // Quando ha corpo JSON, garantimos o Content-Type automaticamente.
   if (options.body && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
   }
 
   if (token) {
+    // Rotas privadas usam o token JWT enviado no header Authorization.
     headers.set('Authorization', `Bearer ${token}`);
   }
 
@@ -27,20 +30,23 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}, tok
   try {
     response = await fetch(`${API_URL}${path}`, { ...options, headers });
   } catch {
-    throw new ApiError('Falha de conexao com a API.');
+    // Erro de rede fica padronizado para a UI exibir mensagem amigavel.
+    throw new ErroApi('Falha de conexao com a API.');
   }
 
   if (!response.ok) {
-    const payload = (await response.json().catch(() => null)) as ApiErrorPayload | null;
+    const payload = (await response.json().catch(() => null)) as PayloadErroApi | null;
 
     if (response.status === 401) {
-      window.dispatchEvent(new CustomEvent('shapeup:unauthorized'));
+      // Avisa o AuthProvider para encerrar sessao expirada ou invalida.
+      window.dispatchEvent(new CustomEvent('shape:unauthorized'));
     }
 
-    throw new ApiError(payload?.message ?? 'Erro inesperado na API.', payload?.details, response.status);
+    throw new ErroApi(payload?.message ?? 'Erro inesperado na API.', payload?.details, response.status);
   }
 
   if (response.status === 204) {
+    // DELETE sem conteudo tambem passa pelo mesmo helper.
     return undefined as T;
   }
 

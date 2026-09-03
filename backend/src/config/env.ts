@@ -1,3 +1,5 @@
+// Valida variaveis de ambiente antes da API subir.
+// Assim falhas de configuracao aparecem cedo e com mensagem clara.
 import dotenv from 'dotenv';
 import { z } from 'zod';
 

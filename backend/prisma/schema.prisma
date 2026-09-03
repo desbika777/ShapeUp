@@ -7,100 +7,631 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  passwordHash String
-  cpf          String   @unique
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  passwordResetTokens PasswordResetToken[]
-  plans        Plan[]
-  students     Student[]
-  workouts     Workout[]
+/// Tabela principal da academia cadastrada no sistema.
+model Academia {
+  id               String           @id @default(cuid())
+  name             String
+  document         String           @unique
+  phone            String?
+  email            String?
+  status           StatusAcademia   @default(ATIVO)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  usuarios         Usuario[]
+  funcionarios     Funcionario[]
+  alunos           Aluno[]
+  planos           Plano[]
+  formasPagamento  FormaPagamento[]
+  exercicios       Exercicio[]
+  gruposMusculares GrupoMuscular[]
+  tiposAula        TipoAula[]
+  equipamentos     Equipamento[]
+  notificacoes     Notificacao[]
+  logsAuditoria    LogAuditoria[]
+
+  @@map("academias")
 }
 
-model Plan {
-  id             String    @id @default(cuid())
+/// Tabela de usuarios que acessam o Shape.
+model Usuario {
+  id                     String                  @id @default(cuid())
+  academyId              String?
+  name                   String
+  email                  String                  @unique
+  passwordHash           String
+  cpf                    String                  @unique
+  status                 StatusUsuario           @default(ATIVO)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  academia               Academia?               @relation(fields: [academyId], references: [id], onDelete: SetNull)
+  tokensRecuperacaoSenha TokenRecuperacaoSenha[]
+  perfis                 UsuarioPerfil[]
+  funcionario            Funcionario?
+  planos                 Plano[]
+  alunos                 Aluno[]                 @relation("AlunoResponsavel")
+  treinos                Treino[]
+  notificacoes           Notificacao[]
+  logsAuditoria          LogAuditoria[]
+
+  @@index([academyId])
+  @@map("usuarios")
+}
+
+/// Tabela de perfis de acesso, como administrador e professor.
+model Perfil {
+  id          String          @id @default(cuid())
+  name        String          @unique
+  description String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  usuarios    UsuarioPerfil[]
+
+  @@map("perfis")
+}
+
+/// Tabela de ligacao entre usuarios e perfis.
+model UsuarioPerfil {
+  id        String   @id @default(cuid())
+  userId    String
+  roleId    String
+  createdAt DateTime @default(now())
+  usuario   Usuario  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  perfil    Perfil   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@index([roleId])
+  @@map("usuario_perfis")
+}
+
+/// Tabela de tokens para recuperacao de senha.
+model TokenRecuperacaoSenha {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  usuario   Usuario   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("tokens_recuperacao_senha")
+}
+
+/// Tabela de funcionarios e professores da academia.
+model Funcionario {
+  id                String            @id @default(cuid())
+  academyId         String
+  userId            String?           @unique
+  name              String
+  email             String?
+  cpf               String
+  phone             String?
+  position          String
+  status            StatusFuncionario @default(ATIVO)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  academia          Academia          @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  usuario           Usuario?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  treinos           Treino[]
+  avaliacoesFisicas AvaliacaoFisica[]
+  horariosAula      HorarioAula[]
+
+  @@unique([academyId, cpf])
+  @@index([academyId])
+  @@map("funcionarios")
+}
+
+/// Tabela de planos oferecidos pela academia.
+model Plano {
+  id             String      @id @default(cuid())
+  academyId      String?
   ownerId        String
   name           String
   description    String
-  price          Decimal   @db.Decimal(10, 2)
+  price          Decimal     @db.Decimal(10, 2)
   durationMonths Int
-  status         PlanStatus
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  owner          User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  students       Student[]
+  status         StatusPlano
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  academia       Academia?   @relation(fields: [academyId], references: [id], onDelete: SetNull)
+  responsavel    Usuario     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  alunos         Aluno[]
+  matriculas     Matricula[]
 
+  @@index([academyId])
   @@index([ownerId])
+  @@map("planos")
 }
 
-model Student {
-  id        String        @id @default(cuid())
-  ownerId   String
-  name      String
-  email     String
-  cpf       String
-  phone     String
-  birthDate DateTime
-  goal      String
-  status    StudentStatus
-  planId    String
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  owner     User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  plan      Plan          @relation(fields: [planId], references: [id], onDelete: Restrict)
-  workouts  Workout[]
+/// Tabela de alunos matriculados na academia.
+model Aluno {
+  id                  String               @id @default(cuid())
+  academyId           String?
+  ownerId             String
+  name                String
+  email               String
+  cpf                 String
+  phone               String
+  birthDate           DateTime
+  goal                String
+  status              StatusAluno
+  planId              String
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  academia            Academia?            @relation(fields: [academyId], references: [id], onDelete: SetNull)
+  responsavel         Usuario              @relation("AlunoResponsavel", fields: [ownerId], references: [id], onDelete: Cascade)
+  plano               Plano                @relation(fields: [planId], references: [id], onDelete: Restrict)
+  matriculas          Matricula[]
+  treinos             Treino[]
+  avaliacoesFisicas   AvaliacaoFisica[]
+  registrosFrequencia RegistroFrequencia[]
+  inscricoesAula      InscricaoAula[]
+  metas               Meta[]
 
   @@unique([ownerId, email])
   @@unique([ownerId, cpf])
+  @@index([academyId])
   @@index([ownerId])
   @@index([ownerId, planId])
+  @@map("alunos")
 }
 
-model Workout {
-  id        String       @id @default(cuid())
-  ownerId   String
-  studentId String
-  title     String
-  objective String
-  level     WorkoutLevel
-  notes     String
-  startDate DateTime
-  endDate   DateTime
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  owner     User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  student   Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+/// Tabela de matriculas que vinculam alunos aos planos.
+model Matricula {
+  id                 String          @id @default(cuid())
+  studentId          String
+  planId             String
+  startDate          DateTime
+  endDate            DateTime
+  status             StatusMatricula @default(ATIVO)
+  cancellationReason String?
+  canceledAt         DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  aluno              Aluno           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  plano              Plano           @relation(fields: [planId], references: [id], onDelete: Restrict)
+  pagamentos         Pagamento[]
+
+  @@index([studentId])
+  @@index([planId])
+  @@index([status])
+  @@map("matriculas")
+}
+
+/// Tabela de formas de pagamento aceitas pela academia.
+model FormaPagamento {
+  id         String               @id @default(cuid())
+  academyId  String
+  name       String
+  status     StatusFormaPagamento @default(ATIVO)
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+  academia   Academia             @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  pagamentos Pagamento[]
+
+  @@unique([academyId, name])
+  @@index([academyId])
+  @@map("formas_pagamento")
+}
+
+/// Tabela de pagamentos vinculados as matriculas.
+model Pagamento {
+  id              String          @id @default(cuid())
+  membershipId    String
+  paymentMethodId String?
+  amount          Decimal         @db.Decimal(10, 2)
+  dueDate         DateTime
+  paidAt          DateTime?
+  status          StatusPagamento @default(PENDENTE)
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  matricula       Matricula       @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  formaPagamento  FormaPagamento? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
+
+  @@index([membershipId])
+  @@index([paymentMethodId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("pagamentos")
+}
+
+/// Tabela de treinos criados para os alunos.
+model Treino {
+  id               String            @id @default(cuid())
+  ownerId          String
+  studentId        String
+  staffMemberId    String?
+  title            String
+  objective        String
+  level            NivelTreino
+  notes            String
+  status           StatusTreino      @default(ATIVO)
+  startDate        DateTime
+  endDate          DateTime
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  responsavel      Usuario           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  aluno            Aluno             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  funcionario      Funcionario?      @relation(fields: [staffMemberId], references: [id], onDelete: SetNull)
+  treinoExercicios TreinoExercicio[]
 
   @@index([ownerId])
   @@index([ownerId, studentId])
+  @@index([staffMemberId])
+  @@index([status])
+  @@map("treinos")
 }
 
-model PasswordResetToken {
+/// Tabela de exercicios cadastrados no catalogo da academia.
+model Exercicio {
+  id               String                   @id @default(cuid())
+  academyId        String
+  name             String
+  description      String?
+  instructions     String?
+  status           StatusExercicio          @default(ATIVO)
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  academia         Academia                 @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  gruposMusculares ExercicioGrupoMuscular[]
+  treinoExercicios TreinoExercicio[]
+
+  @@unique([academyId, name])
+  @@index([academyId])
+  @@map("exercicios")
+}
+
+/// Tabela de grupos musculares utilizados nos exercicios.
+model GrupoMuscular {
+  id         String                   @id @default(cuid())
+  academyId  String
+  name       String
+  createdAt  DateTime                 @default(now())
+  updatedAt  DateTime                 @updatedAt
+  academia   Academia                 @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  exercicios ExercicioGrupoMuscular[]
+
+  @@unique([academyId, name])
+  @@index([academyId])
+  @@map("grupos_musculares")
+}
+
+/// Tabela de ligacao entre exercicios e grupos musculares.
+model ExercicioGrupoMuscular {
+  id            String        @id @default(cuid())
+  exerciseId    String
+  muscleGroupId String
+  exercicio     Exercicio     @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  grupoMuscular GrupoMuscular @relation(fields: [muscleGroupId], references: [id], onDelete: Cascade)
+
+  @@unique([exerciseId, muscleGroupId])
+  @@index([muscleGroupId])
+  @@map("exercicio_grupos_musculares")
+}
+
+/// Tabela de exercicios que compoem cada treino.
+model TreinoExercicio {
+  id          String    @id @default(cuid())
+  workoutId   String
+  exerciseId  String
+  sortOrder   Int
+  sets        Int?
+  repetitions String?
+  load        Decimal?  @db.Decimal(8, 2)
+  restSeconds Int?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  treino      Treino    @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercicio   Exercicio @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+
+  @@unique([workoutId, exerciseId, sortOrder])
+  @@index([exerciseId])
+  @@map("treino_exercicios")
+}
+
+/// Tabela de avaliacoes fisicas dos alunos.
+model AvaliacaoFisica {
+  id                String           @id @default(cuid())
+  studentId         String
+  staffMemberId     String?
+  assessmentDate    DateTime
+  weight            Decimal?         @db.Decimal(5, 2)
+  height            Decimal?         @db.Decimal(5, 2)
+  bodyFatPercentage Decimal?         @db.Decimal(5, 2)
+  notes             String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  aluno             Aluno            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  funcionario       Funcionario?     @relation(fields: [staffMemberId], references: [id], onDelete: SetNull)
+  medidas           MedidaCorporal[]
+
+  @@index([studentId])
+  @@index([staffMemberId])
+  @@index([assessmentDate])
+  @@map("avaliacoes_fisicas")
+}
+
+/// Tabela de medidas corporais coletadas em avaliacoes fisicas.
+model MedidaCorporal {
+  id           String          @id @default(cuid())
+  assessmentId String
+  bodyPart     String
+  value        Decimal         @db.Decimal(6, 2)
+  unit         String
+  createdAt    DateTime        @default(now())
+  avaliacao    AvaliacaoFisica @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@index([assessmentId])
+  @@map("medidas_corporais")
+}
+
+/// Tabela de registros de frequencia dos alunos.
+model RegistroFrequencia {
+  id              String           @id @default(cuid())
+  studentId       String
+  classScheduleId String?
+  checkInAt       DateTime
+  source          OrigemFrequencia @default(MANUAL)
+  createdAt       DateTime         @default(now())
+  aluno           Aluno            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  horarioAula     HorarioAula?     @relation(fields: [classScheduleId], references: [id], onDelete: SetNull)
+
+  @@index([studentId])
+  @@index([classScheduleId])
+  @@index([checkInAt])
+  @@map("registros_frequencia")
+}
+
+/// Tabela de tipos de aula oferecidos pela academia.
+model TipoAula {
+  id              String        @id @default(cuid())
+  academyId       String
+  name            String
+  description     String?
+  defaultCapacity Int?
+  status          StatusAula    @default(ATIVO)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  academia        Academia      @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  horarios        HorarioAula[]
+
+  @@unique([academyId, name])
+  @@index([academyId])
+  @@map("tipos_aula")
+}
+
+/// Tabela de horarios e turmas de aulas coletivas.
+model HorarioAula {
+  id                  String               @id @default(cuid())
+  classTypeId         String
+  staffMemberId       String?
+  startsAt            DateTime
+  endsAt              DateTime
+  capacity            Int?
+  status              StatusHorarioAula    @default(AGENDADO)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  tipoAula            TipoAula             @relation(fields: [classTypeId], references: [id], onDelete: Cascade)
+  funcionario         Funcionario?         @relation(fields: [staffMemberId], references: [id], onDelete: SetNull)
+  inscricoes          InscricaoAula[]
+  registrosFrequencia RegistroFrequencia[]
+
+  @@index([classTypeId])
+  @@index([staffMemberId])
+  @@index([startsAt])
+  @@map("horarios_aula")
+}
+
+/// Tabela de inscricoes de alunos em aulas.
+model InscricaoAula {
+  id              String          @id @default(cuid())
+  classScheduleId String
+  studentId       String
+  status          StatusInscricao @default(INSCRITO)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  horarioAula     HorarioAula     @relation(fields: [classScheduleId], references: [id], onDelete: Cascade)
+  aluno           Aluno           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([classScheduleId, studentId])
+  @@index([studentId])
+  @@map("inscricoes_aula")
+}
+
+/// Tabela de equipamentos da academia.
+model Equipamento {
+  id          String                  @id @default(cuid())
+  academyId   String
+  name        String
+  code        String
+  status      StatusEquipamento       @default(ATIVO)
+  acquiredAt  DateTime?
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+  academia    Academia                @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  manutencoes ManutencaoEquipamento[]
+
+  @@unique([academyId, code])
+  @@index([academyId])
+  @@index([status])
+  @@map("equipamentos")
+}
+
+/// Tabela de manutencoes realizadas ou planejadas nos equipamentos.
+model ManutencaoEquipamento {
+  id          String           @id @default(cuid())
+  equipmentId String
+  description String
+  scheduledAt DateTime
+  completedAt DateTime?
+  status      StatusManutencao @default(AGENDADO)
+  cost        Decimal?         @db.Decimal(10, 2)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  equipamento Equipamento      @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+
+  @@index([equipmentId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("manutencoes_equipamentos")
+}
+
+/// Tabela de metas definidas para os alunos.
+model Meta {
+  id          String     @id @default(cuid())
+  studentId   String
+  title       String
+  description String?
+  targetDate  DateTime?
+  status      StatusMeta @default(ATIVO)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  aluno       Aluno      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([status])
+  @@map("metas")
+}
+
+/// Tabela de notificacoes internas para usuarios.
+model Notificacao {
+  id        String    @id @default(cuid())
+  academyId String
+  userId    String?
+  title     String
+  message   String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  academia  Academia  @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  usuario   Usuario?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([academyId])
+  @@index([userId])
+  @@index([readAt])
+  @@map("notificacoes")
+}
+
+/// Tabela de auditoria para registrar acoes importantes.
+model LogAuditoria {
   id        String   @id @default(cuid())
-  userId     String
-  tokenHash  String   @unique
-  expiresAt  DateTime
-  usedAt     DateTime?
-  createdAt  DateTime @default(now())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  academyId String
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  academia  Academia @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  usuario   Usuario? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([academyId])
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("logs_auditoria")
 }
 
-enum PlanStatus {
-  ACTIVE
-  INACTIVE
+enum StatusAcademia {
+  ATIVO
+  INATIVO
 }
 
-enum StudentStatus {
-  ACTIVE
-  INACTIVE
+enum StatusUsuario {
+  ATIVO
+  INATIVO
 }
 
-enum WorkoutLevel {
-  BEGINNER
-  INTERMEDIATE
-  ADVANCED
+enum StatusFuncionario {
+  ATIVO
+  INATIVO
+}
+
+enum StatusPlano {
+  ATIVO
+  INATIVO
+}
+
+enum StatusAluno {
+  ATIVO
+  INATIVO
+}
+
+enum StatusMatricula {
+  ATIVO
+  EXPIRADO
+  CANCELADO
+}
+
+enum StatusFormaPagamento {
+  ATIVO
+  INATIVO
+}
+
+enum StatusPagamento {
+  PENDENTE
+  PAGO
+  ATRASADO
+  CANCELADO
+}
+
+enum NivelTreino {
+  INICIANTE
+  INTERMEDIARIO
+  AVANCADO
+}
+
+enum StatusTreino {
+  ATIVO
+  INATIVO
+  CONCLUIDO
+}
+
+enum StatusExercicio {
+  ATIVO
+  INATIVO
+}
+
+enum OrigemFrequencia {
+  MANUAL
+  AULA
+  ENTRADA
+}
+
+enum StatusAula {
+  ATIVO
+  INATIVO
+}
+
+enum StatusHorarioAula {
+  AGENDADO
+  CONCLUIDO
+  CANCELADO
+}
+
+enum StatusInscricao {
+  INSCRITO
+  CANCELADO
+  PRESENTE
+  AUSENTE
+}
+
+enum StatusEquipamento {
+  ATIVO
+  MANUTENCAO
+  INATIVO
+}
+
+enum StatusManutencao {
+  AGENDADO
+  EM_ANDAMENTO
+  CONCLUIDO
+  CANCELADO
+}
+
+enum StatusMeta {
+  ATIVO
+  ALCANCADO
+  CANCELADO
 }

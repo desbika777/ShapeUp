@@ -1,5 +1,5 @@
 {
-  "name": "@shapeup/backend",
+  "name": "@shape/backend",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -23,20 +23,20 @@
     "@types/node": "^25.4.0",
     "@types/nodemailer": "^7.0.11",
     "@types/supertest": "^7.2.0",
-    "prisma": "^6.16.2",
+    "prisma": "^6.19.3",
     "supertest": "^7.2.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   },
   "dependencies": {
-    "@prisma/client": "^6.16.2",
+    "@prisma/client": "^6.19.3",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "nodemailer": "^8.0.4",
+    "nodemailer": "9.0.4",
     "zod": "^4.3.6"
   }
 }

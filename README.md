@@ -1,8 +1,21 @@
-# ShapeUp Platform
+# Shape - Plataforma de Gestao de Academias
 
-Sistema completo de gestao para academias com frontend e backend separados, autenticacao JWT, 3 CRUDs completos, dashboard, TypeScript estrito, Prisma, Docker, Nginx com HTTPS local e testes automatizados.
+Sistema completo de gestao para academias, evoluido a partir do antigo SHAPEUP e reorganizado para atender a rubrica do 4o periodo de TADS. O projeto possui frontend e backend separados, autenticacao JWT, rotas em PT-BR, 3 CRUDs completos, dashboard, TypeScript estrito, Prisma, Docker, Nginx com HTTPS local e testes automatizados.
 
 Este repositorio contem a versao final preparada para a rubrica. As instrucoes abaixo servem para reproduzir o ambiente em outra maquina, acessar o banco, executar testes e demonstrar os recursos implementados.
+
+## Evidencias da Rubrica
+
+- `docs/mapa-rubrica.md`: mapa criterio por criterio da rubrica.
+- `docs/contextualizacao-problema.md`: problema, justificativa e evolucao do produto.
+- `docs/requisitos.md`: requisitos funcionais e nao funcionais.
+- `docs/modelagem-der.md`: DER com 27 tabelas em PT-BR.
+- `docs/diagramas-uml.md`: 2 casos de uso, 2 atividades e 2 sequencias.
+- `docs/arquitetura-evidencias.md`: arquitetura, camadas, CRUDs e padronizacao.
+- `docs/validacao-usabilidade-seguranca.md`: testes, usabilidade, compatibilidade e seguranca.
+- `docs/cynefin-abordagem-gestao.md`: Cynefin e abordagem agil.
+- `docs/backlog-jira-inicial.md`: backlog inicial para Jira.
+- `docs/nomenclatura-ptbr.md`: padrao de portugues para reduzir duvidas na avaliacao.
 
 ## Stack
 
@@ -18,7 +31,7 @@ Este repositorio contem a versao final preparada para a rubrica. As instrucoes a
 - `backend`: API Express + Prisma
 - `shared`: tipos compartilhados
 - `docker/nginx`: proxy reverso, cabecalhos de seguranca e certificados locais
-- `docs/gitflow.md`: padrao de branches e validacoes GitFlow
+- `docs`: evidencias da rubrica, diagramas, requisitos, DER, Cynefin, Jira e padroes
 
 ## Setup com Docker, Nginx e HTTPS
 
@@ -64,8 +77,8 @@ Com a stack ativa, rode:
 
 Credenciais criadas:
 
-- e-mail: `admin@shapeup.com`
-- senha: `ShapeUp@123`
+- e-mail: `admin@shape.com.br`
+- senha: `Shape@123`
 
 ## Desenvolvimento local sem proxy
 
@@ -104,6 +117,8 @@ Para E2E via Docker/HTTPS:
 ## Cobertura funcional entregue
 
 - autenticacao com JWT, opcao "Lembrar meu acesso" e persistencia em `localStorage` ou `sessionStorage`
+- rotas visiveis em PT-BR: `/entrar`, `/cadastro`, `/painel`, `/planos`, `/alunos`, `/treinos`
+- endpoints da API em PT-BR: `/api/autenticacao/entrar`, `/api/planos`, `/api/alunos`, `/api/treinos`
 - cadastro, login, consulta e edicao do proprio usuario
 - validacao de e-mail, CPF e senha forte
 - CRUD de planos, alunos e treinos com paginacao

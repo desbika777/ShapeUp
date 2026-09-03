@@ -1,3 +1,4 @@
+// Protege telas internas, bloqueando acesso sem usuario autenticado.
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { BrandLogo } from '@/components/brand/brand-logo';
 import { useAuth } from '@/hooks/use-auth';
@@ -7,6 +8,7 @@ export function ProtectedRoute() {
   const location = useLocation();
 
   if (isLoading) {
+    // Enquanto o token salvo e validado, exibimos carregamento elegante.
     return (
       <div className="flex min-h-screen items-center justify-center bg-hero-mesh px-6">
         <div className="flex flex-col items-center gap-4 rounded-[32px] border border-white/60 bg-white/85 px-8 py-7 text-center shadow-panel backdrop-blur">
@@ -18,7 +20,8 @@ export function ProtectedRoute() {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
+    // Redireciona para login guardando a rota desejada para voltar apos autenticar.
+    return <Navigate to="/entrar" replace state={{ from: location }} />;
   }
 
   return <Outlet />;

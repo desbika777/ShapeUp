@@ -1,8 +1,10 @@
-import type { PaginatedResponse, Workout, WorkoutInput } from '@shapeup/shared';
-import type { IWorkoutRepository, WorkoutListParams } from '../interfaces.js';
+// Repositorio Prisma dos treinos: consulta e grava prescricoes vinculadas a alunos.
+import type { RespostaPaginada, Treino, EntradaTreino } from '@shape/shared';
+import type { IRepositorioTreino, ParametrosListagemTreinos } from '../interfaces.js';
 import { prisma } from '../../lib/prisma.js';
 
 function meta(totalItems: number, page: number, pageSize: number) {
+  // Calcula os metadados usados pelo componente de paginacao.
   return {
     page,
     pageSize,
@@ -11,23 +13,24 @@ function meta(totalItems: number, page: number, pageSize: number) {
   };
 }
 
-function mapWorkout(workout: {
+function mapearTreino(workout: {
   id: string;
   studentId: string;
   title: string;
   objective: string;
-  level: Workout['level'];
+  level: Treino['level'];
   notes: string;
   startDate: Date;
   endDate: Date;
   createdAt: Date;
   updatedAt: Date;
-  student?: { name: string };
-}): Workout {
+  aluno?: { name: string };
+}): Treino {
+  // Inclui nome do aluno quando a consulta traz o relacionamento.
   return {
     id: workout.id,
     studentId: workout.studentId,
-    studentName: workout.student?.name,
+    studentName: workout.aluno?.name,
     title: workout.title,
     objective: workout.objective,
     level: workout.level,
@@ -39,10 +42,11 @@ function mapWorkout(workout: {
   };
 }
 
-export class PrismaWorkoutRepository implements IWorkoutRepository {
-  async list(params: WorkoutListParams): Promise<PaginatedResponse<Workout>> {
+export class RepositorioPrismaTreino implements IRepositorioTreino {
+  async list(params: ParametrosListagemTreinos): Promise<RespostaPaginada<Treino>> {
     const rawSearch = params.search?.trim();
 
+    // Busca por titulo, objetivo ou nome do aluno, alem de filtros por nivel/aluno.
     const where = {
       ownerId: params.ownerId,
       ...(params.level ? { level: params.level } : {}),
@@ -51,66 +55,68 @@ export class PrismaWorkoutRepository implements IWorkoutRepository {
         OR: [
           { title: { contains: rawSearch } },
           { objective: { contains: rawSearch } },
-          { student: { name: { contains: rawSearch } } },
+          { aluno: { name: { contains: rawSearch } } },
         ],
       } : {}),
     };
 
     const [items, totalItems] = await Promise.all([
-      prisma.workout.findMany({
+      prisma.treino.findMany({
         skip: params.skip,
         take: params.pageSize,
         where,
-        include: { student: true },
+        include: { aluno: true },
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.workout.count({ where }),
+      prisma.treino.count({ where }),
     ]);
 
-    return { data: items.map(mapWorkout), meta: meta(totalItems, params.page, params.pageSize) };
+    return { data: items.map(mapearTreino), meta: meta(totalItems, params.page, params.pageSize) };
   }
 
-  async create(ownerId: string, input: WorkoutInput) {
-    const created = await prisma.workout.create({
+  async create(ownerId: string, input: EntradaTreino) {
+    // Datas chegam do formulario como string e sao convertidas para Date no Prisma.
+    const created = await prisma.treino.create({
       data: {
         ownerId,
         ...input,
         startDate: new Date(input.startDate),
         endDate: new Date(input.endDate),
       },
-      include: { student: true },
+      include: { aluno: true },
     });
-    return mapWorkout(created);
+    return mapearTreino(created);
   }
 
   async findById(ownerId: string, id: string) {
-    const workout = await prisma.workout.findFirst({ where: { id, ownerId }, include: { student: true } });
-    return workout ? mapWorkout(workout) : null;
+    const workout = await prisma.treino.findFirst({ where: { id, ownerId }, include: { aluno: true } });
+    return workout ? mapearTreino(workout) : null;
   }
 
-  async update(_ownerId: string, id: string, input: WorkoutInput) {
-    const updated = await prisma.workout.update({
+  async update(_ownerId: string, id: string, input: EntradaTreino) {
+    const updated = await prisma.treino.update({
       where: { id },
       data: {
         ...input,
         startDate: new Date(input.startDate),
         endDate: new Date(input.endDate),
       },
-      include: { student: true },
+      include: { aluno: true },
     });
-    return mapWorkout(updated);
+    return mapearTreino(updated);
   }
 
   async delete(_ownerId: string, id: string) {
-    await prisma.workout.delete({ where: { id } });
+    await prisma.treino.delete({ where: { id } });
   }
 
-  async countAll(ownerId: string) {
-    return prisma.workout.count({ where: { ownerId } });
+  async contarTodos(ownerId: string) {
+    return prisma.treino.count({ where: { ownerId } });
   }
 
-  async countByLevel(ownerId: string) {
-    const grouped = await prisma.workout.groupBy({
+  async contarPorNivel(ownerId: string) {
+    // Agrupamento usado no grafico de treinos por nivel.
+    const grouped = await prisma.treino.groupBy({
       by: ['level'],
       where: { ownerId },
       _count: { _all: true },
