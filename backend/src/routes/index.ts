@@ -2,10 +2,12 @@
 import { Router } from 'express';
 import { ControladorAutenticacao } from '../controllers/auth-controller.js';
 import { ControladorPainel } from '../controllers/dashboard-controller.js';
+import { ControladorImagem } from '../controllers/image-controller.js';
 import { ControladorPlano } from '../controllers/plan-controller.js';
 import { ControladorAluno } from '../controllers/student-controller.js';
 import { ControladorTreino } from '../controllers/workout-controller.js';
 import { exigirPerfil, middlewareAutenticacao } from '../middlewares/auth-middleware.js';
+import { uploadImagemUnica } from '../middlewares/image-upload-middleware.js';
 
 export type ControladoresAplicacao = {
   authController: ControladorAutenticacao;
@@ -13,6 +15,7 @@ export type ControladoresAplicacao = {
   studentController: ControladorAluno;
   workoutController: ControladorTreino;
   dashboardController: ControladorPainel;
+  imageController: ControladorImagem;
 };
 
 export function createRouter(controllers: ControladoresAplicacao) {
@@ -53,6 +56,9 @@ export function createRouter(controllers: ControladoresAplicacao) {
 
   // Indicadores usados no painel inicial.
   router.get('/painel/indicadores', middlewareAutenticacao, controllers.dashboardController.getMetrics);
+
+  // Upload de imagens exigido pela rubrica: protegido e restrito ao administrador.
+  router.post('/imagens', middlewareAutenticacao, exigirPerfil(['ADMIN']), uploadImagemUnica, controllers.imageController.upload);
 
   return router;
 }

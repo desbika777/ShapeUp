@@ -72,6 +72,8 @@ flowchart TD
 | Alunos | `/api/alunos` |
 | Treinos | `/api/treinos` |
 | Indicadores | `GET /api/painel/indicadores` |
+| Imagens | `POST /api/imagens` |
+| Arquivos publicos | `/uploads/imagens/:arquivo` |
 
 ## CRUD Integrado Demonstravel
 
@@ -96,7 +98,10 @@ Para a rubrica, basta um CRUD completo, mas o Shape entrega mais de um fluxo dem
 - bcrypt para hash de senha;
 - migrations versionadas;
 - seed para demonstracao;
-- testes unitarios e E2E.
+- testes unitarios e E2E;
+- upload multipart com Multer;
+- validacao de extensao, MIME type, assinatura real e tamanho maximo para imagens;
+- geracao de nome unico para evitar colisao de arquivos.
 
 ## Decisao de Nomenclatura
 

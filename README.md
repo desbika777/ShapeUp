@@ -6,6 +6,7 @@ Este repositorio contem a versao final preparada para a rubrica. As instrucoes a
 
 ## Evidencias da Rubrica
 
+- `docs/roadmap-rubrica.md`: artefato de acompanhamento oficial com status, evidencias e proximas acoes.
 - `docs/mapa-rubrica.md`: mapa criterio por criterio da rubrica.
 - `docs/contextualizacao-problema.md`: problema, justificativa e evolucao do produto.
 - `docs/requisitos.md`: requisitos funcionais e nao funcionais.
@@ -120,10 +121,12 @@ Para E2E via Docker/HTTPS:
 - rotas visiveis em PT-BR: `/entrar`, `/cadastro`, `/painel`, `/planos`, `/alunos`, `/treinos`
 - endpoints da API em PT-BR: `/api/autenticacao/entrar`, `/api/planos`, `/api/alunos`, `/api/treinos`
 - cadastro, login, consulta e edicao do proprio usuario
+- controle funcional entre perfil administrador e usuario operacional
 - validacao de e-mail, CPF e senha forte
 - CRUD de planos, alunos e treinos com paginacao
 - relacionamento plano -> aluno e aluno -> treino
 - dashboard com KPIs, graficos e alunos recentes
+- upload de imagens com Multer em `/api/imagens`, validando extensao, MIME type, tamanho maximo, assinatura real e nome unico
 - testes de backend com Supertest
 - testes de frontend com Vitest + Testing Library
-- testes E2E de login, cadastro e CRUDs de planos e alunos
+- testes E2E de login, cadastro, CRUDs de planos/alunos e upload de imagens

@@ -7,12 +7,14 @@ import { RepositorioPrismaUsuario } from './repositories/prisma/prisma-user-repo
 import { RepositorioPrismaTreino } from './repositories/prisma/prisma-workout-repository.js';
 import { ControladorAutenticacao } from './controllers/auth-controller.js';
 import { ControladorPainel } from './controllers/dashboard-controller.js';
+import { ControladorImagem } from './controllers/image-controller.js';
 import { ControladorPlano } from './controllers/plan-controller.js';
 import { ControladorAluno } from './controllers/student-controller.js';
 import { ControladorTreino } from './controllers/workout-controller.js';
 import { ServicoAutenticacao } from './services/auth-service.js';
 import { ServicoPainel } from './services/dashboard-service.js';
 import type { IServicoEmail } from './services/mail-service.js';
+import { ServicoImagem } from './services/image-service.js';
 import { ServicoPlano } from './services/plan-service.js';
 import { ServicoEmailSmtp } from './services/smtp-mail-service.js';
 import { ServicoAluno } from './services/student-service.js';
@@ -39,6 +41,7 @@ export function createControllers(overrides?: Partial<DependenciasRepositorios>)
   const studentService = new ServicoAluno(studentRepository, planRepository);
   const workoutService = new ServicoTreino(workoutRepository, studentRepository);
   const dashboardService = new ServicoPainel(studentRepository, planRepository, workoutRepository);
+  const imageService = new ServicoImagem();
 
   // Controladores recebem servicos prontos e ficam responsaveis apenas pelo fluxo HTTP.
   return {
@@ -47,5 +50,6 @@ export function createControllers(overrides?: Partial<DependenciasRepositorios>)
     studentController: new ControladorAluno(studentService),
     workoutController: new ControladorTreino(workoutService),
     dashboardController: new ControladorPainel(dashboardService),
+    imageController: new ControladorImagem(imageService),
   };
 }

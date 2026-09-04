@@ -1,5 +1,5 @@
 // Layout principal do painel: sidebar, topo, menu mobile e area de conteudo.
-import { BadgeDollarSign, Dumbbell, LayoutDashboard, LogOut, ShieldCheck, UserCircle2, Users } from 'lucide-react';
+import { BadgeDollarSign, Dumbbell, ImageUp, LayoutDashboard, LogOut, ShieldCheck, UserCircle2, Users } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { BrandLogo } from '@/components/brand/brand-logo';
@@ -13,6 +13,7 @@ const navigation = [
   { label: 'Alunos', icon: Users, to: '/alunos' },
   { label: 'Treinos', icon: Dumbbell, to: '/treinos' },
   { label: 'Usuarios', icon: ShieldCheck, to: '/usuarios', adminOnly: true },
+  { label: 'Imagens', icon: ImageUp, to: '/imagens', adminOnly: true },
   { label: 'Perfil', icon: UserCircle2, to: '/perfil' },
 ];
 

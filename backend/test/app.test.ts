@@ -1,7 +1,10 @@
 // Testes da API com repositorios em memoria.
 // Validam regras de negocio sem depender do MySQL.
+import { existsSync, unlinkSync } from 'node:fs';
+import path from 'node:path';
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { IMAGEM_TAMANHO_MAXIMO_BYTES } from '@shape/shared';
 import type { IndicadoresPainel, RespostaPaginada, Plano, EntradaPlano, Aluno, EntradaAluno, Treino, EntradaTreino, PerfilAcesso } from '@shape/shared';
 import { createApp } from '../src/app.js';
 import type {
@@ -35,6 +38,19 @@ function paginate<T>(items: T[], params: ParametrosPaginacao): RespostaPaginada<
 type PlanoComDono = Plano & { ownerId: string };
 type AlunoComDono = Aluno & { ownerId: string };
 type TreinoComDono = Treino & { ownerId: string };
+
+const PNG_1X1_TRANSPARENTE = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=',
+  'base64',
+);
+
+function removerImagemTeste(fileName?: string) {
+  if (!fileName) return;
+  const filePath = path.join(process.cwd(), 'uploads', 'imagens', fileName);
+  if (existsSync(filePath)) {
+    unlinkSync(filePath);
+  }
+}
 
 class RepositorioMemoriaUsuario implements IRepositorioUsuario {
   // Repositorio fake para cadastro, login, perfil e recuperacao de senha.
@@ -421,6 +437,101 @@ describe('Shape API', () => {
 
     const blockedUsers = await request(app).get('/api/usuarios').set('Authorization', `Bearer ${userToken}`);
     expect(blockedUsers.status).toBe(403);
+  });
+
+  it('recebe e salva imagem valida com Multer usando nome unico', async () => {
+    const register = await request(app).post('/api/autenticacao/cadastro').send({
+      name: 'Gestor Teste',
+      email: 'gestor@shape.com.br',
+      password: 'Shape@123',
+      confirmPassword: 'Shape@123',
+      cpf: '11144477735',
+    });
+
+    const token = register.body.token as string;
+    const response = await request(app)
+      .post('/api/imagens')
+      .set('Authorization', `Bearer ${token}`)
+      .attach('imagem', PNG_1X1_TRANSPARENTE, { filename: 'Logo Shape.png', contentType: 'image/png' });
+
+    try {
+      expect(response.status).toBe(201);
+      expect(response.body.originalName).toBe('Logo Shape.png');
+      expect(response.body.fileName).toMatch(/logo-shape\.png$/);
+      expect(response.body.relativePath).toContain('/uploads/imagens/');
+      expect(response.body.url).toContain('/uploads/imagens/');
+      expect(response.body.mimeType).toBe('image/png');
+      expect(response.body.size).toBe(PNG_1X1_TRANSPARENTE.length);
+      expect(existsSync(path.join(process.cwd(), 'uploads', 'imagens', response.body.fileName))).toBe(true);
+    } finally {
+      removerImagemTeste(response.body.fileName);
+    }
+  });
+
+  it('bloqueia upload de imagem para usuario sem perfil administrador', async () => {
+    const register = await request(app).post('/api/autenticacao/cadastro').send({
+      name: 'Gestor Teste',
+      email: 'gestor@shape.com.br',
+      password: 'Shape@123',
+      confirmPassword: 'Shape@123',
+      cpf: '11144477735',
+    });
+
+    const adminToken = register.body.token as string;
+    await request(app).post('/api/usuarios').set('Authorization', `Bearer ${adminToken}`).send({
+      name: 'Usuario Operacional',
+      email: 'usuario@shape.com.br',
+      password: 'Usuario@123',
+      confirmPassword: 'Usuario@123',
+      cpf: '39053344705',
+      perfil: 'USUARIO',
+    });
+
+    const login = await request(app).post('/api/autenticacao/entrar').send({
+      email: 'usuario@shape.com.br',
+      password: 'Usuario@123',
+    });
+
+    const response = await request(app)
+      .post('/api/imagens')
+      .set('Authorization', `Bearer ${login.body.token}`)
+      .attach('imagem', PNG_1X1_TRANSPARENTE, { filename: 'logo.png', contentType: 'image/png' });
+
+    expect(response.status).toBe(403);
+    expect(response.body.message).toBe('Seu perfil nao permite executar esta acao.');
+  });
+
+  it('valida extensao, tipo real e tamanho maximo das imagens recebidas', async () => {
+    const register = await request(app).post('/api/autenticacao/cadastro').send({
+      name: 'Gestor Teste',
+      email: 'gestor@shape.com.br',
+      password: 'Shape@123',
+      confirmPassword: 'Shape@123',
+      cpf: '11144477735',
+    });
+
+    const token = register.body.token as string;
+
+    const invalidExtension = await request(app)
+      .post('/api/imagens')
+      .set('Authorization', `Bearer ${token}`)
+      .attach('imagem', Buffer.from('arquivo invalido'), { filename: 'arquivo.txt', contentType: 'text/plain' });
+    expect(invalidExtension.status).toBe(400);
+    expect(invalidExtension.body.message).toBe('Envie uma imagem valida nos formatos PNG, JPG, JPEG ou WEBP.');
+
+    const fakeImage = await request(app)
+      .post('/api/imagens')
+      .set('Authorization', `Bearer ${token}`)
+      .attach('imagem', Buffer.from('nao sou uma imagem real'), { filename: 'falso.png', contentType: 'image/png' });
+    expect(fakeImage.status).toBe(400);
+    expect(fakeImage.body.message).toBe('O conteudo do arquivo nao corresponde a uma imagem valida.');
+
+    const tooLarge = await request(app)
+      .post('/api/imagens')
+      .set('Authorization', `Bearer ${token}`)
+      .attach('imagem', Buffer.alloc(IMAGEM_TAMANHO_MAXIMO_BYTES + 1), { filename: 'grande.png', contentType: 'image/png' });
+    expect(tooLarge.status).toBe(400);
+    expect(tooLarge.body.message).toBe('A imagem deve ter no maximo 2 MB.');
   });
 
   it('pagina planos e retorna 404 ao editar recurso inexistente', async () => {

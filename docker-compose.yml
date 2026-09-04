@@ -58,6 +58,8 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+    volumes:
+      - shapeup_uploads_data:/app/backend/uploads
     networks:
       - shapeup_internal
 
@@ -93,6 +95,7 @@ services:
 
 volumes:
   shapeup_mysql_data:
+  shapeup_uploads_data:
 
 networks:
   shapeup_public:

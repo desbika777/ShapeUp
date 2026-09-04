@@ -16,6 +16,7 @@ import { AlunosPage } from '@/pages/alunos/alunos-page';
 import { FormularioTreinoPage } from '@/pages/treinos/formulario-treino-page';
 import { TreinosPage } from '@/pages/treinos/treinos-page';
 import { UsuariosPage } from '@/pages/usuarios/usuarios-page';
+import { ImagensPage } from '@/pages/imagens/imagens-page';
 
 export function App() {
   return (
@@ -42,6 +43,7 @@ export function App() {
             <Route path="/treinos/novo" element={<FormularioTreinoPage />} />
             <Route path="/treinos/:id/editar" element={<FormularioTreinoPage />} />
             <Route path="/usuarios" element={<UsuariosPage />} />
+            <Route path="/imagens" element={<ImagensPage />} />
           </Route>
         </Route>
       </Route>

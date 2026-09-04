@@ -123,6 +123,13 @@ Este documento registra os requisitos funcionais e nao funcionais do Shape, serv
 | RF-050 | P1 | O dashboard deve exibir indicadores de pagamentos e matriculas. |
 | RF-051 | P2 | O sistema deve permitir gerar relatorios simples para acompanhamento da academia. |
 
+### Imagens e Arquivos
+
+| Codigo | Prioridade | Requisito |
+| --- | --- | --- |
+| RF-052 | MVP | O sistema deve permitir que administradores enviem imagens usando upload multipart. |
+| RF-053 | MVP | O sistema deve validar imagens recebidas por extensao, MIME type, tamanho maximo e nome unico. |
+
 ## Requisitos Nao Funcionais
 
 | Codigo | Categoria | Requisito |
@@ -145,6 +152,7 @@ Este documento registra os requisitos funcionais e nao funcionais do Shape, serv
 | RNF-016 | Documentacao | O projeto deve manter README, requisitos, DER, regras de negocio e diagramas atualizados. |
 | RNF-017 | Auditoria | Alteracoes relevantes devem registrar datas de criacao e atualizacao. |
 | RNF-018 | Integridade | Relacionamentos no banco devem usar chaves estrangeiras e restricoes coerentes. |
+| RNF-019 | Seguranca | Arquivos enviados devem aceitar apenas formatos de imagem permitidos e tamanho controlado. |
 
 ## Requisitos Prioritarios Para o MVP
 
@@ -158,6 +166,7 @@ Para a primeira entrega funcional, a prioridade deve ser:
 - registro basico de pagamento;
 - CRUD de treinos;
 - vinculo de treino com aluno;
+- upload validado de imagens;
 - validacoes principais;
 - integracao frontend, API e banco.
 

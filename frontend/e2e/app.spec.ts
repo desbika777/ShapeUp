@@ -5,6 +5,11 @@ const API_URL = process.env.E2E_API_URL ?? 'http://127.0.0.1:3333/api';
 const PASSWORD = 'Shape@123';
 let sequence = 0;
 
+const PNG_1X1_TRANSPARENTE = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=',
+  'base64',
+);
+
 function nextSeed(testInfo: TestInfo) {
   // Gera dados unicos por teste para evitar conflito de CPF/e-mail.
   sequence += 1;
@@ -254,5 +259,28 @@ test.describe('CRUDs principais', () => {
     await page.getByRole('dialog').getByRole('button', { name: 'Excluir' }).click();
     await expect(page.getByText('Aluno excluido')).toBeVisible();
     await expect(page.getByRole('row', { name: new RegExp(editedName) })).toHaveCount(0);
+  });
+});
+
+test.describe('upload de imagens', () => {
+  test('envia imagem pela interface administrativa e exibe metadados salvos', async ({ page, request }, testInfo) => {
+    const manager = await createManager(request, testInfo);
+
+    await authenticate(page, manager.token);
+    await page.goto('/imagens');
+    await expect(page.getByText('Upload validado')).toBeVisible();
+
+    await page.locator('input[type="file"]').setInputFiles({
+      name: 'evidencia-rubrica.png',
+      mimeType: 'image/png',
+      buffer: PNG_1X1_TRANSPARENTE,
+    });
+
+    await page.getByRole('button', { name: 'Enviar imagem' }).click();
+
+    await expect(page.getByText('Imagem enviada')).toBeVisible();
+    await expect(page.locator('dd').filter({ hasText: /evidencia-rubrica\.png$/ }).first()).toBeVisible();
+    await expect(page.getByText('image/png')).toBeVisible();
+    await expect(page.locator('dd').filter({ hasText: '/uploads/imagens/' }).first()).toBeVisible();
   });
 });

@@ -15,6 +15,7 @@ Este documento registra como o Shape atende ao criterio da rubrica sobre validac
 | CRUD de alunos | Tela, API, service, repository e testes |
 | CRUD de treinos | Tela, API, service, repository e testes |
 | Dashboard | API de indicadores e graficos no frontend |
+| Upload de imagens | Tela `/imagens`, Multer, storage local, validacao e testes |
 
 ## Comandos de Validacao
 
@@ -23,20 +24,23 @@ npm run lint
 npm run test
 npm run build
 npm run e2e
+docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml ps
+curl.exe -k https://localhost/health
 ```
 
 ## Ultima Execucao Registrada
 
-Data: 10/08/2026.
+Data: 03/09/2026.
 
 | Comando | Resultado | Observacao |
 | --- | --- | --- |
 | `git diff --check` | Passou | Sem espacos finais ou conflitos de diff |
 | `npm run lint` | Passou | Shared, backend e frontend sem erro de TypeScript/ESLint |
-| `npm run test` | Passou | 13 testes de backend e 7 testes de frontend |
+| `npm run test` | Passou | 17 testes de backend e 7 testes de frontend |
 | `npm run build` | Passou | Build de producao gerado; houve aviso de bundle acima de 500 KB e Browserslist antigo |
-| `npm run e2e` | Pendente de nova execucao | Sera executado novamente apos permissao por perfil e upload de imagens |
-| `npm install` | Passou com alerta | 1 vulnerabilidade baixa apontada pelo npm |
+| `npm run e2e` | Passou | 5 testes ponta a ponta, incluindo upload de imagem pela interface |
+| Docker/Nginx/HTTPS | Passou | Stack ativa; `/health` retornou `{"status":"ok"}`, upload admin retornou `201` e `/uploads/imagens/...` retornou `200 OK` com `Content-Type: image/png` |
+| `npm install` | Passou com alerta | npm apontou vulnerabilidades para revisao antes da entrega final |
 
 ## Usabilidade
 
@@ -73,6 +77,9 @@ Pontos aplicados:
 - token de recuperacao salvo como hash;
 - expiracao de token de recuperacao;
 - validacao de e-mail, CPF e senha forte;
+- upload restrito a administradores;
+- validacao de extensao, MIME type, tamanho maximo e assinatura real de imagem;
+- nomes unicos para uploads usando UUID;
 - respostas de erro padronizadas.
 
 ## Audit de Dependencias
@@ -93,8 +100,8 @@ Na revisao de 10/08/2026, o `npm install` apontou 1 vulnerabilidade baixa. O ris
 | Risco | Plano de melhoria |
 | --- | --- |
 | Alerta baixo de dependencia informado pelo npm | Rodar `npm audit` antes da entrega final e corrigir sem `--force` quando possivel |
-| Ainda nao ha controle completo de permissoes por perfil na interface | Evoluir perfis `perfis` e `usuario_perfis` |
-| Ainda nao ha upload de imagens com Multer | Criar endpoint de upload e validacoes de arquivo |
+| Controle de permissoes deve ser demonstrado na apresentacao | Usar contas ADMIN e USUARIO do seed no roteiro |
+| Upload de imagens foi implementado, mas precisa aparecer no roteiro final | Demonstrar tela `/imagens` e uma tentativa de arquivo invalido |
 | Ainda nao ha logs visiveis no painel | Criar tela de auditoria |
 | Teste E2E cobre CRUDs principais, mas nao todos os modulos novos | Expandir testes conforme novos modulos entrarem |
 | Bundle frontend acima de 500 KB | Aplicar code splitting futuramente |

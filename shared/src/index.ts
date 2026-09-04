@@ -70,6 +70,22 @@ export type EntradaCriacaoUsuario = {
   perfil: PerfilAcesso;
 };
 
+// Parametros oficiais para upload de imagens via Multer.
+export const IMAGEM_EXTENSOES_PERMITIDAS = ['.png', '.jpg', '.jpeg', '.webp'] as const;
+export const IMAGEM_MIME_TYPES_PERMITIDOS = ['image/png', 'image/jpeg', 'image/webp'] as const;
+export const IMAGEM_TAMANHO_MAXIMO_BYTES = 2 * 1024 * 1024;
+
+export type ImagemEnviada = {
+  originalName: string;
+  fileName: string;
+  mimeType: string;
+  size: number;
+  extension: string;
+  relativePath: string;
+  url: string;
+  uploadedAt: string;
+};
+
 // Status e niveis controlam valores permitidos em selects e banco.
 export type StatusPlano = 'ATIVO' | 'INATIVO';
 export type StatusAluno = 'ATIVO' | 'INATIVO';

@@ -13,3 +13,8 @@ playwright-report
 frontend/test-results
 *.log
 *.tsbuildinfo
+backend/uploads/*
+!backend/uploads/.gitkeep
+!backend/uploads/imagens/
+backend/uploads/imagens/*
+!backend/uploads/imagens/.gitkeep
