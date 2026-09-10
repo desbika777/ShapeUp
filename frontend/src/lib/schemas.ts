@@ -1,29 +1,10 @@
 // Validacoes dos formularios do frontend usando Zod.
+import { EMAIL_REGEX, isStrongPassword, isValidCpf } from '@shape/shared';
 import { z } from 'zod';
-
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function isValidCpf(cpf: string) {
-  // Repete no frontend a regra de CPF para mostrar erro antes de enviar para a API.
-  const normalized = cpf.replace(/\D/g, '');
-  if (normalized.length !== 11 || /^([0-9])\1+$/.test(normalized)) return false;
-  let sum = 0;
-  for (let index = 0; index < 9; index += 1) sum += Number(normalized[index]) * (10 - index);
-  let remainder = (sum * 10) % 11;
-  remainder = remainder === 10 ? 0 : remainder;
-  if (remainder !== Number(normalized[9])) return false;
-  sum = 0;
-  for (let index = 0; index < 10; index += 1) sum += Number(normalized[index]) * (11 - index);
-  remainder = (sum * 10) % 11;
-  remainder = remainder === 10 ? 0 : remainder;
-  return remainder === Number(normalized[10]);
-}
-
-const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
 
 // Login exige e-mail valido e senha preenchida.
 export const loginSchema = z.object({
-  email: z.string().regex(emailRegex, 'Informe um e-mail valido.'),
+  email: z.string().regex(EMAIL_REGEX, 'Informe um e-mail valido.'),
   password: z.string().min(1, 'Informe sua senha.'),
 });
 
@@ -35,8 +16,8 @@ export const loginFormSchema = loginSchema.extend({
 export const registerSchema = z
   .object({
     name: z.string().min(3, 'Informe um nome com ao menos 3 caracteres.'),
-    email: z.string().regex(emailRegex, 'Informe um e-mail valido.'),
-    password: z.string().regex(strongPassword, 'Use uma senha forte com 8+ caracteres, maiuscula, minuscula, numero e simbolo.'),
+    email: z.string().regex(EMAIL_REGEX, 'Informe um e-mail valido.'),
+    password: z.string().refine(isStrongPassword, 'Use uma senha forte com 8+ caracteres, maiuscula, minuscula, numero e simbolo.'),
     confirmPassword: z.string().min(8, 'Confirme a senha.'),
     cpf: z.string().refine(isValidCpf, 'Informe um CPF valido.'),
   })
@@ -52,14 +33,14 @@ export const createUserSchema = registerSchema.extend({
 
 // Recuperacao de senha pede somente o e-mail cadastrado.
 export const forgotPasswordSchema = z.object({
-  email: z.string().regex(emailRegex, 'Informe um e-mail valido.'),
+  email: z.string().regex(EMAIL_REGEX, 'Informe um e-mail valido.'),
 });
 
 // Redefinicao usa token do link e nova senha forte.
 export const resetPasswordSchema = z
   .object({
     token: z.string().min(1, 'O link de redefinicao e invalido ou expirou.'),
-    password: z.string().regex(strongPassword, 'Use uma senha forte com 8+ caracteres, maiuscula, minuscula, numero e simbolo.'),
+    password: z.string().refine(isStrongPassword, 'Use uma senha forte com 8+ caracteres, maiuscula, minuscula, numero e simbolo.'),
     confirmPassword: z.string().min(8, 'Confirme a senha.'),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -97,7 +78,7 @@ export const updateUserSchema = z
         path: ['password'],
         message: 'Informe a nova senha.',
       });
-    } else if (!strongPassword.test(data.password)) {
+    } else if (!isStrongPassword(data.password)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['password'],
@@ -132,7 +113,7 @@ export const planSchema = z.object({
 // Aluno precisa de dados pessoais, objetivo e plano vinculado.
 export const studentSchema = z.object({
   name: z.string().min(3, 'Informe o nome do aluno.'),
-  email: z.string().regex(emailRegex, 'Informe um e-mail valido.'),
+  email: z.string().regex(EMAIL_REGEX, 'Informe um e-mail valido.'),
   cpf: z.string().refine(isValidCpf, 'Informe um CPF valido.'),
   phone: z.string().min(8, 'Informe um telefone valido.'),
   birthDate: z.string().min(1, 'Informe a data de nascimento.'),

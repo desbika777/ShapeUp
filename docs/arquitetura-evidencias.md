@@ -9,8 +9,11 @@ Este documento mostra como a arquitetura do Shape atende a rubrica de Arquitetur
 ```mermaid
 flowchart TD
     usuario["Usuario no navegador"]
+    celular["Usuario no Expo Go"]
     telas["Frontend React - paginas em PT-BR"]
+    mobile["Mobile Expo - React Native"]
     componentes["Componentes reutilizaveis"]
+    componentes_mobile["Componentes mobile reutilizaveis"]
     api_client["Cliente API centralizado"]
     rotas["API Express - rotas em PT-BR"]
     controllers["Controllers"]
@@ -20,8 +23,11 @@ flowchart TD
     banco["MySQL com tabelas em PT-BR"]
 
     usuario --> telas
+    celular --> mobile
     telas --> componentes
     telas --> api_client
+    mobile --> componentes_mobile
+    mobile --> api_client
     api_client --> rotas
     rotas --> controllers
     controllers --> services
@@ -36,8 +42,11 @@ flowchart TD
 | --- | --- | --- |
 | Frontend | `frontend/src/pages` | Paginas visiveis do sistema |
 | Componentes | `frontend/src/components` | Elementos reutilizaveis de layout e UI |
+| Mobile | `mobile/src/screens` | Telas React Native executadas pelo Expo Go |
+| Componentes mobile | `mobile/src/components` | Botao, campo de texto e cards reutilizaveis do app Expo |
 | Contexto | `frontend/src/context` | Estado global de autenticacao |
 | Cliente API | `frontend/src/lib/api.ts` | Comunicacao HTTP padronizada |
+| Cliente API mobile | `mobile/src/lib/api.ts` | Comunicacao HTTP do Expo com tratamento padronizado de erros |
 | Backend | `backend/src` | API, regras e persistencia |
 | Controllers | `backend/src/controllers` | Entrada HTTP e validacao inicial |
 | Services | `backend/src/services` | Regras de negocio |
@@ -58,6 +67,7 @@ flowchart TD
 | Planos | `/planos` |
 | Alunos | `/alunos` |
 | Treinos | `/treinos` |
+| Imagens | `/imagens` |
 
 ## Endpoints da API em PT-BR
 
@@ -88,6 +98,8 @@ Para a rubrica, basta um CRUD completo, mas o Shape entrega mais de um fluxo dem
 ## Boas Praticas Presentes
 
 - TypeScript no frontend, backend e shared;
+- aplicativo mobile em Expo/React Native para validacao no Expo Go;
+- validacoes de CPF, e-mail e senha forte centralizadas em `shared`;
 - Zod para validacao de entrada;
 - React Hook Form para formularios;
 - TanStack Query para cache e sincronizacao de dados;
@@ -101,7 +113,8 @@ Para a rubrica, basta um CRUD completo, mas o Shape entrega mais de um fluxo dem
 - testes unitarios e E2E;
 - upload multipart com Multer;
 - validacao de extensao, MIME type, assinatura real e tamanho maximo para imagens;
-- geracao de nome unico para evitar colisao de arquivos.
+- geracao de nome unico para evitar colisao de arquivos;
+- helper HTTP reutilizado para parametros de rota no backend.
 
 ## Decisao de Nomenclatura
 

@@ -130,6 +130,7 @@ Incluido no escopo:
 - listagens com filtros e paginacao quando necessario;
 - validacoes de formularios;
 - integracao entre frontend, API e banco de dados;
+- cliente mobile Expo para demonstracao em dispositivo via Expo Go;
 - documentacao tecnica e de gestao do projeto.
 
 ## Fora de Escopo Inicial
@@ -138,7 +139,7 @@ Algumas funcionalidades sao relevantes para uma plataforma real, mas nao serao p
 
 Fora do escopo inicial:
 
-- aplicativo mobile nativo;
+- aplicativo mobile nativo publicado nas lojas;
 - integracao real com gateways de pagamento;
 - emissao fiscal;
 - catraca fisica ou controle biometrico real;

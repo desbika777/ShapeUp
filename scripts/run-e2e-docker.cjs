@@ -8,7 +8,7 @@ const env = {
   NODE_TLS_REJECT_UNAUTHORIZED: process.env.NODE_TLS_REJECT_UNAUTHORIZED || '0',
 };
 
-const result = spawnSync('npm', ['run', 'e2e'], {
+const result = spawnSync('npm', ['run', 'test:e2e', '--workspace', 'frontend'], {
   env,
   shell: process.platform === 'win32',
   stdio: 'inherit',

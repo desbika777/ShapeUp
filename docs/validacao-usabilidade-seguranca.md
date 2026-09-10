@@ -16,6 +16,7 @@ Este documento registra como o Shape atende ao criterio da rubrica sobre validac
 | CRUD de treinos | Tela, API, service, repository e testes |
 | Dashboard | API de indicadores e graficos no frontend |
 | Upload de imagens | Tela `/imagens`, Multer, storage local, validacao e testes |
+| Aplicativo Expo | Workspace `mobile`, Expo Go, login, painel e listagens resumidas pela API |
 
 ## Comandos de Validacao
 
@@ -23,6 +24,8 @@ Este documento registra como o Shape atende ao criterio da rubrica sobre validac
 npm run lint
 npm run test
 npm run build
+npm run lint:mobile
+npx expo install --check
 npm run e2e
 docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml ps
 curl.exe -k https://localhost/health
@@ -30,17 +33,22 @@ curl.exe -k https://localhost/health
 
 ## Ultima Execucao Registrada
 
-Data: 03/09/2026.
+Data: 10/09/2026.
 
 | Comando | Resultado | Observacao |
 | --- | --- | --- |
 | `git diff --check` | Passou | Sem espacos finais ou conflitos de diff |
 | `npm run lint` | Passou | Shared, backend e frontend sem erro de TypeScript/ESLint |
+| `npm run lint:mobile` | Passou | App Expo/React Native sem erro de TypeScript |
 | `npm run test` | Passou | 17 testes de backend e 7 testes de frontend |
 | `npm run build` | Passou | Build de producao gerado; houve aviso de bundle acima de 500 KB e Browserslist antigo |
-| `npm run e2e` | Passou | 5 testes ponta a ponta, incluindo upload de imagem pela interface |
+| `npx expo install --check` | Passou em 08/09/2026 | Dependencias do app mobile compativeis com Expo SDK 57 |
+| `npx expo start --host localhost --clear` | Passou em 08/09/2026 | Metro iniciou e aguardou conexao em `http://localhost:8081` |
+| `npm run e2e` | Passou | Detectou Docker ativo e usou o perfil Docker/HTTPS automaticamente |
+| `npm run e2e:docker` | Passou | 5 testes ponta a ponta, incluindo upload de imagem pela interface |
 | Docker/Nginx/HTTPS | Passou | Stack ativa; `/health` retornou `{"status":"ok"}`, upload admin retornou `201` e `/uploads/imagens/...` retornou `200 OK` com `Content-Type: image/png` |
 | `npm install` | Passou com alerta | npm apontou vulnerabilidades para revisao antes da entrega final |
+| Expo Go em celular fisico | Pendente controlado | Nao foi possivel validar no aparelho nesta revisao; nao bloqueia commit da base tecnica |
 
 ## Usabilidade
 
@@ -54,12 +62,14 @@ Pontos aplicados:
 - confirmacao antes de exclusao;
 - formularios com mensagens de validacao claras;
 - rotas em PT-BR para facilitar leitura durante a apresentacao.
+- app Expo com tela de login, URL de API editavel, feedback de erro e pull-to-refresh no painel.
 
 ## Compatibilidade
 
 Pontos aplicados:
 
 - frontend responsivo com Tailwind;
+- app Expo/React Native preparado para validacao no Expo Go;
 - testes E2E em navegador com Playwright;
 - backend separado da interface;
 - banco em Docker para reproduzir ambiente local;
@@ -77,6 +87,7 @@ Pontos aplicados:
 - token de recuperacao salvo como hash;
 - expiracao de token de recuperacao;
 - validacao de e-mail, CPF e senha forte;
+- validadores sensiveis centralizados em `shared` e reutilizados por web, mobile e backend;
 - upload restrito a administradores;
 - validacao de extensao, MIME type, tamanho maximo e assinatura real de imagem;
 - nomes unicos para uploads usando UUID;
@@ -93,15 +104,16 @@ Historicamente tambem foi executado `npm audit fix` sem `--force` para corrigir 
 - `esbuild` para `0.28.1` via override.
 
 Observacao:
-Na revisao de 10/08/2026, o `npm install` apontou 1 vulnerabilidade baixa. O risco fica registrado para acompanhamento e deve ser revisado novamente antes da entrega final.
+Na revisao de 08/09/2026, o `npm install` concluiu, mas apontou 26 vulnerabilidades entre dependencias diretas e transientes. O risco fica registrado para acompanhamento e deve ser revisado com `npm audit` antes da entrega final, sem aplicar `npm audit fix --force` automaticamente para evitar quebras no Expo, Vite, Prisma ou Playwright.
 
 ## Riscos e Melhorias Futuras
 
 | Risco | Plano de melhoria |
 | --- | --- |
-| Alerta baixo de dependencia informado pelo npm | Rodar `npm audit` antes da entrega final e corrigir sem `--force` quando possivel |
+| Alertas de dependencia informados pelo npm | Rodar `npm audit` antes da entrega final e corrigir sem `--force` quando possivel |
+| App Expo ainda precisa de evidencia em celular fisico | Abrir no Expo Go, testar login pela rede local e anexar print ao roteiro final |
 | Controle de permissoes deve ser demonstrado na apresentacao | Usar contas ADMIN e USUARIO do seed no roteiro |
-| Upload de imagens foi implementado, mas precisa aparecer no roteiro final | Demonstrar tela `/imagens` e uma tentativa de arquivo invalido |
+| Upload de imagens foi implementado, mas precisa aparecer na demonstracao | Demonstrar tela `/imagens` e uma tentativa de arquivo invalido |
 | Ainda nao ha logs visiveis no painel | Criar tela de auditoria |
 | Teste E2E cobre CRUDs principais, mas nao todos os modulos novos | Expandir testes conforme novos modulos entrarem |
 | Bundle frontend acima de 500 KB | Aplicar code splitting futuramente |

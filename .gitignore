@@ -5,6 +5,9 @@ shared/dist
 backend/node_modules
 frontend/node_modules
 shared/node_modules
+mobile/node_modules
+mobile/.expo
+mobile/.expo-shared
 .env
 backend/.env
 frontend/.env

@@ -2,7 +2,7 @@
 import type { EntradaAluno, StatusAluno } from '@shape/shared';
 import { AppError } from '../core/app-error.js';
 import type { IRepositorioPlano, IRepositorioAluno } from '../repositories/interfaces.js';
-import { isValidCpf, isValidEmail, normalizeCpf } from '../utils/validators.js';
+import { isValidCpf, isValidEmail, normalizeCpf, normalizeEmail } from '../utils/validators.js';
 
 export class ServicoAluno {
   constructor(
@@ -24,7 +24,7 @@ export class ServicoAluno {
   // Cadastra aluno apos normalizar CPF/e-mail e confirmar plano valido.
   async create(ownerId: string, input: EntradaAluno) {
     await this.validate(ownerId, input);
-    return this.studentRepository.create(ownerId, { ...input, email: input.email.toLowerCase(), cpf: normalizeCpf(input.cpf) });
+    return this.studentRepository.create(ownerId, { ...input, email: normalizeEmail(input.email), cpf: normalizeCpf(input.cpf) });
   }
 
   // Busca aluno respeitando o dono da conta.
@@ -36,7 +36,7 @@ export class ServicoAluno {
   async update(ownerId: string, id: string, input: EntradaAluno) {
     await this.ensureExists(ownerId, id);
     await this.validate(ownerId, input, id);
-    return this.studentRepository.update(ownerId, id, { ...input, email: input.email.toLowerCase(), cpf: normalizeCpf(input.cpf) });
+    return this.studentRepository.update(ownerId, id, { ...input, email: normalizeEmail(input.email), cpf: normalizeCpf(input.cpf) });
   }
 
   // Remove aluno depois de confirmar que ele existe para o usuario.
@@ -70,8 +70,9 @@ export class ServicoAluno {
     }
 
     const normalizedCpf = normalizeCpf(input.cpf);
+    const normalizedEmail = normalizeEmail(input.email);
     const [emailOwner, cpfOwner] = await Promise.all([
-      this.studentRepository.findByEmail(ownerId, input.email.toLowerCase()),
+      this.studentRepository.findByEmail(ownerId, normalizedEmail),
       this.studentRepository.findByCpf(ownerId, normalizedCpf),
     ]);
 

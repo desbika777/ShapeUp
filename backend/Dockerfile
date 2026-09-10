@@ -7,8 +7,9 @@ COPY package.json package-lock.json ./
 COPY backend/package.json backend/package.json
 COPY frontend/package.json frontend/package.json
 COPY shared/package.json shared/package.json
+COPY mobile/package.json mobile/package.json
 
-RUN npm ci
+RUN npm ci --include-workspace-root --workspace backend --workspace shared
 
 FROM deps AS build
 
@@ -28,8 +29,9 @@ COPY package.json package-lock.json ./
 COPY backend/package.json backend/package.json
 COPY frontend/package.json frontend/package.json
 COPY shared/package.json shared/package.json
+COPY mobile/package.json mobile/package.json
 
-RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts --include-workspace-root --workspace backend --workspace shared && npm cache clean --force
 
 FROM node:22-alpine AS runner
 

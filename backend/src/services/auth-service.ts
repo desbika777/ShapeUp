@@ -17,7 +17,7 @@ import { env } from '../config/env.js';
 import { AppError } from '../core/app-error.js';
 import type { IRepositorioUsuario } from '../repositories/interfaces.js';
 import type { IServicoEmail } from './mail-service.js';
-import { isStrongPassword, isValidCpf, isValidEmail, normalizeCpf } from '../utils/validators.js';
+import { isStrongPassword, isValidCpf, isValidEmail, normalizeCpf, normalizeEmail } from '../utils/validators.js';
 
 const PASSWORD_RESET_REQUEST_MESSAGE = 'Se o e-mail estiver cadastrado, voce recebera um link para redefinir sua senha.';
 const PASSWORD_RESET_INVALID_MESSAGE = 'O link de redefinicao e invalido ou expirou.';
@@ -34,7 +34,7 @@ export class ServicoAutenticacao {
     const passwordHash = await bcrypt.hash(input.password, 10);
     const user = await this.userRepository.create({
       name: input.name.trim(),
-      email: input.email.trim().toLowerCase(),
+      email: normalizeEmail(input.email),
       passwordHash,
       cpf: normalizeCpf(input.cpf),
       perfil: 'ADMIN',
@@ -54,7 +54,7 @@ export class ServicoAutenticacao {
     const passwordHash = await bcrypt.hash(input.password, 10);
     const user = await this.userRepository.create({
       name: input.name.trim(),
-      email: input.email.trim().toLowerCase(),
+      email: normalizeEmail(input.email),
       passwordHash,
       cpf: normalizeCpf(input.cpf),
       perfil: input.perfil,
@@ -80,7 +80,7 @@ export class ServicoAutenticacao {
       throw new AppError(400, 'A confirmacao da senha nao confere.');
     }
 
-    const email = input.email.trim().toLowerCase();
+    const email = normalizeEmail(input.email);
     const normalizedCpf = normalizeCpf(input.cpf);
 
     const [emailAlreadyExists, cpfAlreadyExists] = await Promise.all([
@@ -103,7 +103,7 @@ export class ServicoAutenticacao {
       throw new AppError(400, 'Informe um e-mail valido.');
     }
 
-    const user = await this.userRepository.findByEmail(input.email.trim().toLowerCase());
+    const user = await this.userRepository.findByEmail(normalizeEmail(input.email));
 
     if (!user) {
       throw new AppError(401, 'Credenciais invalidas.');
@@ -188,7 +188,7 @@ export class ServicoAutenticacao {
 
   // Gera token de redefinicao, salva o hash e envia o link por e-mail.
   async requestPasswordReset(input: EntradaEsqueciSenha): Promise<RespostaMensagemApi> {
-    const email = input.email.trim().toLowerCase();
+    const email = normalizeEmail(input.email);
 
     if (!isValidEmail(email)) {
       throw new AppError(400, 'Informe um e-mail valido.');

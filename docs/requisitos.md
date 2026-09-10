@@ -57,7 +57,7 @@ Este documento registra os requisitos funcionais e nao funcionais do Shape, serv
 | RF-019 | MVP | O sistema deve permitir cadastrar planos da academia. |
 | RF-020 | MVP | O sistema deve permitir editar e inativar planos. |
 | RF-021 | MVP | O sistema deve permitir matricular um aluno em um plano. |
-| RF-022 | MVP | O sistema deve permitir consultar matriculas ativas, vencidas e canceladas. |
+| RF-022 | P1 | O sistema deve permitir consultar matriculas ativas, vencidas e canceladas. |
 | RF-023 | P1 | O sistema deve impedir que um aluno tenha mais de uma matricula principal ativa ao mesmo tempo. |
 | RF-024 | P1 | O sistema deve permitir cancelar uma matricula registrando motivo e data. |
 
@@ -65,8 +65,8 @@ Este documento registra os requisitos funcionais e nao funcionais do Shape, serv
 
 | Codigo | Prioridade | Requisito |
 | --- | --- | --- |
-| RF-025 | MVP | O sistema deve permitir registrar pagamentos vinculados a matriculas. |
-| RF-026 | MVP | O sistema deve permitir consultar pagamentos pagos, pendentes, vencidos e cancelados. |
+| RF-025 | P1 | O sistema deve permitir registrar pagamentos vinculados a matriculas. |
+| RF-026 | P1 | O sistema deve permitir consultar pagamentos pagos, pendentes, vencidos e cancelados. |
 | RF-027 | P1 | O sistema deve permitir cadastrar formas de pagamento. |
 | RF-028 | P1 | O sistema deve calcular indicadores financeiros basicos para o dashboard. |
 
@@ -130,6 +130,13 @@ Este documento registra os requisitos funcionais e nao funcionais do Shape, serv
 | RF-052 | MVP | O sistema deve permitir que administradores enviem imagens usando upload multipart. |
 | RF-053 | MVP | O sistema deve validar imagens recebidas por extensao, MIME type, tamanho maximo e nome unico. |
 
+### Aplicativo Mobile
+
+| Codigo | Prioridade | Requisito |
+| --- | --- | --- |
+| RF-054 | MVP | O sistema deve possuir um cliente mobile executavel no Expo Go. |
+| RF-055 | MVP | O app mobile deve permitir login e consulta de indicadores, planos, alunos e treinos pela API. |
+
 ## Requisitos Nao Funcionais
 
 | Codigo | Categoria | Requisito |
@@ -153,6 +160,7 @@ Este documento registra os requisitos funcionais e nao funcionais do Shape, serv
 | RNF-017 | Auditoria | Alteracoes relevantes devem registrar datas de criacao e atualizacao. |
 | RNF-018 | Integridade | Relacionamentos no banco devem usar chaves estrangeiras e restricoes coerentes. |
 | RNF-019 | Seguranca | Arquivos enviados devem aceitar apenas formatos de imagem permitidos e tamanho controlado. |
+| RNF-020 | Compatibilidade | O cliente mobile deve permitir configurar a URL da API para execucao em dispositivo fisico pela rede local. |
 
 ## Requisitos Prioritarios Para o MVP
 
@@ -163,12 +171,51 @@ Para a primeira entrega funcional, a prioridade deve ser:
 - CRUD de alunos;
 - CRUD de planos;
 - matricula de aluno em plano;
-- registro basico de pagamento;
 - CRUD de treinos;
 - vinculo de treino com aluno;
 - upload validado de imagens;
+- cliente mobile Expo para demonstracao em dispositivo;
 - validacoes principais;
 - integracao frontend, API e banco.
+
+## Status de Implementacao Para Entrega
+
+| Grupo | Status | Requisitos | Evidencia |
+| --- | --- | --- | --- |
+| Autenticacao e usuarios | Implementado | RF-001, RF-002, RF-003, RF-004, RF-005 | Cadastro, login, rotas protegidas, recuperacao de senha, criacao de usuario e testes |
+| Controle de permissoes | Implementado em base da rubrica | RF-006 | Perfis ADMIN e USUARIO funcionando no backend e frontend |
+| Gestao da academia | Parcial/modelado | RF-007, RF-009 | Entidade `Academia` existe no DER/schema; dados operacionais ficam vinculados ao usuario proprietario no MVP |
+| Gestao da academia | Planejado | RF-008 | Configuracao completa de academia fica como evolucao |
+| Alunos | Implementado | RF-010, RF-011, RF-012, RF-013, RF-014 | CRUD de alunos com filtros, status, validacoes e testes |
+| Historico do aluno | Parcial/modelado | RF-015 | DER contempla matriculas, treinos, avaliacoes e pagamentos; MVP entrega treinos e vinculo com plano |
+| Professores e funcionarios | Planejado | RF-016, RF-017, RF-018 | Modelado no DER, sem tela/API final no MVP |
+| Planos e matriculas | Implementado em base do MVP | RF-019, RF-020, RF-021 | CRUD de planos e vinculo aluno-plano funcionando |
+| Matriculas formais | Parcial/modelado | RF-022, RF-023, RF-024 | Tabela `matriculas` existe no schema; fluxo completo fica para evolucao |
+| Financeiro | Planejado/modelado | RF-025, RF-026, RF-027, RF-028 | Tabelas financeiras existem no DER/schema; telas/API ficam para evolucao |
+| Treinos | Implementado | RF-029, RF-030 | CRUD de treinos vinculado a alunos, com validacao de periodo |
+| Exercicios | Parcial/modelado | RF-031, RF-032, RF-033, RF-034 | DER contempla exercicios, grupos musculares e composicao do treino; MVP entrega treino resumido |
+| Avaliacoes fisicas | Planejado/modelado | RF-035, RF-036, RF-037 | DER contempla avaliacoes e medidas corporais |
+| Frequencia, aulas e agenda | Planejado/modelado | RF-038, RF-039, RF-040, RF-041, RF-042 | DER contempla frequencia, aulas e inscricoes |
+| Equipamentos | Planejado/modelado | RF-043, RF-044, RF-045 | DER contempla equipamentos e manutencoes |
+| Comunicacao | Planejado/modelado | RF-046, RF-047 | DER contempla notificacoes |
+| Dashboard | Implementado | RF-048, RF-049 | Painel com indicadores, graficos e alunos recentes |
+| Dashboard financeiro | Planejado | RF-050 | Evolucao apos MVP |
+| Relatorios | Planejado | RF-051 | Evolucao apos MVP |
+| Imagens | Implementado | RF-052, RF-053 | Multer, validacao de imagem, storage local, URL publica e E2E |
+| Aplicativo mobile | Implementado em base tecnica | RF-054, RF-055 | Workspace Expo, login, painel e listagens pela API; falta print no celular fisico |
+
+| Categoria | Status | Requisitos | Evidencia |
+| --- | --- | --- | --- |
+| Seguranca | Implementado | RNF-001, RNF-002, RNF-003, RNF-004, RNF-019 | bcrypt, JWT, controle ADMIN/USUARIO, respostas sem senha e validacao de upload |
+| Usabilidade | Implementado | RNF-005, RNF-006 | Formularios com validacao, mensagens, estados vazios e feedback por toast |
+| Compatibilidade e responsividade | Parcial com base tecnica | RNF-007, RNF-008, RNF-020 | Web responsiva, Playwright, Expo pronto; falta evidencia visual no celular fisico |
+| Performance | Implementado | RNF-009 | Listagens paginadas e filtros principais |
+| Manutenibilidade | Implementado | RNF-010, RNF-011 | Camadas separadas, validadores em `shared`, services e repositories |
+| Confiabilidade | Implementado | RNF-012, RNF-013 | Zod, AppError e error handler padronizado |
+| Testabilidade | Implementado | RNF-014 | Vitest, Supertest, Testing Library, Playwright e lint mobile |
+| Portabilidade | Implementado | RNF-015 | Docker Compose, Nginx e override Expo |
+| Documentacao | Implementado | RNF-016 | README, roadmap, requisitos, DER, UML e evidencias |
+| Auditoria e integridade | Implementado/modelado | RNF-017, RNF-018 | Campos de data e chaves estrangeiras no Prisma |
 
 ## Relacao Com a Rubrica
 

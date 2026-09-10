@@ -1,14 +1,10 @@
 // Controlador dos planos: transforma parametros HTTP em chamadas de service.
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
 import { planListSchema, planSchema } from '../services/schemas.js';
 import { obterPaginacao } from '../utils/pagination.js';
+import { obterParametroRota } from '../utils/http.js';
 import { ServicoPlano } from '../services/plan-service.js';
 import type { RequisicaoAutenticada } from '../middlewares/auth-middleware.js';
-
-function routeId(request: Request) {
-  // Garante que o id da URL chegue como string mesmo se o Express entregar array.
-  return Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
-}
 
 export class ControladorPlano {
   constructor(private readonly service: ServicoPlano) {}
@@ -26,7 +22,7 @@ export class ControladorPlano {
 
   // Busca um plano especifico do usuario logado.
   getById = async (request: RequisicaoAutenticada, response: Response) => {
-    const result = await this.service.getById(request.userId ?? '', routeId(request));
+    const result = await this.service.getById(request.userId ?? '', obterParametroRota(request, 'id'));
     return response.status(200).json(result);
   };
 
@@ -40,13 +36,13 @@ export class ControladorPlano {
   // Atualiza plano existente.
   update = async (request: RequisicaoAutenticada, response: Response) => {
     const payload = planSchema.parse(request.body);
-    const result = await this.service.update(request.userId ?? '', routeId(request), payload);
+    const result = await this.service.update(request.userId ?? '', obterParametroRota(request, 'id'), payload);
     return response.status(200).json(result);
   };
 
   // Remove plano quando nao ha alunos vinculados.
   delete = async (request: RequisicaoAutenticada, response: Response) => {
-    await this.service.delete(request.userId ?? '', routeId(request));
+    await this.service.delete(request.userId ?? '', obterParametroRota(request, 'id'));
     return response.status(204).send();
   };
 }

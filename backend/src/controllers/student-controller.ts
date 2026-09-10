@@ -1,14 +1,10 @@
 // Controlador dos alunos: entrada HTTP para cadastro, consulta, edicao e exclusao.
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
 import { studentListSchema, studentSchema } from '../services/schemas.js';
 import { ServicoAluno } from '../services/student-service.js';
+import { obterParametroRota } from '../utils/http.js';
 import { obterPaginacao } from '../utils/pagination.js';
 import type { RequisicaoAutenticada } from '../middlewares/auth-middleware.js';
-
-function routeId(request: Request) {
-  // Normaliza o parametro id para simplificar as chamadas do service.
-  return Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
-}
 
 export class ControladorAluno {
   constructor(private readonly service: ServicoAluno) {}
@@ -27,7 +23,7 @@ export class ControladorAluno {
 
   // Busca os dados completos de um aluno.
   getById = async (request: RequisicaoAutenticada, response: Response) => {
-    const result = await this.service.getById(request.userId ?? '', routeId(request));
+    const result = await this.service.getById(request.userId ?? '', obterParametroRota(request, 'id'));
     return response.status(200).json(result);
   };
 
@@ -41,13 +37,13 @@ export class ControladorAluno {
   // Atualiza cadastro do aluno mantendo as regras de CPF/e-mail.
   update = async (request: RequisicaoAutenticada, response: Response) => {
     const payload = studentSchema.parse(request.body);
-    const result = await this.service.update(request.userId ?? '', routeId(request), payload);
+    const result = await this.service.update(request.userId ?? '', obterParametroRota(request, 'id'), payload);
     return response.status(200).json(result);
   };
 
   // Remove aluno da carteira do gestor.
   delete = async (request: RequisicaoAutenticada, response: Response) => {
-    await this.service.delete(request.userId ?? '', routeId(request));
+    await this.service.delete(request.userId ?? '', obterParametroRota(request, 'id'));
     return response.status(204).send();
   };
 }

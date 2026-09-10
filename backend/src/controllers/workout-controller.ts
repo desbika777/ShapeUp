@@ -1,14 +1,10 @@
 // Controlador dos treinos: expoe as operacoes de prescricao pela API.
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
 import { workoutListSchema, workoutSchema } from '../services/schemas.js';
 import { ServicoTreino } from '../services/workout-service.js';
+import { obterParametroRota } from '../utils/http.js';
 import { obterPaginacao } from '../utils/pagination.js';
 import type { RequisicaoAutenticada } from '../middlewares/auth-middleware.js';
-
-function routeId(request: Request) {
-  // Normaliza o id vindo da rota para evitar tratamentos repetidos.
-  return Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
-}
 
 export class ControladorTreino {
   constructor(private readonly service: ServicoTreino) {}
@@ -27,7 +23,7 @@ export class ControladorTreino {
 
   // Busca treino especifico pertencente ao usuario logado.
   getById = async (request: RequisicaoAutenticada, response: Response) => {
-    const result = await this.service.getById(request.userId ?? '', routeId(request));
+    const result = await this.service.getById(request.userId ?? '', obterParametroRota(request, 'id'));
     return response.status(200).json(result);
   };
 
@@ -41,13 +37,13 @@ export class ControladorTreino {
   // Atualiza informacoes do treino e periodo de execucao.
   update = async (request: RequisicaoAutenticada, response: Response) => {
     const payload = workoutSchema.parse(request.body);
-    const result = await this.service.update(request.userId ?? '', routeId(request), payload);
+    const result = await this.service.update(request.userId ?? '', obterParametroRota(request, 'id'), payload);
     return response.status(200).json(result);
   };
 
   // Exclui treino quando o usuario confirma a acao.
   delete = async (request: RequisicaoAutenticada, response: Response) => {
-    await this.service.delete(request.userId ?? '', routeId(request));
+    await this.service.delete(request.userId ?? '', obterParametroRota(request, 'id'));
     return response.status(204).send();
   };
 }

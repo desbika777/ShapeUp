@@ -5,22 +5,27 @@
   "workspaces": [
     "frontend",
     "backend",
-    "shared"
+    "shared",
+    "mobile"
   ],
   "scripts": {
     "dev:frontend": "npm run dev --workspace frontend",
     "dev:backend": "npm run dev --workspace backend",
+    "dev:mobile": "npm run start --workspace mobile",
     "build": "npm run build --workspace shared && npm run build --workspace backend && npm run build --workspace frontend",
-    "test": "npm run test --workspace shared && npm run test --workspace backend && npm run test --workspace frontend",
-    "lint": "npm run lint --workspace shared && npm run lint --workspace backend && npm run lint --workspace frontend",
-    "e2e": "npm run test:e2e --workspace frontend",
+    "test": "npm run lint --workspace shared && npm run build --workspace shared && npm run test --workspace backend && npm run test --workspace frontend",
+    "lint": "npm run lint --workspace shared && npm run build --workspace shared && npm run lint --workspace backend && npm run lint --workspace frontend",
+    "lint:mobile": "npm run build --workspace shared && npm run lint --workspace mobile",
+    "e2e": "node scripts/run-e2e.cjs",
     "e2e:docker": "node scripts/run-e2e-docker.cjs",
     "prepare": "husky"
   },
   "devDependencies": {
     "fast-check": "^4.6.0",
     "husky": "^9.1.7",
-    "prisma": "6.19.3"
+    "prisma": "6.19.3",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   },
   "overrides": {
     "esbuild": "0.28.1",
