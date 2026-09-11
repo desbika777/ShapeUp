@@ -29,6 +29,7 @@ Validacoes recentes:
 - `npx expo start --host localhost --clear`: Metro iniciou e aguardou conexao em `http://localhost:8081`.
 - Docker Compose: stack ativa com MySQL, backend, frontend e Nginx; backend tambem publicado em `0.0.0.0:3333` para Expo Go.
 - Docker/Nginx/HTTPS: `/health` retornou `{"status":"ok"}`, `POST /api/imagens` retornou `201` e a URL `/uploads/imagens/...` retornou `200 OK` com `Content-Type: image/png`.
+- Docker/Nginx/HTTP local: `http://127.0.0.1/health`, `http://127.0.0.1/entrar` e login admin via `/api/autenticacao/entrar` validados para evitar bloqueio de certificado em teste manual.
 - Expo Go em celular fisico: nao validado nesta revisao; pendencia mantida em R-05.
 
 ## Matriz de Rastreabilidade da Rubrica
@@ -102,7 +103,7 @@ Em 08/09/2026, a refatoracao final de qualidade foi concluida em base tecnica:
 
 Testar o site e fechar evidencias finais:
 
-1. Subir Docker e abrir `https://localhost`.
+1. Subir Docker e abrir `http://127.0.0.1`.
 2. Executar o roteiro de `docs/pacote-final-evidencias.md`.
 3. Registrar prints de login, painel, CRUDs, upload, erro de arquivo invalido e bloqueio do usuario operacional.
 4. Atualizar R-05 se as evidencias visuais forem coletadas.

@@ -49,14 +49,15 @@ Este repositorio contem a versao final preparada para a rubrica. As instrucoes a
 4. Suba a stack:
    - `docker compose up --build`
 5. Acesse:
+   - `http://127.0.0.1` para teste manual sem certificado
    - `https://localhost`
    - `https://shapeup.local`
 
 Somente o Nginx publica portas externas (`80` e `443`). MySQL, backend e frontend ficam isolados na network interna do Compose.
 
-> Ao usar a stack Docker/Nginx, nao abra `http://localhost:5173`. Esse endereco e apenas do Vite em desenvolvimento local. No Docker, a API passa por `/api` no Nginx; por isso o login deve ser testado em `https://localhost` ou `https://shapeup.local`.
+> Ao usar a stack Docker/Nginx, nao abra `http://localhost:5173`. Esse endereco e apenas do Vite em desenvolvimento local. No Docker, a API passa por `/api` no Nginx; por isso o login deve ser testado em `http://127.0.0.1`, `https://localhost` ou `https://shapeup.local`.
 
-Se o navegador mostrar erro de certificado, instale/confiar no certificado local gerado pelo `mkcert`. Se `shapeup.local` nao abrir, confirme que `127.0.0.1 shapeup.local` existe no arquivo de hosts do Windows. Enquanto o hosts nao estiver configurado, use `https://localhost`.
+Se o navegador mostrar erro de certificado em `https://localhost`, use `http://127.0.0.1` para teste manual rapido ou instale/confiar no certificado local gerado pelo `mkcert`. Se `shapeup.local` nao abrir, confirme que `127.0.0.1 shapeup.local` existe no arquivo de hosts do Windows.
 
 ## Acesso ao MySQL pelo DBeaver
 

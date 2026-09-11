@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Centralizar o que deve ser aberto, testado, mostrado e fotografado na reta final da entrega. Na proxima execucao, o foco deve ser validar o site em `https://localhost` e registrar evidencias visuais.
+Centralizar o que deve ser aberto, testado, mostrado e fotografado na reta final da entrega. Na proxima execucao, o foco deve ser validar o site em `http://127.0.0.1` para evitar bloqueio de certificado no navegador e registrar evidencias visuais.
 
 ## Estado Atual
 
@@ -20,6 +20,7 @@ Centralizar o que deve ser aberto, testado, mostrado e fotografado na reta final
 ```powershell
 docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml -f docker-compose.expo.yml --env-file .env up -d --build
 curl.exe -k https://localhost/health
+curl.exe http://127.0.0.1/health
 npm run e2e
 ```
 
@@ -38,7 +39,7 @@ docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml -f docker-com
 
 ## Roteiro de Teste Dentro do Site
 
-1. Abrir `https://localhost`.
+1. Abrir `http://127.0.0.1`.
 2. Entrar como administrador.
 3. Conferir se o painel carrega indicadores e alunos recentes.
 4. Abrir `/planos` e validar listagem, filtros e acao administrativa.
@@ -68,7 +69,7 @@ docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml -f docker-com
 
 | Evidencia | Criterios cobertos |
 | --- | --- |
-| Login em `https://localhost/entrar` | R-05, R-14 |
+| Login em `http://127.0.0.1/entrar` | R-05, R-14 |
 | Painel carregado | R-03, R-05 |
 | Listagem de planos | R-03 |
 | Formulario de plano preenchido | R-03, R-04 |
@@ -105,7 +106,7 @@ docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml -f docker-com
 Na proxima execucao, iniciar direto pelo site:
 
 1. Subir Docker se necessario.
-2. Abrir `https://localhost`.
+2. Abrir `http://127.0.0.1`.
 3. Executar o roteiro manual acima.
 4. Registrar prints.
 5. Atualizar R-05 no roadmap se as evidencias forem coletadas.

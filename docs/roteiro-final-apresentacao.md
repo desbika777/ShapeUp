@@ -29,7 +29,7 @@ Este roteiro organiza a apresentacao final para cobrir a rubrica sem depender de
 
 ## Demonstracao Web
 
-1. Abrir `https://localhost`.
+1. Abrir `http://127.0.0.1` para teste manual sem erro de certificado, ou `https://localhost` se o certificado local estiver confiavel.
 2. Entrar com `admin@shape.com.br` e senha `Shape@123`.
 3. Mostrar o painel de desempenho.
 4. Mostrar CRUD de planos: listar, criar ou editar.
@@ -74,6 +74,7 @@ Este roteiro organiza a apresentacao final para cobrir a rubrica sem depender de
 - Rodar `npm run lint:mobile`.
 - Rodar `npm run e2e`.
 - Confirmar Docker com `docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml -f docker-compose.expo.yml ps`.
+- Abrir `http://127.0.0.1/health`.
 - Abrir `https://localhost/health`.
 - Abrir `docs/pacote-final-evidencias.md`.
 - Abrir o Expo Go no celular e tirar prints.
