@@ -1,3 +1,4 @@
+// Variaveis usadas durante os testes unitarios do backend.
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'shapeup-super-secret';
 process.env.DATABASE_URL = 'mysql://shapeup_app:shapeup_password@localhost:3306/shapeup';

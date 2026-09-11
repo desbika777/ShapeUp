@@ -1,3 +1,4 @@
+// Componente de paginacao reutilizado nas listagens do sistema.
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
@@ -12,6 +13,7 @@ type PaginationProps = {
 };
 
 function buildWindow(page: number, totalPages: number) {
+  // Para poucas paginas, mostra todas; para muitas, usa reticencias.
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, index) => index + 1) as Array<number | 'ellipsis'>;
   }
@@ -34,6 +36,7 @@ function buildWindow(page: number, totalPages: number) {
 
 export function Pagination({ page, totalPages, onChange, totalItems, pageSize, onPageSizeChange, isFetching }: PaginationProps) {
   const pages = buildWindow(page, totalPages);
+  // O seletor de tamanho so aparece quando a tela fornece callback.
   const showPageSize = Boolean(pageSize && onPageSizeChange);
 
   return (

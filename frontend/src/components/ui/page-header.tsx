@@ -1,3 +1,4 @@
+// Cabecalho padrao das paginas internas, com texto e acao opcional.
 import { cn } from '@/lib/cn';
 
 type PageHeaderProps = {

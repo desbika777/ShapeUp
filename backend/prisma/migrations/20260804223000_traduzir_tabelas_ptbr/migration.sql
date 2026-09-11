@@ -1,0 +1,31 @@
+-- Renomeia as tabelas fisicas para PT-BR sem alterar os nomes internos usados pelo Prisma.
+-- Essa abordagem preserva dados e deixa o banco mais natural para apresentacao do projeto.
+
+RENAME TABLE
+  `Academy` TO `academias`,
+  `User` TO `usuarios`,
+  `Role` TO `perfis`,
+  `UserRole` TO `usuario_perfis`,
+  `PasswordResetToken` TO `tokens_recuperacao_senha`,
+  `StaffMember` TO `funcionarios`,
+  `Plan` TO `planos`,
+  `Student` TO `alunos`,
+  `Membership` TO `matriculas`,
+  `PaymentMethod` TO `formas_pagamento`,
+  `Payment` TO `pagamentos`,
+  `Workout` TO `treinos`,
+  `Exercise` TO `exercicios`,
+  `MuscleGroup` TO `grupos_musculares`,
+  `ExerciseMuscleGroup` TO `exercicio_grupos_musculares`,
+  `WorkoutExercise` TO `treino_exercicios`,
+  `PhysicalAssessment` TO `avaliacoes_fisicas`,
+  `BodyMeasurement` TO `medidas_corporais`,
+  `AttendanceRecord` TO `registros_frequencia`,
+  `ClassType` TO `tipos_aula`,
+  `ClassSchedule` TO `horarios_aula`,
+  `ClassEnrollment` TO `inscricoes_aula`,
+  `Equipment` TO `equipamentos`,
+  `EquipmentMaintenance` TO `manutencoes_equipamentos`,
+  `Goal` TO `metas`,
+  `Notification` TO `notificacoes`,
+  `AuditLog` TO `logs_auditoria`;

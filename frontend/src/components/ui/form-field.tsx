@@ -1,3 +1,4 @@
+// Campo de formulario padronizado com label, erro e estilo compartilhado.
 import { cn } from '@/lib/cn';
 
 type FormFieldProps = {
@@ -17,6 +18,7 @@ export function FormField({ label, error, children }: FormFieldProps) {
 }
 
 export function inputClassName(hasError?: boolean) {
+  // Centraliza as classes dos inputs para todas as telas terem a mesma aparencia.
   return cn(
     'w-full rounded-2xl border bg-white px-4 py-3 text-sm text-ink shadow-sm outline-none transition focus:border-teal focus:ring-4 focus:ring-teal/10',
     hasError ? 'border-rose-300' : 'border-slate-200',

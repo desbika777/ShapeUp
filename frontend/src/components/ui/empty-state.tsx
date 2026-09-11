@@ -1,3 +1,4 @@
+// Estado vazio exibido quando filtros ou listas nao retornam resultados.
 type EmptyStateProps = {
   title: string;
   description: string;

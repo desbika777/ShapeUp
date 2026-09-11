@@ -1,3 +1,4 @@
+// Schemas Zod do backend: validam entrada antes das regras de negocio.
 import { z } from 'zod';
 
 export const paginationSchema = z.object({
@@ -7,18 +8,18 @@ export const paginationSchema = z.object({
 
 export const planListSchema = paginationSchema.extend({
   search: z.string().min(1).optional(),
-  status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
+  status: z.enum(['ATIVO', 'INATIVO']).optional(),
 });
 
 export const studentListSchema = paginationSchema.extend({
   search: z.string().min(1).optional(),
-  status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
+  status: z.enum(['ATIVO', 'INATIVO']).optional(),
   planId: z.string().min(1).optional(),
 });
 
 export const workoutListSchema = paginationSchema.extend({
   search: z.string().min(1).optional(),
-  level: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED']).optional(),
+  level: z.enum(['INICIANTE', 'INTERMEDIARIO', 'AVANCADO']).optional(),
   studentId: z.string().min(1).optional(),
 });
 
@@ -33,6 +34,10 @@ export const registerSchema = z.object({
   password: z.string().min(8),
   confirmPassword: z.string().min(8),
   cpf: z.string().min(11),
+});
+
+export const createUserSchema = registerSchema.extend({
+  perfil: z.enum(['ADMIN', 'USUARIO']),
 });
 
 export const updateUserSchema = z.object({
@@ -58,7 +63,7 @@ export const planSchema = z.object({
   description: z.string().min(10),
   price: z.coerce.number().positive(),
   durationMonths: z.coerce.number().int().positive(),
-  status: z.enum(['ACTIVE', 'INACTIVE']),
+  status: z.enum(['ATIVO', 'INATIVO']),
 });
 
 export const studentSchema = z.object({
@@ -68,7 +73,7 @@ export const studentSchema = z.object({
   phone: z.string().min(8),
   birthDate: z.string().min(1),
   goal: z.string().min(5),
-  status: z.enum(['ACTIVE', 'INACTIVE']),
+  status: z.enum(['ATIVO', 'INATIVO']),
   planId: z.string().min(1),
 });
 
@@ -76,7 +81,7 @@ export const workoutSchema = z.object({
   studentId: z.string().min(1),
   title: z.string().min(3),
   objective: z.string().min(5),
-  level: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED']),
+  level: z.enum(['INICIANTE', 'INTERMEDIARIO', 'AVANCADO']),
   notes: z.string().min(5),
   startDate: z.string().min(1),
   endDate: z.string().min(1),

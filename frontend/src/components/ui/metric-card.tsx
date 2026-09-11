@@ -1,3 +1,4 @@
+// Card de metrica usado no dashboard para numeros principais.
 type MetricCardProps = {
   label: string;
   value: string;

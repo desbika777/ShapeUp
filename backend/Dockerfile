@@ -7,8 +7,9 @@ COPY package.json package-lock.json ./
 COPY backend/package.json backend/package.json
 COPY frontend/package.json frontend/package.json
 COPY shared/package.json shared/package.json
+COPY mobile/package.json mobile/package.json
 
-RUN npm ci
+RUN npm ci --include-workspace-root --workspace backend --workspace shared
 
 FROM deps AS build
 
@@ -28,8 +29,9 @@ COPY package.json package-lock.json ./
 COPY backend/package.json backend/package.json
 COPY frontend/package.json frontend/package.json
 COPY shared/package.json shared/package.json
+COPY mobile/package.json mobile/package.json
 
-RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts --include-workspace-root --workspace backend --workspace shared && npm cache clean --force
 
 FROM node:22-alpine AS runner
 
@@ -40,6 +42,7 @@ COPY --from=production-deps /app/package.json ./package.json
 COPY --from=production-deps /app/backend/package.json ./backend/package.json
 COPY --from=production-deps /app/shared/package.json ./shared/package.json
 COPY --from=production-deps /app/node_modules ./node_modules
+COPY --from=production-deps /app/backend/node_modules ./backend/node_modules
 COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=build /app/shared/dist ./shared/dist
 COPY --from=build /app/backend/dist ./backend/dist

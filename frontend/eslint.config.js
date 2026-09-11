@@ -1,3 +1,4 @@
+// Regras de lint do frontend para TypeScript, React Hooks e Vite.
 import js from '@eslint/js';
 import globals from 'globals';
 import reactHooks from 'eslint-plugin-react-hooks';
@@ -20,6 +21,7 @@ export default defineConfig([
       globals: globals.browser,
     },
     rules: {
+      // Projeto usa exports de componentes e hooks no mesmo arquivo em alguns pontos.
       'react-refresh/only-export-components': 'off',
       'react-hooks/incompatible-library': 'off',
     },

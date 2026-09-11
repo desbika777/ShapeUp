@@ -48,7 +48,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be defined}
       DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}
       FRONTEND_URL: https://${APP_HOST}
-      PASSWORD_RESET_URL: https://${APP_HOST}/reset-password
+      PASSWORD_RESET_URL: https://${APP_HOST}/redefinir-senha
       SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PORT: ${SMTP_PORT:-}
       SMTP_SECURE: ${SMTP_SECURE:-false}
@@ -58,6 +58,8 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+    volumes:
+      - shapeup_uploads_data:/app/backend/uploads
     networks:
       - shapeup_internal
 
@@ -93,6 +95,7 @@ services:
 
 volumes:
   shapeup_mysql_data:
+  shapeup_uploads_data:
 
 networks:
   shapeup_public:
