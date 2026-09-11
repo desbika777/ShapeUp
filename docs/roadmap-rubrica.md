@@ -24,6 +24,7 @@ Validacoes recentes:
 - `npm run test`: passou em 10/09/2026, com 17 testes de backend e 7 testes de frontend.
 - `npm run e2e`: passou em 10/09/2026, detectando Docker ativo e usando o perfil Docker/HTTPS.
 - `npm run lint:mobile`: passou em 10/09/2026 para o app Expo.
+- Auditoria NPM: dependencias diretas `nodemailer` e `vitest` corrigidas; vulnerabilidades baixas zeradas; riscos residuais documentados em `docs/auditoria-dependencias.md`; validacoes completas passaram apos as correcoes.
 - `npx expo install --check`: passou em 08/09/2026 com dependencias compativeis com Expo SDK 57.
 - `npx expo start --host localhost --clear`: Metro iniciou e aguardou conexao em `http://localhost:8081`.
 - Docker Compose: stack ativa com MySQL, backend, frontend e Nginx; backend tambem publicado em `0.0.0.0:3333` para Expo Go.
@@ -38,7 +39,7 @@ Validacoes recentes:
 | R-02 | Desenvolvimento para Dispositivos Moveis | Componentizacao e boas praticas de desenvolvimento como clean code | 1,0 | Concluido | Componentes em `frontend/src/components`, componentes Expo em `mobile/src/components`, services/controllers/repositories no backend, tipos e validadores em `shared/src`, helper HTTP reutilizado | Manter `lint`, `lint:mobile` e revisao visual ate a entrega |
 | R-03 | Desenvolvimento para Dispositivos Moveis | Ao menos um CRUD completo com comunicacao aplicativo x API x banco | 1,0 | Concluido | CRUDs de planos, alunos e treinos; testes E2E validam planos e alunos | Manter fluxo demonstravel e preparar roteiro de apresentacao |
 | R-04 | Desenvolvimento para Dispositivos Moveis | Regra de negocio respeitada entre funcionalidades | 0,5 | Concluido | Validacoes centralizadas de CPF, e-mail e senha forte em `shared`; services mantem duplicidade, vinculo com plano, datas de treino, permissoes e imagem | Manter testes automatizados e demonstrar regras no roteiro |
-| R-05 | Desenvolvimento para Dispositivos Moveis | Validacao de usabilidade, funcionalidade principal, compatibilidade entre dispositivos e seguranca da aplicacao | 1,0 | Parcial | `docs/validacao-usabilidade-seguranca.md`, `docs/validacao-expo.md`, Vitest, Supertest, Playwright, Expo check, JWT, bcrypt, Docker | Abrir no Expo Go em celular fisico e anexar prints de login/painel |
+| R-05 | Desenvolvimento para Dispositivos Moveis | Validacao de usabilidade, funcionalidade principal, compatibilidade entre dispositivos e seguranca da aplicacao | 1,0 | Parcial | `docs/validacao-usabilidade-seguranca.md`, `docs/validacao-expo.md`, `docs/auditoria-dependencias.md`, Vitest, Supertest, Playwright, Expo check, JWT, bcrypt, Docker | Abrir no Expo Go em celular fisico e anexar prints de login/painel |
 | R-06 | Engenharia e Analise de Projetos de Software | Contextualizacao do problema e documentacao da evolucao do produto | 1,0 | Concluido | `docs/contextualizacao-problema.md`, `docs/objetivos-escopo.md`, `docs/roteiro-progresso-4-periodo.md` | Fazer leitura final para alinhar texto com a versao atual do produto |
 | R-07 | Engenharia e Analise de Projetos de Software | Diagrama entidade-relacionamento | 0,5 | Concluido | `docs/modelagem-der.md` e `backend/prisma/schema.prisma` com 27 tabelas | Atualizar somente se novas tabelas forem criadas para imagens |
 | R-08 | Engenharia e Analise de Projetos de Software | Requisitos funcionais e nao funcionais dentro do projeto criado | 1,0 | Concluido | `docs/requisitos.md` com RFs, RNFs e status de implementacao por grupo | Manter coerente com roteiro final |
@@ -63,6 +64,7 @@ Validacoes recentes:
 | P1 | Refatoracao final de qualidade | R-02, R-04, R-05 | Concluido | Validadores compartilhados, helper HTTP reutilizado, app Expo componentizado e validacoes passando |
 | P1 | Evidencias de responsividade/Expo Go | R-05 | Parcial | Base tecnica validada; ainda faltam prints ou anotacoes de celular fisico para a apresentacao |
 | P2 | Roteiro final de apresentacao | R-03, R-06, R-07, R-09, R-10, R-11, R-14, R-15 | Concluido | `docs/roteiro-final-apresentacao.md` cobre problema, produto, arquitetura, rubrica, GitHub e demonstracao |
+| P2 | Pacote final de evidencias | R-01 a R-15 | Concluido em base documental | `docs/pacote-final-evidencias.md` organiza comandos, credenciais, prints e roteiro de teste no site |
 | P2 | Conferir criterios NSA | R-16, R-17, R-18 | Nao verificavel | Professor confirma significado ou a equipe registra impossibilidade de verificacao |
 
 ## Entrega Concluida - Upload de Imagens
@@ -98,10 +100,10 @@ Em 08/09/2026, a refatoracao final de qualidade foi concluida em base tecnica:
 
 ## Proxima Entrega Recomendada
 
-Validar a experiencia em dispositivo real e fechar evidencias finais:
+Testar o site e fechar evidencias finais:
 
-1. Abrir o app no Expo Go pelo celular.
-2. Testar login usando `EXPO_PUBLIC_API_URL` com o IPv4 da maquina.
-3. Registrar prints da tela de login e painel carregado.
-4. Anexar os prints finais ao pacote de evidencias.
-5. Fazer commit e push da etapa Expo/refatoracao antes de seguir para o pacote final de evidencias.
+1. Subir Docker e abrir `https://localhost`.
+2. Executar o roteiro de `docs/pacote-final-evidencias.md`.
+3. Registrar prints de login, painel, CRUDs, upload, erro de arquivo invalido e bloqueio do usuario operacional.
+4. Atualizar R-05 se as evidencias visuais forem coletadas.
+5. Fazer commit e push da auditoria de dependencias e pacote final de evidencias.

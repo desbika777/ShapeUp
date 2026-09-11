@@ -28,8 +28,13 @@
     "react-dom": "19.2.3"
   },
   "overrides": {
+    "@humanfs/node": "0.16.8",
     "esbuild": "0.28.1",
-    "prisma": "6.19.3"
+    "js-yaml": "4.3.2",
+    "nanoid": "3.3.19",
+    "postcss-selector-parser": "6.1.4",
+    "prisma": "6.19.3",
+    "qs": "6.16.0"
   },
   "dependencies": {
     "nvm": "^0.0.4"

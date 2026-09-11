@@ -47,7 +47,7 @@ Data: 10/09/2026.
 | `npm run e2e` | Passou | Detectou Docker ativo e usou o perfil Docker/HTTPS automaticamente |
 | `npm run e2e:docker` | Passou | 5 testes ponta a ponta, incluindo upload de imagem pela interface |
 | Docker/Nginx/HTTPS | Passou | Stack ativa; `/health` retornou `{"status":"ok"}`, upload admin retornou `201` e `/uploads/imagens/...` retornou `200 OK` com `Content-Type: image/png` |
-| `npm install` | Passou com alerta | npm apontou vulnerabilidades para revisao antes da entrega final |
+| Auditoria NPM | Revisada | Dependencias diretas corrigidas e riscos residuais documentados em `docs/auditoria-dependencias.md` |
 | Expo Go em celular fisico | Pendente controlado | Nao foi possivel validar no aparelho nesta revisao; nao bloqueia commit da base tecnica |
 
 ## Usabilidade
@@ -99,18 +99,18 @@ Foi executado `npm install` para reconstruir corretamente os links dos workspace
 
 Historicamente tambem foi executado `npm audit fix` sem `--force` para corrigir dependencias vulneraveis sem aplicar quebras arriscadas no projeto. Tambem foram atualizados:
 
-- `nodemailer` para `9.0.4`;
+- `nodemailer` para `9.1.1`;
 - `react-router-dom` para `7.18.2`;
 - `esbuild` para `0.28.1` via override.
 
 Observacao:
-Na revisao de 08/09/2026, o `npm install` concluiu, mas apontou 26 vulnerabilidades entre dependencias diretas e transientes. O risco fica registrado para acompanhamento e deve ser revisado com `npm audit` antes da entrega final, sem aplicar `npm audit fix --force` automaticamente para evitar quebras no Expo, Vite, Prisma ou Playwright.
+Na revisao de 10/09/2026, `nodemailer` e `vitest` foram atualizados e overrides minimos foram aplicados para dependencias transitivas com patch seguro. O audit passou de 29 vulnerabilidades para 21, sem vulnerabilidades criticas ou baixas. Os riscos restantes ficam concentrados em Prisma e Expo/React Native/Metro e estao justificados em `docs/auditoria-dependencias.md`.
 
 ## Riscos e Melhorias Futuras
 
 | Risco | Plano de melhoria |
 | --- | --- |
-| Alertas de dependencia informados pelo npm | Rodar `npm audit` antes da entrega final e corrigir sem `--force` quando possivel |
+| Alertas residuais de dependencia informados pelo npm | Manter `docs/auditoria-dependencias.md` como justificativa e nao executar `npm audit fix --force` antes da entrega |
 | App Expo ainda precisa de evidencia em celular fisico | Abrir no Expo Go, testar login pela rede local e anexar print ao roteiro final |
 | Controle de permissoes deve ser demonstrado na apresentacao | Usar contas ADMIN e USUARIO do seed no roteiro |
 | Upload de imagens foi implementado, mas precisa aparecer na demonstracao | Demonstrar tela `/imagens` e uma tentativa de arquivo invalido |

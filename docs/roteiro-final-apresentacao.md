@@ -38,7 +38,8 @@ Este roteiro organiza a apresentacao final para cobrir a rubrica sem depender de
 7. Mostrar tela `/imagens`.
 8. Enviar imagem valida e explicar Multer, extensao, MIME type, assinatura real, limite de 2 MB e nome unico.
 9. Tentar arquivo invalido para demonstrar validação.
-10. Entrar com usuario operacional e demonstrar bloqueio de acao administrativa.
+10. Entrar com `usuario@shape.com.br` e senha `Usuario@123`.
+11. Demonstrar bloqueio de acao administrativa.
 
 ## Demonstracao Mobile Expo
 
@@ -59,6 +60,7 @@ Este roteiro organiza a apresentacao final para cobrir a rubrica sem depender de
 | CRUD app x API x banco | Planos, alunos e treinos com frontend, API e MySQL |
 | Regra de negocio | CPF, e-mail, senha, permissoes, vinculos, datas e upload |
 | Validacao e seguranca | Testes, JWT, bcrypt, CORS, Nginx HTTPS, upload validado e Expo |
+| Auditoria de dependencias | `docs/auditoria-dependencias.md`, correcoes pontuais e justificativa dos riscos residuais |
 | Evolucao do produto | Roadmap, requisitos, DER, UML, Jira e commits |
 | Multer | `POST /api/imagens` e arquivos em `/uploads/imagens` |
 | Validacao de imagens | Extensao, MIME type, assinatura real, tamanho e UUID |
@@ -73,5 +75,6 @@ Este roteiro organiza a apresentacao final para cobrir a rubrica sem depender de
 - Rodar `npm run e2e`.
 - Confirmar Docker com `docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml -f docker-compose.expo.yml ps`.
 - Abrir `https://localhost/health`.
+- Abrir `docs/pacote-final-evidencias.md`.
 - Abrir o Expo Go no celular e tirar prints.
 - Conferir GitHub com branch e commits atualizados.

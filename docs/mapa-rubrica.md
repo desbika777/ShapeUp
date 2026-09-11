@@ -19,7 +19,7 @@ Na validacao tecnica de 10/09/2026 passaram:
 - `npm run lint`;
 - `npm run test`;
 - `npm run build`;
-- `npm run e2e`.
+- `npm run e2e`;
 - `npm run lint:mobile`.
 
 Na validacao complementar de Expo em 08/09/2026 tambem passou:
@@ -30,7 +30,9 @@ Observacoes da validacao:
 
 - o build passou, mas avisou que o bundle principal do frontend ficou acima de 500 KB;
 - o Browserslist informou que a base `caniuse-lite` esta desatualizada;
-- o `npm install` apontou 26 vulnerabilidades para revisao antes da entrega final;
+- o `npm audit` inicial apontou 29 vulnerabilidades, sem criticas;
+- apos correcoes pontuais, o audit ficou com 21 vulnerabilidades residuais, sem criticas e sem baixas;
+- `nodemailer`, `vitest`, `qs`, `nanoid`, `js-yaml`, `postcss-selector-parser`, `@humanfs/node` e `esbuild` foram tratados sem `--force`;
 - o E2E passou com fluxo de upload de imagem pela interface;
 - a stack Docker/Nginx/HTTPS serviu `/health`, recebeu upload admin em `/api/imagens` e publicou a imagem em `/uploads/imagens/...`;
 - o app Expo foi criado em `mobile`, passou em `npm run lint:mobile`, `npx expo install --check` e iniciou o Metro em `http://localhost:8081`;
@@ -45,7 +47,7 @@ Observacoes da validacao:
 | Componentizacao e boas praticas de desenvolvimento | Componentes em `frontend/src/components`, `mobile/src/components`, services/controllers/repositories em `backend/src` e validadores em `shared/src` | Concluido | Manter lint e evitar refatoracoes arriscadas antes da entrega |
 | CRUD completo com aplicativo, API e banco | Planos, alunos e treinos com frontend, API Express, Prisma e MySQL | Concluido | Revalidar E2E |
 | Regra de negocio entre funcionalidades | Services validam CPF, duplicidade, vinculo com plano, dono da conta, datas de treino, permissoes e imagens; validadores sensiveis ficam em `shared` | Concluido | Demonstrar regras no roteiro |
-| Validacao de usabilidade, funcionalidade, compatibilidade e seguranca | `docs/validacao-usabilidade-seguranca.md`, `docs/validacao-expo.md`, Vitest, Supertest, Playwright e Expo check | Parcialmente concluido | Abrir no Expo Go e anexar prints finais |
+| Validacao de usabilidade, funcionalidade, compatibilidade e seguranca | `docs/validacao-usabilidade-seguranca.md`, `docs/validacao-expo.md`, `docs/auditoria-dependencias.md`, Vitest, Supertest, Playwright e Expo check | Parcialmente concluido | Abrir no Expo Go e anexar prints finais |
 | Contextualizacao do problema e evolucao do produto | `docs/contextualizacao-problema.md`, `docs/objetivos-escopo.md`, `docs/roteiro-progresso-4-periodo.md` | Concluido | Manter coerente com entregas reais |
 | Diagrama entidade-relacionamento | `docs/modelagem-der.md` e `backend/prisma/schema.prisma` com 27 tabelas | Concluido | Atualizar se novas tabelas forem criadas |
 | Requisitos funcionais e nao funcionais | `docs/requisitos.md` com status de implementacao | Concluido | Manter coerente com o roteiro final |
@@ -75,8 +77,8 @@ Observacoes da validacao:
 
 1. Criar ou anexar evidencias do Expo Go em celular fisico.
 2. Confirmar os criterios NSA que aparecem sem descricao clara na rubrica.
-3. Separar evidencias finais: testes passando, telas, DER, GitHub, Jira e demonstracao.
-4. Fazer commit/push da etapa Expo/refatoracao antes do pacote final de evidencias.
+3. Executar o roteiro de teste dentro do site em `docs/pacote-final-evidencias.md`.
+4. Fazer commit/push da auditoria NPM e pacote final de evidencias.
 
 ## Roteiro Curto Para Apresentacao
 
