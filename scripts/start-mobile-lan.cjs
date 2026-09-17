@@ -4,11 +4,22 @@ const { networkInterfaces } = require('node:os');
 function getLocalIPv4() {
   const entries = Object.entries(networkInterfaces())
     .flatMap(([name, addresses]) => (addresses ?? []).map((address) => ({ ...address, name })))
-    .filter((address) => address.family === 'IPv4' && !address.internal && !address.address.startsWith('169.254.'));
+    .filter((address) => (
+      address.family === 'IPv4'
+      && !address.internal
+      && !address.address.startsWith('169.254.')
+      && !/vEthernet|docker|wsl|virtualbox/i.test(address.name)
+    ));
 
-  const preferred = entries.find((address) => /wi-?fi|wlan|ethernet/i.test(address.name) && !/vEthernet|docker|wsl|virtualbox/i.test(address.name));
+  const forcedIp = process.env.SHAPEUP_LAN_IP;
+  if (forcedIp) {
+    return forcedIp;
+  }
 
-  return preferred?.address ?? entries[0]?.address;
+  const wifi = entries.find((address) => /wi-?fi|wifi|wlan/i.test(address.name));
+  const ethernet = entries.find((address) => /ethernet/i.test(address.name));
+
+  return wifi?.address ?? ethernet?.address ?? entries[0]?.address;
 }
 
 const ip = getLocalIPv4();
@@ -49,6 +60,7 @@ const child = spawn(npmCommand, args, {
   env: {
     ...process.env,
     EXPO_PUBLIC_API_URL: apiUrl,
+    REACT_NATIVE_PACKAGER_HOSTNAME: ip,
   },
   shell: process.platform === 'win32',
   stdio: 'inherit',
