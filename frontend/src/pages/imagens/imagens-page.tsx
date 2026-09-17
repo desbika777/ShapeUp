@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Activity, AlertCircle, CheckCircle2, ClipboardList, ExternalLink, FileCheck2, FileImage, Paperclip, ReceiptText, ShieldCheck, Trash2, Upload, Wrench } from 'lucide-react';
+import { Activity, AlertCircle, CheckCircle2, ClipboardList, ExternalLink, FileCheck2, FileImage, FileText, Paperclip, ReceiptText, ShieldCheck, Trash2, Upload, Wrench } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import type { AnexoAcademia, CategoriaAnexo } from '@shape/shared';
 import {
   CATEGORIAS_ANEXO,
@@ -37,7 +37,7 @@ function validarArquivo(file: File) {
   const hasAllowedMimeType = (IMAGEM_MIME_TYPES_PERMITIDOS as readonly string[]).includes(file.type);
 
   if (!hasAllowedExtension || !hasAllowedMimeType) {
-    return 'Envie um anexo visual PNG, JPG, JPEG ou WEBP.';
+    return 'Envie um anexo PNG, JPG, JPEG, WEBP ou PDF.';
   }
 
   if (file.size > IMAGEM_TAMANHO_MAXIMO_BYTES) {
@@ -45,6 +45,14 @@ function validarArquivo(file: File) {
   }
 
   return null;
+}
+
+function ehImagem(attachment: Pick<AnexoAcademia, 'mimeType'>) {
+  return attachment.mimeType.startsWith('image/');
+}
+
+function ehPdf(attachment: Pick<AnexoAcademia, 'mimeType' | 'extension'>) {
+  return attachment.mimeType === 'application/pdf' || attachment.extension === '.pdf';
 }
 
 const exemplosAnexos = [
@@ -57,7 +65,7 @@ const exemplosAnexos = [
   },
   {
     title: 'Avaliacao fisica',
-    description: 'Anexe registros visuais de avaliacoes, medidas e acompanhamento de evolucao.',
+    description: 'Anexe registros de avaliacoes, medidas e acompanhamento de evolucao.',
     tag: 'Aluno',
     image: '/anexos/avaliacao-fisica.svg',
     icon: Activity,
@@ -71,7 +79,7 @@ const exemplosAnexos = [
   },
   {
     title: 'Documento interno',
-    description: 'Organize imagens de contratos, comunicados ou documentos operacionais.',
+    description: 'Organize PDFs, contratos, comunicados ou documentos operacionais.',
     tag: 'Gestao',
     image: '/anexos/documento-interno.svg',
     icon: ClipboardList,
@@ -102,22 +110,13 @@ export function ImagensPage() {
   const [category, setCategory] = useState<CategoriaAnexo>('AVALIACAO');
   const [description, setDescription] = useState('');
   const [clientError, setClientError] = useState('');
-  const [previewError, setPreviewError] = useState(false);
   const [lastUploaded, setLastUploaded] = useState<AnexoAcademia | null>(null);
-  const previewUrl = useMemo(() => (selectedFile ? URL.createObjectURL(selectedFile) : ''), [selectedFile]);
-  const previewImage = previewUrl && !previewError ? previewUrl : '/anexos/preview-operacional.svg';
   const CategoryIcon = categoriaIcons[category];
   const uploadRules = [
-    { label: 'Formatos aceitos', value: 'PNG, JPG, JPEG ou WEBP' },
+    { label: 'Formatos aceitos', value: 'PNG, JPG, JPEG, WEBP ou PDF' },
     { label: 'Tamanho maximo', value: formatarBytes(IMAGEM_TAMANHO_MAXIMO_BYTES) },
     { label: 'Destino', value: 'Backend + banco' },
   ];
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
 
   const { data: anexos = [], isLoading: isLoadingAttachments } = useQuery({
     queryKey: ['anexos-academia'],
@@ -151,7 +150,6 @@ export function ImagensPage() {
 
   function selectFile(file: File | null) {
     setLastUploaded(null);
-    setPreviewError(false);
     setSelectedFile(file);
     setClientError(file ? validarArquivo(file) ?? '' : '');
   }
@@ -202,7 +200,7 @@ export function ImagensPage() {
       <PageHeader
         eyebrow="Anexos"
         title="Anexos da academia"
-        description="Envie, valide e consulte registros visuais da operacao da academia."
+        description="Envie, valide e consulte imagens e PDFs da operacao da academia."
         action={<div className="inline-flex items-center gap-2 rounded-md border border-teal/20 bg-teal/10 px-4 py-2 text-sm font-semibold text-teal"><ShieldCheck size={16} /> Multer funcional</div>}
       />
 
@@ -296,7 +294,7 @@ export function ImagensPage() {
               {selectedFile ? selectedFile.name : 'Selecionar arquivo'}
             </span>
             <span className="mt-2 text-sm text-slate-500">
-              Escolha uma imagem de comprovante, avaliacao, manutencao ou documento interno
+              Escolha uma imagem ou PDF de comprovante, avaliacao, manutencao ou documento interno
             </span>
           </label>
 
@@ -339,42 +337,6 @@ export function ImagensPage() {
         </form>
 
         <div className="space-y-5">
-          <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-100 px-5 py-4">
-              <h2 className="font-display text-lg font-semibold text-slateblue">Previa</h2>
-              <p className="mt-1 text-sm text-slate-500">Confira visualmente antes de enviar.</p>
-            </div>
-            <div className="bg-slate-50 p-3 sm:p-5">
-              <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white">
-                <img
-                  src={previewImage}
-                  alt={previewUrl && !previewError ? 'Previa do anexo selecionado' : 'Modelo visual de anexo operacional'}
-                  className="aspect-[4/3] w-full object-contain p-3 sm:aspect-video sm:p-4"
-                  onError={() => setPreviewError(true)}
-                />
-                <div className="absolute left-3 top-3 rounded-md bg-white/90 px-3 py-1.5 text-xs font-semibold text-slateblue shadow-sm">
-                  {previewUrl && !previewError ? 'Arquivo selecionado' : 'Modelo de anexo'}
-                </div>
-              </div>
-              {selectedFile ? (
-                <div className="mt-3 flex flex-col gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
-                  <span className="min-w-0 break-all font-semibold text-slateblue">{selectedFile.name}</span>
-                  <span className="shrink-0 text-slate-500">{formatarBytes(selectedFile.size)}</span>
-                </div>
-              ) : (
-                <div className="mt-3 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-500">
-                  Selecione um anexo para visualizar aqui antes do envio.
-                </div>
-              )}
-              {previewError ? (
-                <div className="mt-3 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                  <AlertCircle className="mt-0.5 shrink-0" size={18} />
-                  <span>Nao foi possivel exibir a previa deste arquivo, mas ele ainda sera validado antes do envio.</span>
-                </div>
-              ) : null}
-            </div>
-          </section>
-
           <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-start gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
@@ -439,10 +401,19 @@ export function ImagensPage() {
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {anexos.map((attachment) => {
               const Icon = categoriaIcons[attachment.category];
+              const isImage = ehImagem(attachment);
+              const isPdf = ehPdf(attachment);
               return (
                 <article key={attachment.id} className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
                   <a href={attachment.url} target="_blank" rel="noreferrer" className="block bg-white">
-                    <img src={attachment.url} alt={attachment.originalName} className="aspect-video w-full object-contain p-3" />
+                    {isImage ? (
+                      <img src={attachment.url} alt={attachment.originalName} className="aspect-video w-full object-contain p-3" />
+                    ) : (
+                      <div className="flex aspect-video w-full flex-col items-center justify-center gap-3 bg-slate-100 p-5 text-center">
+                        {isPdf ? <FileText size={42} className="text-teal" /> : <FileImage size={42} className="text-teal" />}
+                        <span className="text-sm font-semibold text-slateblue">{isPdf ? 'PDF salvo no backend' : 'Arquivo salvo no backend'}</span>
+                      </div>
+                    )}
                   </a>
                   <div className="space-y-4 p-4">
                     <div>

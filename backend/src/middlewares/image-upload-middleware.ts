@@ -1,4 +1,4 @@
-// Middleware Multer para receber imagens com validacao antes de persistir no disco.
+// Middleware Multer para receber anexos com validacao antes de persistir no disco.
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -19,6 +19,14 @@ function normalizarExtensao(fileName: string) {
   return path.extname(fileName).toLowerCase();
 }
 
+function mimeTypePermitido(extension: string, mimeType: string) {
+  if (valorPermitido(IMAGEM_MIME_TYPES_PERMITIDOS, mimeType)) {
+    return true;
+  }
+
+  return extension === '.pdf' && mimeType === 'application/octet-stream';
+}
+
 function baseSegura(fileName: string, extension: string) {
   const base = path.basename(fileName, extension)
     .normalize('NFD')
@@ -28,7 +36,7 @@ function baseSegura(fileName: string, extension: string) {
     .replace(/^-+|-+$/g, '')
     .slice(0, 50);
 
-  return base || 'imagem';
+  return base || 'anexo';
 }
 
 function gerarNomeUnico(file: Express.Multer.File) {
@@ -42,7 +50,7 @@ function gerarNomeUnico(file: Express.Multer.File) {
     }
   }
 
-  throw new AppError(409, 'Nao foi possivel gerar um nome unico para a imagem.');
+  throw new AppError(409, 'Nao foi possivel gerar um nome unico para o anexo.');
 }
 
 const storage = multer.diskStorage({
@@ -68,10 +76,10 @@ export const uploadImagemUnica = multer({
   fileFilter: (_request, file, callback) => {
     const extension = normalizarExtensao(file.originalname);
     const hasAllowedExtension = valorPermitido(IMAGEM_EXTENSOES_PERMITIDAS, extension);
-    const hasAllowedMimeType = valorPermitido(IMAGEM_MIME_TYPES_PERMITIDOS, file.mimetype);
+    const hasAllowedMimeType = mimeTypePermitido(extension, file.mimetype);
 
     if (!hasAllowedExtension || !hasAllowedMimeType) {
-      callback(new AppError(400, 'Envie uma imagem valida nos formatos PNG, JPG, JPEG ou WEBP.'));
+      callback(new AppError(400, 'Envie um anexo valido nos formatos PNG, JPG, JPEG, WEBP ou PDF.'));
       return;
     }
 

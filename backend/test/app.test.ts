@@ -46,6 +46,7 @@ const PNG_1X1_TRANSPARENTE = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=',
   'base64',
 );
+const PDF_MINIMO = Buffer.from('%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF\n');
 
 function removerImagemTeste(fileName?: string) {
   if (!fileName) return;
@@ -562,6 +563,30 @@ describe('Shape Up API', () => {
     }
   });
 
+  it('recebe e salva PDF valido com Multer', async () => {
+    const { token } = await criarSessaoGestor();
+    const response = await request(app)
+      .post('/api/imagens')
+      .set('Authorization', `Bearer ${token}`)
+      .field('category', 'DOCUMENTO')
+      .field('description', 'Contrato assinado da academia.')
+      .attach('imagem', PDF_MINIMO, { filename: 'contrato-shape-up.pdf', contentType: 'application/pdf' });
+
+    try {
+      expect(response.status).toBe(201);
+      expect(response.body.category).toBe('DOCUMENTO');
+      expect(response.body.description).toBe('Contrato assinado da academia.');
+      expect(response.body.originalName).toBe('contrato-shape-up.pdf');
+      expect(response.body.fileName).toMatch(/contrato-shape-up\.pdf$/);
+      expect(response.body.mimeType).toBe('application/pdf');
+      expect(response.body.extension).toBe('.pdf');
+      expect(response.body.url).toContain('/uploads/imagens/');
+      expect(existsSync(path.join(process.cwd(), 'uploads', 'imagens', response.body.fileName))).toBe(true);
+    } finally {
+      removerImagemTeste(response.body.fileName);
+    }
+  });
+
   it('permite upload de imagem para cliente criado pelo master', async () => {
     const { token: masterToken } = await criarSessaoGestor({ perfil: 'MASTER' });
     await request(app).post('/api/usuarios').set('Authorization', `Bearer ${masterToken}`).send({
@@ -591,7 +616,7 @@ describe('Shape Up API', () => {
     }
   });
 
-  it('valida extensao, tipo real e tamanho maximo das imagens recebidas', async () => {
+  it('valida extensao, tipo real e tamanho maximo dos anexos recebidos', async () => {
     const { token } = await criarSessaoGestor();
 
     const invalidExtension = await request(app)
@@ -599,21 +624,28 @@ describe('Shape Up API', () => {
       .set('Authorization', `Bearer ${token}`)
       .attach('imagem', Buffer.from('arquivo invalido'), { filename: 'arquivo.txt', contentType: 'text/plain' });
     expect(invalidExtension.status).toBe(400);
-    expect(invalidExtension.body.message).toBe('Envie uma imagem valida nos formatos PNG, JPG, JPEG ou WEBP.');
+    expect(invalidExtension.body.message).toBe('Envie um anexo valido nos formatos PNG, JPG, JPEG, WEBP ou PDF.');
 
     const fakeImage = await request(app)
       .post('/api/imagens')
       .set('Authorization', `Bearer ${token}`)
       .attach('imagem', Buffer.from('nao sou uma imagem real'), { filename: 'falso.png', contentType: 'image/png' });
     expect(fakeImage.status).toBe(400);
-    expect(fakeImage.body.message).toBe('O conteudo do arquivo nao corresponde a uma imagem valida.');
+    expect(fakeImage.body.message).toBe('O conteudo do arquivo nao corresponde a um anexo valido.');
+
+    const fakePdf = await request(app)
+      .post('/api/imagens')
+      .set('Authorization', `Bearer ${token}`)
+      .attach('imagem', Buffer.from('nao sou um pdf real'), { filename: 'falso.pdf', contentType: 'application/pdf' });
+    expect(fakePdf.status).toBe(400);
+    expect(fakePdf.body.message).toBe('O conteudo do arquivo nao corresponde a um anexo valido.');
 
     const tooLarge = await request(app)
       .post('/api/imagens')
       .set('Authorization', `Bearer ${token}`)
       .attach('imagem', Buffer.alloc(IMAGEM_TAMANHO_MAXIMO_BYTES + 1), { filename: 'grande.png', contentType: 'image/png' });
     expect(tooLarge.status).toBe(400);
-    expect(tooLarge.body.message).toBe('A imagem deve ter no maximo 8 MB.');
+    expect(tooLarge.body.message).toBe('O anexo deve ter no maximo 8 MB.');
   });
 
   it('pagina planos e retorna 404 ao editar recurso inexistente', async () => {

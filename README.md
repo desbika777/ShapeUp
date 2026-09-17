@@ -160,7 +160,7 @@ Para E2E via Docker/HTTPS:
 - CRUD de planos, alunos e treinos com paginacao
 - relacionamento plano -> aluno e aluno -> treino
 - dashboard com KPIs, graficos e alunos recentes
-- anexos visuais com Multer em `/api/imagens`, salvando o arquivo no backend e registrando metadados no banco para listagem e abertura posterior
+- anexos operacionais com Multer em `/api/imagens`, aceitando imagens e PDFs, salvando o arquivo no backend e registrando metadados no banco para listagem e abertura posterior
 - testes de backend com Supertest
 - testes de frontend com Vitest + Testing Library
-- testes E2E de login, acesso controlado, CRUDs de planos/alunos e anexos visuais com Multer
+- testes E2E de login, acesso controlado, CRUDs de planos/alunos e anexos operacionais com Multer

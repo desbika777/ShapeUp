@@ -37,8 +37,8 @@ Observacoes da validacao:
 - o `npm audit` inicial apontou 29 vulnerabilidades, sem criticas;
 - apos correcoes pontuais, remocao de `recharts`, `npm audit fix --omit=dev` e alinhamento do Expo SDK, o audit ficou com 14 vulnerabilidades residuais, sem criticas e sem baixas;
 - `nodemailer`, `vitest`, `qs`, `nanoid`, `js-yaml`, `postcss-selector-parser`, `@humanfs/node` e `esbuild` foram tratados sem `--force`;
-- o E2E passou com fluxo de upload de imagem pela interface;
-- a stack Docker/Nginx/HTTPS serviu `/health`, recebeu upload admin em `/api/imagens` e publicou a imagem em `/uploads/imagens/...`;
+- o E2E passou com fluxo de upload de anexo pela interface;
+- a stack Docker/Nginx/HTTPS serviu `/health`, recebeu upload admin em `/api/imagens` e publicou o arquivo em `/uploads/imagens/...`;
 - o app Expo foi criado em `mobile`, passou em `npm run lint:mobile`, `npm exec --workspace mobile -- expo install --check` e gerou bundle iOS com `expo export`;
 - a validacao em Expo Go no celular fisico foi realizada em 14/09/2026 apos login no app e no Expo CLI;
 - `npm run e2e` agora detecta a stack Docker ativa e usa o perfil Docker/HTTPS para evitar falhas no pre-push.
@@ -64,7 +64,7 @@ Observacoes da validacao:
 | 2 diagramas de casos de uso | `docs/diagramas-uml.md` | Concluido | Nenhum ajuste obrigatorio |
 | 2 diagramas de atividades | `docs/diagramas-uml.md` | Concluido | Nenhum ajuste obrigatorio |
 | 2 diagramas de sequencia | `docs/diagramas-uml.md` | Concluido | Nenhum ajuste obrigatorio |
-| Receber e salvar imagens usando Multer | `POST /api/imagens`, `backend/uploads/imagens`, tela `/imagens` | Concluido | Demonstrar na apresentacao |
+| Receber e salvar imagens usando Multer | `POST /api/imagens`, `backend/uploads/imagens`, tela `/imagens` | Concluido | Demonstrar upload de imagem; o fluxo tambem aceita PDF como anexo operacional |
 | Validar imagens recebidas | Validacao de extensao, MIME type, tamanho maximo, assinatura real e nome unico | Concluido | Manter testes automatizados |
 | Controle funcional de acesso administrativo | Auto cadastro publico bloqueado; conta master cria clientes em `/usuarios`; `exigirPerfil(['MASTER'])` protege criacao de clientes e `exigirPerfil(['MASTER', 'ADMIN'])` protege a operacao da academia; aluno com login fica como evolucao futura | Concluido | Demonstrar a tela Clientes no master e justificar o escopo do MVP |
 | Conexao com persona/cliente | Personas em `docs/objetivos-escopo.md` | Concluido | Usar as personas para justificar fluxos demonstrados |

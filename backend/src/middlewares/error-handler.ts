@@ -12,12 +12,12 @@ export function errorHandler(error: Error, _request: Request, response: Response
   if (error instanceof multer.MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {
       return response.status(400).json({
-        message: `A imagem deve ter no maximo ${formatarMegabytes(IMAGEM_TAMANHO_MAXIMO_BYTES)}.`,
+        message: `O anexo deve ter no maximo ${formatarMegabytes(IMAGEM_TAMANHO_MAXIMO_BYTES)}.`,
       });
     }
 
     return response.status(400).json({
-      message: 'Nao foi possivel processar o upload da imagem.',
+      message: 'Nao foi possivel processar o upload do anexo.',
     });
   }
 

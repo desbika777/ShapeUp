@@ -5,10 +5,7 @@ const API_URL = process.env.E2E_API_URL ?? 'http://127.0.0.1:3333/api';
 const PASSWORD = 'Shape@123';
 let sequence = 0;
 
-const PNG_1X1_TRANSPARENTE = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=',
-  'base64',
-);
+const PDF_MINIMO = Buffer.from('%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF\n');
 
 function nextSeed(testInfo: TestInfo) {
   // Gera dados unicos por teste para evitar conflito de CPF/e-mail.
@@ -275,7 +272,7 @@ test.describe('CRUDs principais', () => {
   });
 });
 
-test.describe('anexos visuais', () => {
+test.describe('anexos operacionais', () => {
   test('envia anexo pela interface administrativa e exibe metadados salvos', async ({ page, request }, testInfo) => {
     const manager = await createManager(request, testInfo);
 
@@ -284,25 +281,26 @@ test.describe('anexos visuais', () => {
     await expect(page.getByText('Anexos da academia')).toBeVisible();
 
     await page.locator('input[type="file"]').setInputFiles({
-      name: 'evidencia-rubrica.png',
-      mimeType: 'image/png',
-      buffer: PNG_1X1_TRANSPARENTE,
+      name: 'evidencia-rubrica.pdf',
+      mimeType: 'application/pdf',
+      buffer: PDF_MINIMO,
     });
 
     await page.getByRole('button', { name: 'Salvar anexo no backend' }).click();
 
     await expect(page.getByText('Registro confirmado no backend.')).toBeVisible();
-    await expect(page.locator('dd').filter({ hasText: /evidencia-rubrica\.png$/ }).first()).toBeVisible();
+    await expect(page.locator('dd').filter({ hasText: /evidencia-rubrica\.pdf$/ }).first()).toBeVisible();
     await expect(page.locator('dd').filter({ hasText: '/uploads/imagens/' }).first()).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Anexos salvos' })).toBeVisible();
-    await expect(page.getByRole('article').filter({ hasText: 'evidencia-rubrica.png' })).toBeVisible();
+    await expect(page.getByRole('article').filter({ hasText: 'evidencia-rubrica.pdf' })).toBeVisible();
+    await expect(page.getByText('PDF salvo no backend')).toBeVisible();
 
     const attachmentsResponse = await request.get(`${API_URL}/imagens`, {
       headers: { Authorization: `Bearer ${manager.token}` },
     });
     await expectApiOk(attachmentsResponse);
     const attachments = await attachmentsResponse.json() as Array<{ id: string; originalName: string }>;
-    const uploaded = attachments.find((attachment) => attachment.originalName === 'evidencia-rubrica.png');
+    const uploaded = attachments.find((attachment) => attachment.originalName === 'evidencia-rubrica.pdf');
     expect(uploaded).toBeTruthy();
 
     const deleteResponse = await request.delete(`${API_URL}/imagens/${uploaded?.id}`, {

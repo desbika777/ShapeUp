@@ -1,4 +1,4 @@
-// Controlador de imagens: recebe arquivo do Multer e devolve metadados do upload.
+// Controlador de anexos: recebe arquivo do Multer e devolve metadados do upload.
 import type { Response } from 'express';
 import { attachmentSchema } from '../services/schemas.js';
 import { obterParametroRota } from '../utils/http.js';

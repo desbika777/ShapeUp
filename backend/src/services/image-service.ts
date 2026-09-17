@@ -1,4 +1,4 @@
-// Servico de imagens: valida o arquivo salvo pelo Multer e monta metadados publicos.
+// Servico de anexos: valida o arquivo salvo pelo Multer e monta metadados publicos.
 import { open, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import type { AnexoAcademia, EntradaAnexo } from '@shape/shared';
@@ -32,12 +32,25 @@ function assinaturaWebp(buffer: Buffer) {
     && buffer.subarray(8, 12).toString('ascii') === 'WEBP';
 }
 
-async function assinaturaImagemValida(file: Express.Multer.File) {
-  const buffer = await lerInicioArquivo(file.path, 12);
+function assinaturaPdf(buffer: Buffer) {
+  return buffer.subarray(0, 5).toString('ascii') === '%PDF-';
+}
 
-  if (file.mimetype === 'image/png') return assinaturaPng(buffer);
-  if (file.mimetype === 'image/jpeg') return assinaturaJpeg(buffer);
-  if (file.mimetype === 'image/webp') return assinaturaWebp(buffer);
+function tipoArquivo(file: Express.Multer.File) {
+  const extension = path.extname(file.originalname || file.filename).toLowerCase();
+
+  if (extension === '.pdf' || file.mimetype === 'application/pdf') return 'application/pdf';
+  return file.mimetype;
+}
+
+async function assinaturaArquivoValida(file: Express.Multer.File) {
+  const buffer = await lerInicioArquivo(file.path, 12);
+  const expectedType = tipoArquivo(file);
+
+  if (expectedType === 'image/png') return assinaturaPng(buffer);
+  if (expectedType === 'image/jpeg') return assinaturaJpeg(buffer);
+  if (expectedType === 'image/webp') return assinaturaWebp(buffer);
+  if (expectedType === 'application/pdf') return assinaturaPdf(buffer);
 
   return false;
 }
@@ -63,14 +76,14 @@ export class ServicoImagem {
 
   async registrarUpload(ownerId: string, file: Express.Multer.File | undefined, baseUrl: string, input: EntradaAnexo): Promise<AnexoAcademia> {
     if (!file) {
-      throw new AppError(400, 'Envie uma imagem no campo imagem.');
+      throw new AppError(400, 'Envie um anexo no campo imagem.');
     }
 
-    const isValidSignature = await assinaturaImagemValida(file);
+    const isValidSignature = await assinaturaArquivoValida(file);
 
     if (!isValidSignature) {
       await unlink(file.path).catch(() => undefined);
-      throw new AppError(400, 'O conteudo do arquivo nao corresponde a uma imagem valida.');
+      throw new AppError(400, 'O conteudo do arquivo nao corresponde a um anexo valido.');
     }
 
     const extension = path.extname(file.filename).toLowerCase();
@@ -81,7 +94,7 @@ export class ServicoImagem {
       description: input.description,
       originalName: file.originalname,
       fileName: file.filename,
-      mimeType: file.mimetype,
+      mimeType: tipoArquivo(file),
       size: file.size,
       extension,
       relativePath,

@@ -112,9 +112,9 @@ export function isStrongPassword(password: string) {
   return SENHA_FORTE_REGEX.test(password);
 }
 
-// Parametros oficiais para upload de imagens via Multer.
-export const IMAGEM_EXTENSOES_PERMITIDAS = ['.png', '.jpg', '.jpeg', '.webp'] as const;
-export const IMAGEM_MIME_TYPES_PERMITIDOS = ['image/png', 'image/jpeg', 'image/webp'] as const;
+// Parametros oficiais para upload de anexos via Multer.
+export const IMAGEM_EXTENSOES_PERMITIDAS = ['.png', '.jpg', '.jpeg', '.webp', '.pdf'] as const;
+export const IMAGEM_MIME_TYPES_PERMITIDOS = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf'] as const;
 export const IMAGEM_TAMANHO_MAXIMO_BYTES = 8 * 1024 * 1024;
 
 export type ImagemEnviada = {
