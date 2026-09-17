@@ -84,11 +84,11 @@ export function FormularioAlunoPage() {
             icon={UserRound}
             eyebrow="Cadastro do aluno"
             title="Dados completos melhoram atendimento e acompanhamento"
-            description="Este fluxo comprova o CRUD principal do projeto e o vinculo entre aluno, plano, status e objetivo."
+            description="Use este cadastro para reunir dados pessoais, plano ativo, status e objetivo do aluno."
             items={[
               'CPF e e-mail sao validados antes da gravacao.',
               'O aluno precisa estar vinculado a um plano para alimentar indicadores reais.',
-              'O objetivo ajuda a contextualizar treinos e demonstrar valor para a persona da academia.',
+              'O objetivo ajuda a montar treinos e acompanhamentos mais coerentes.',
             ]}
           />
           <FormCard

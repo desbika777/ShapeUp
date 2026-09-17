@@ -78,10 +78,10 @@ export function FormularioPlanoPage() {
             icon={ClipboardList}
             eyebrow="Controle comercial"
             title="Planos coerentes facilitam venda e matricula"
-            description="O plano e a base para vincular alunos, calcular indicadores e demonstrar a regra de negocio entre cadastro, status e operacao."
+            description="O plano e a base para vincular alunos, calcular indicadores e manter a operacao comercial organizada."
             items={[
               'Use uma descricao objetiva para que a recepcao entenda o beneficio do plano.',
-              'Mantenha valores e duracao coerentes com a demonstracao da banca.',
+              'Mantenha valores e duracao coerentes com a realidade da academia.',
               'Inative planos antigos em vez de apagar dados usados por alunos.',
             ]}
           />

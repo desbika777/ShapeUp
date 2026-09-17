@@ -77,7 +77,7 @@ npm run build
 
 ```bash
 git add .
-git commit -m "tipo: resumo da alteracao"
+git commit -m "pontos finais shape up"
 ```
 
 6. Enviar para o GitHub:
@@ -92,11 +92,13 @@ git push origin feature/nome-da-feature
 
 ## Padrao de Commits
 
-Formato:
+Formato recomendado:
 
 ```text
 tipo: resumo curto
 ```
+
+Tambem sao aceitas mensagens curtas e diretas, sem prefixo, quando a entrega for pequena ou de fechamento.
 
 Tipos sugeridos:
 
@@ -111,6 +113,7 @@ Tipos sugeridos:
 Exemplos:
 
 ```bash
+git commit -m "pontos finais shape up"
 git commit -m "docs: adicionar requisitos do projeto"
 git commit -m "feat: criar cadastro de alunos"
 git commit -m "fix: corrigir validacao de cpf"

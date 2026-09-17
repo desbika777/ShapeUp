@@ -2,11 +2,11 @@
 
 ## Objetivo
 
-Este roteiro organiza a apresentacao final para cobrir a rubrica sem depender de improviso. A ordem prioriza problema, produto, arquitetura, requisitos, validacao tecnica e demonstracao.
+Este roteiro organiza a apresentacao final do Shape Up. A ordem segue problema, produto, arquitetura, requisitos, validacao tecnica e demonstracao.
 
 ## Abertura
 
-1. Apresentar o Shape Up como sistema de gestao para academias.
+1. Apresentar o Shape Up como sistema de gestao para academias pequenas e medias.
 2. Explicar o problema: dados espalhados em planilhas, papel, aplicativos de mensagem e sistemas isolados.
 3. Conectar o produto a persona principal: dono ou gestor da academia que precisa organizar a operacao.
 4. Mostrar que o projeto evoluiu de uma ideia inicial para uma arquitetura com web, mobile Expo, API, banco, Docker e documentacao.
@@ -38,8 +38,8 @@ Este roteiro organiza a apresentacao final para cobrir a rubrica sem depender de
 7. Mostrar CRUD de alunos vinculado a plano.
 8. Mostrar CRUD de treinos vinculado a aluno.
 9. Mostrar tela `/imagens`.
-10. Enviar imagem ou PDF valido e explicar Multer, extensao, MIME type, assinatura real, limite de 8 MB e nome unico.
-11. Tentar arquivo invalido para demonstrar validação.
+10. Enviar imagem ou PDF valido e mostrar que o arquivo fica salvo no backend, com registro no banco.
+11. Tentar arquivo invalido para demonstrar a validacao do upload.
 
 ## Demonstracao Mobile Expo
 

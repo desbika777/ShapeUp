@@ -2,7 +2,7 @@
 
 ## Ideia Central
 
-Quando voce estiver trabalhando comigo no Codex, eu posso rodar os comandos tecnicos, validar erros e preparar commits. Quando voce estiver sozinho no Visual Studio Code, use este guia como referencia curta para abrir, testar e apresentar o projeto.
+Este guia resume os comandos mais importantes para abrir, testar, apresentar e versionar o Shape Up sem precisar procurar em varios arquivos.
 
 ## Abrir o Projeto Web
 
@@ -92,11 +92,11 @@ O ideal e fazer commit somente depois de uma entrega coerente e validada. Fluxo 
 ```powershell
 git status
 git add .
-git commit -m "mensagem curta da entrega"
+git commit -m "pontos finais shape up"
 git push
 ```
 
-Durante nossas sessoes, eu posso preparar e executar esse fluxo quando voce pedir. Evite fazer commits aleatorios no meio de uma correcao incompleta.
+Tambem funciona usar prefixo tecnico quando fizer sentido, por exemplo `docs: ajustar roteiro final` ou `fix: corrigir login mobile`. Evite commits no meio de uma correcao incompleta.
 
 ## Credenciais Locais de Demonstracao
 

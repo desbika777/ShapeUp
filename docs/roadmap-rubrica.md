@@ -131,4 +131,4 @@ Auditoria visual, UX e limpeza fina do codigo:
 2. Revisar o diff completo para garantir que nao entrou codigo morto ou arquivo temporario.
 3. Coletar prints finais oficiais do site em `http://127.0.0.1`.
 4. Validar visualmente as abas novas no Expo Go assim que computador e celular estiverem na mesma rede.
-5. Preparar commit/push da rodada de polimento quando a revisao final estiver aprovada.
+5. Fazer commit e push dos ajustes finais quando a revisao estiver aprovada.

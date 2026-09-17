@@ -1,16 +1,16 @@
-# Shape Up - Plataforma de Gestao de Academias
+# Shape Up - Gestao de Academias
 
-Sistema completo de gestao para academias, evoluido a partir do antigo SHAPEUP e reorganizado para atender a rubrica do 4o periodo de TADS. O projeto possui frontend web, aplicativo mobile Expo, backend separado, autenticacao JWT, rotas em PT-BR, 3 CRUDs completos, dashboard, TypeScript estrito, Prisma, Docker, Nginx com HTTPS local e testes automatizados.
+O Shape Up e um sistema para donos de academia organizarem planos, alunos, treinos e anexos operacionais em um unico lugar. O projeto possui site em React, app mobile em Expo, API em Node/Express, banco MySQL com Prisma, autenticacao JWT, Docker, Nginx e testes automatizados.
 
-Este repositorio contem a versao final preparada para a rubrica. As instrucoes abaixo servem para reproduzir o ambiente em outra maquina, acessar o banco, executar testes e demonstrar os recursos implementados.
+Este repositorio reune a versao usada na entrega final do projeto. As instrucoes abaixo mostram como subir o ambiente, acessar o banco, rodar testes e apresentar os principais fluxos.
 
 ## Escopo do MVP
 
 Nesta versao, o Shape Up e um sistema administrativo para donos de academia. O acesso publico permite login e recuperacao de senha; a conta master da Shape Up cria uma conta de cliente para cada academia vendida. O cliente nao cria outros gestores: ele entra com senha provisoria, define a propria senha no primeiro acesso e gerencia planos, alunos, treinos e anexos da propria academia. Login de aluno fica documentado como evolucao futura.
 
-## Evidencias da Rubrica
+## Documentacao Principal
 
-- `docs/roadmap-rubrica.md`: artefato de acompanhamento oficial com status, evidencias e proximas acoes.
+- `docs/roadmap-rubrica.md`: acompanhamento da entrega, com status, evidencias e proximas acoes.
 - `docs/mapa-rubrica.md`: mapa criterio por criterio da rubrica.
 - `docs/contextualizacao-problema.md`: problema, justificativa e evolucao do produto.
 - `docs/requisitos.md`: requisitos funcionais e nao funcionais.
@@ -20,7 +20,7 @@ Nesta versao, o Shape Up e um sistema administrativo para donos de academia. O a
 - `docs/validacao-usabilidade-seguranca.md`: testes, usabilidade, compatibilidade e seguranca.
 - `docs/cynefin-abordagem-gestao.md`: Cynefin e abordagem agil.
 - `docs/backlog-jira-inicial.md`: backlog inicial para Jira.
-- `docs/nomenclatura-ptbr.md`: padrao de portugues para reduzir duvidas na avaliacao.
+- `docs/nomenclatura-ptbr.md`: padrao de portugues usado no projeto.
 
 ## Stack
 
@@ -141,10 +141,10 @@ Para E2E via Docker/HTTPS:
 - com `shapeup.local` no hosts: `$env:E2E_BASE_URL="https://shapeup.local"; $env:E2E_API_URL="https://shapeup.local/api"; npm run e2e`
 - sem permissao de admin para editar hosts no Windows: `$env:E2E_BASE_URL="https://shapeup.local"; $env:E2E_API_URL="https://localhost/api"; $env:E2E_HOST_ALIAS="shapeup.local"; $env:NODE_TLS_REJECT_UNAUTHORIZED="0"; npm run e2e`
 
-## Qualidade e GitFlow
+## Qualidade e GitHub
 
 - `pre-commit`: executa `npm run lint`
-- `commit-msg`: valida mensagens no formato `tipo: resumo curto`
+- `commit-msg`: aceita mensagem curta simples ou no formato `tipo: resumo curto`
 - `pre-push`: executa `npm run e2e`, com deteccao automatica do perfil Docker/HTTPS quando a stack esta ativa
 - Fluxo de branches documentado em `docs/gitflow.md`
 

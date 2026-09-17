@@ -12,7 +12,7 @@ Fonte: `RubricaNova.pdf`, revisada em 14/09/2026.
 - O projeto atende tecnicamente R-01 a R-04 e R-06 a R-15.
 - R-05 continua parcial apenas por depender dos prints finais do Expo Go e da coleta oficial de evidencias visuais do site.
 - R-16, R-17 e R-18 devem ser tratados como nao verificaveis ate confirmacao do professor, porque o PDF nao descreve o que deve ser entregue.
-- A proxima frente de maior impacto e coletar evidencias finais, revisar o diff e preparar commit/push sem introduzir risco na vespera da entrega.
+- A proxima frente de maior impacto e coletar evidencias finais, revisar o diff e publicar os ajustes finais sem mexer em pontos sensiveis.
 
 ## Matriz Para Defesa
 
@@ -57,4 +57,4 @@ Fonte: `RubricaNova.pdf`, revisada em 14/09/2026.
 
 ## Proxima Acao Obrigatoria
 
-Rodar a bateria final de validacoes, coletar os prints oficiais do site/Expo e revisar o diff antes de preparar commit/push.
+Rodar a bateria final de validacoes, coletar os prints oficiais do site/Expo e revisar o diff antes de publicar os ajustes finais.

@@ -2,13 +2,13 @@
 
 ## Objetivo
 
-Centralizar o que deve ser aberto, testado, mostrado e fotografado na reta final da entrega. Na proxima execucao, o foco deve ser registrar as evidencias finais em `http://127.0.0.1`, validar o Expo Go quando celular e computador estiverem na mesma rede e preparar commit/push da rodada de polimento.
+Centralizar o que precisa ser aberto, testado, mostrado e fotografado no dia da apresentacao. O foco e deixar o site, o Expo Go, os testes e a documentacao prontos para consulta rapida.
 
 ## Estado Atual
 
 | Area | Status | Evidencia |
 | --- | --- | --- |
-| Branch GitHub | Sincronizada com o remoto antes desta revisao documental | `feature/documentacao-rubrica` no commit `385095c` |
+| Branch GitHub | Sincronizada com o remoto | `feature/documentacao-rubrica` |
 | Alinhamento da rubrica | Concluido em base documental | `docs/roadmap-rubrica.md` e `docs/checklist-rubrica-apresentacao.md` |
 | Upload Multer | Concluido | Tela `/imagens`, endpoint `POST /api/imagens`, validacoes e E2E |
 | Refatoracao final | Concluida | `shared`, helper HTTP, app Expo e validadores reutilizados |
@@ -107,9 +107,9 @@ Observacao para a banca: aluno nao faz login nesta versao. O aluno e um cadastro
 | Vulnerabilidades residuais de Prisma/Expo | Manter justificativa em `docs/auditoria-dependencias.md`; nao usar `npm audit fix --force` antes da entrega |
 | Criterios NSA da rubrica | Confirmar com o professor ou manter justificativa de item nao verificavel |
 
-## Pronto Para a Proxima Execucao
+## Conferencia Final
 
-Na proxima execucao, iniciar direto pela coleta e conferencia final:
+Antes da apresentacao:
 
 1. Subir Docker se necessario.
 2. Abrir `http://127.0.0.1`.
@@ -117,7 +117,7 @@ Na proxima execucao, iniciar direto pela coleta e conferencia final:
 4. Validar as abas novas no Expo Go quando houver mesma rede.
 5. Rodar validacoes finais.
 6. Revisar diff e remover artefatos temporarios.
-7. Preparar commit/push da rodada de polimento.
+7. Fazer commit e push dos ajustes finais.
 
 ## Ultima Validacao Tecnica
 

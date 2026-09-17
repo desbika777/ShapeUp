@@ -9,12 +9,13 @@ if (!messageFile || !fs.existsSync(messageFile)) {
 }
 
 const firstLine = fs.readFileSync(messageFile, 'utf8').split(/\r?\n/)[0].trim();
-const pattern = new RegExp(`^(${allowedTypes.join('|')})(\\([a-z0-9-]+\\))?: .{1,72}$`);
+const conventionalPattern = new RegExp(`^(${allowedTypes.join('|')})(\\([a-z0-9-]+\\))?: .{1,72}$`);
+const simplePattern = /^.{1,72}$/;
 
-if (!pattern.test(firstLine)) {
+if (!conventionalPattern.test(firstLine) && !simplePattern.test(firstLine)) {
   console.error('Mensagem de commit invalida.');
-  console.error('Use o formato: tipo: resumo curto');
+  console.error('Use uma mensagem curta.');
   console.error(`Tipos aceitos: ${allowedTypes.join(', ')}`);
-  console.error('Exemplo: feat: adicionar proxy nginx com https');
+  console.error('Exemplos: pontos finais shape up | docs: ajustar roteiro final');
   process.exit(1);
 }

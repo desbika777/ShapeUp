@@ -50,7 +50,6 @@ flowchart LR
     professor --> aula
 ```
 
-Leitura para apresentacao:
 Mesmo que nem todos os modulos estejam na interface final do MVP, eles aparecem na modelagem com 27 tabelas e sustentam a evolucao do produto para uma academia completa.
 
 ## Atividade 1 - Cadastro de Aluno Com Plano

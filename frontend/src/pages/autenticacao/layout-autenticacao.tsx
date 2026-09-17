@@ -15,7 +15,7 @@ export function LayoutAutenticacao({ children }: PropsWithChildren) {
           </Link>
           <p className="mt-14 text-xs font-semibold uppercase tracking-[0.18em] text-mint">Sistema operacional da academia</p>
           <h1 className="mt-4 font-display text-4xl font-semibold leading-tight">Controle claro para planos, alunos e treinos.</h1>
-          <p className="mt-5 max-w-lg text-base leading-7 text-white/72">Acompanhe a rotina da academia em uma central unica, com dados organizados, acesso de gestor e fluxos preparados para demonstracao academica.</p>
+          <p className="mt-5 max-w-lg text-base leading-7 text-white/72">Acompanhe a rotina da academia em uma central unica, com dados organizados, acesso de gestor e fluxos prontos para a operacao diaria.</p>
         </div>
         <div className="grid gap-4 border-t border-white/12 pt-8">
           <div>

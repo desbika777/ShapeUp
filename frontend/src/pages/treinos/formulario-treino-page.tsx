@@ -95,11 +95,11 @@ export function FormularioTreinoPage() {
             icon={Dumbbell}
             eyebrow="Prescricao"
             title="Treinos conectam objetivo, aluno e periodo"
-            description="Esta tela demonstra regra de negocio: treino precisa estar vinculado a aluno, ter periodo valido e guardar orientacoes claras."
+            description="Todo treino fica vinculado a um aluno, com periodo valido e orientacoes para acompanhamento."
             items={[
               'Escolha um aluno cadastrado para manter rastreabilidade.',
               'A data final nao pode ser anterior ao inicio.',
-              'Observacoes ajudam a justificar a prescricao durante a apresentacao.',
+              'Observacoes ajudam a justificar a prescricao no historico do aluno.',
             ]}
           />
           <FormCard
@@ -144,7 +144,7 @@ export function FormularioTreinoPage() {
                   />
                 </div>
               </FormField>
-              <div className="md:col-span-2"><FormField label="Observacoes" error={form.formState.errors.notes?.message}><div className="relative"><FileText className="pointer-events-none absolute left-3 top-3.5 text-slate-400" size={18} /><textarea rows={4} className={`${inputClassName(!!form.formState.errors.notes)} pl-10`} placeholder="Inclua restricoes, cuidado tecnico ou orientacoes ao professor." {...form.register('notes')} /></div></FormField></div>
+              <div className="md:col-span-2"><FormField label="Observacoes" error={form.formState.errors.notes?.message}><div className="relative"><FileText className="pointer-events-none absolute left-3 top-3.5 text-slate-400" size={18} /><textarea rows={4} className={`${inputClassName(!!form.formState.errors.notes)} pl-10`} placeholder="Inclua restricoes, cuidado tecnico ou orientacoes para a equipe." {...form.register('notes')} /></div></FormField></div>
             </div>
             <FormActions backTo="/treinos" isSubmitting={mutation.isPending || form.formState.isSubmitting} submitLabel="Salvar treino" />
           </FormCard>

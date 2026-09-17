@@ -71,8 +71,8 @@ Pontos aplicados:
 - rotas em PT-BR para facilitar leitura durante a apresentacao.
 - app Expo com tela de login, URL de API editavel, feedback de erro, pull-to-refresh, abas e CRUD administrativo em mobile.
 - checklist visual criado em `docs/checklist-qa-interface.md` para revisar acabamento de telas, responsividade, textos e estados antes dos prints finais.
-- primeira rodada de polimento removeu elementos decorativos excessivos, reduziu cantos de cards/botoes, corrigiu menu mobile e trocou graficos instaveis por barras legiveis.
-- terceira rodada de polimento padronizou formularios internos de planos, alunos, treinos e perfil com layout compartilhado, textos de apoio e acoes consistentes.
+- a revisao visual removeu elementos decorativos excessivos, reduziu cantos de cards/botoes, corrigiu menu mobile e trocou graficos instaveis por barras legiveis.
+- a revisao dos formularios padronizou planos, alunos, treinos e perfil com layout compartilhado, textos de apoio e acoes consistentes.
 
 ## Compatibilidade
 
