@@ -38,7 +38,7 @@ Este roteiro organiza a apresentacao final para cobrir a rubrica sem depender de
 7. Mostrar CRUD de alunos vinculado a plano.
 8. Mostrar CRUD de treinos vinculado a aluno.
 9. Mostrar tela `/imagens`.
-10. Enviar imagem valida e explicar Multer, extensao, MIME type, assinatura real, limite de 2 MB e nome unico.
+10. Enviar imagem ou PDF valido e explicar Multer, extensao, MIME type, assinatura real, limite de 8 MB e nome unico.
 11. Tentar arquivo invalido para demonstrar validação.
 
 ## Demonstracao Mobile Expo
@@ -64,7 +64,7 @@ Este roteiro organiza a apresentacao final para cobrir a rubrica sem depender de
 | Auditoria de dependencias | `docs/auditoria-dependencias.md`, correcoes pontuais e justificativa dos riscos residuais |
 | Evolucao do produto | Roadmap, requisitos, DER, UML, Jira e commits |
 | Multer | `POST /api/imagens` e arquivos em `/uploads/imagens` |
-| Validacao de imagens | Extensao, MIME type, assinatura real, tamanho e UUID |
+| Validacao de anexos | Extensao, MIME type, assinatura real, tamanho e UUID; imagens atendem diretamente a rubrica e PDFs entram como documento operacional |
 | Acesso administrativo | Auto cadastro publico bloqueado; master Shape Up cria clientes; cliente administra apenas a propria academia; alunos sao entidades gerenciadas e acesso de aluno e evolucao futura |
 
 ## Checklist Antes de Apresentar

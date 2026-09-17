@@ -65,7 +65,7 @@ Validacoes recentes:
 | R-10 | Engenharia e Analise de Projetos de Software | Minimo de 2 diagramas de atividades | 0,5 | Concluido | `docs/diagramas-uml.md` com 2 atividades | Conferir se os fluxos batem com telas e endpoints atuais |
 | R-11 | Engenharia e Analise de Projetos de Software | Minimo de 2 diagramas de sequencia | 0,5 | Concluido | `docs/diagramas-uml.md` com 2 sequencias | Conferir se os participantes representam a arquitetura real |
 | R-12 | Tech Forge | Aplicacao recebendo e salvando imagens utilizando Multer | 1,0 | Concluido | `multer` no backend, `POST /api/imagens`, pasta `backend/uploads/imagens`, tela `/imagens` e E2E validado | Manter demonstracao no roteiro final |
-| R-13 | Tech Forge | Aplicacao validando imagens recebidas: extensao, tamanho maximo e colisao de nomes | 1,0 | Concluido | Validacao de extensao, MIME type, limite de 2 MB, assinatura real do arquivo e nome unico com UUID | Manter testes automatizados cobrindo recusas |
+| R-13 | Tech Forge | Aplicacao validando imagens recebidas: extensao, tamanho maximo e colisao de nomes | 1,0 | Concluido | Validacao de extensao, MIME type, limite de 8 MB, assinatura real do arquivo e nome unico com UUID | Manter testes automatizados cobrindo recusas |
 | R-14 | Tech Forge | Controle funcional de acesso | 2,0 | Concluido | MVP alinhado ao modelo Shape Up SaaS: auto cadastro publico bloqueado; conta MASTER cria clientes; conta ADMIN gerencia somente a propria academia; acesso de aluno documentado como evolucao futura | Demonstrar a tela Clientes no master e explicar a decisao de escopo |
 | R-15 | Evolucao do projeto | Proposta desenvolvida tem conexao com persona/cliente | 0,2 | Concluido | Personas em `docs/objetivos-escopo.md`; fluxos de gestor, recepcao e professor | Relacionar personas aos fluxos demonstrados na apresentacao |
 | R-16 | Evolucao do projeto | Criterio NSA sem descricao clara na rubrica | 0,2 | Nao verificavel | PDF exibe item NSA sem texto descritivo extraido | Confirmar com professor ou manter justificativa no roteiro |
@@ -95,7 +95,7 @@ Em 03/09/2026, o modulo minimo de upload de imagens foi concluido:
 
 1. Dependencia `multer` adicionada no backend.
 2. Pasta `backend/uploads/imagens` criada e protegida por `.gitignore`.
-3. Middleware de upload criado com limite de 2 MB.
+3. Middleware de upload criado com limite de 8 MB.
 4. Validacao de PNG, JPG, JPEG e WEBP por extensao e MIME type.
 5. Nome unico gerado com UUID para evitar colisao.
 6. Endpoint `POST /api/imagens` protegido por token e restrito a ADMIN.

@@ -112,10 +112,11 @@ export function ImagensPage() {
   const [clientError, setClientError] = useState('');
   const [lastUploaded, setLastUploaded] = useState<AnexoAcademia | null>(null);
   const CategoryIcon = categoriaIcons[category];
-  const uploadRules = [
-    { label: 'Formatos aceitos', value: 'PNG, JPG, JPEG, WEBP ou PDF' },
-    { label: 'Tamanho maximo', value: formatarBytes(IMAGEM_TAMANHO_MAXIMO_BYTES) },
-    { label: 'Destino', value: 'Backend + banco' },
+  const controlesUpload = [
+    { label: 'Formato', value: 'PNG, JPG, JPEG, WEBP ou PDF' },
+    { label: 'Limite', value: formatarBytes(IMAGEM_TAMANHO_MAXIMO_BYTES) },
+    { label: 'Validacao', value: 'Extensao, tipo e conteudo real' },
+    { label: 'Registro', value: 'Arquivo salvo e metadados no banco' },
   ];
 
   const { data: anexos = [], isLoading: isLoadingAttachments } = useQuery({
@@ -236,7 +237,7 @@ export function ImagensPage() {
         </div>
       </section>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
         <form className="space-y-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6" onSubmit={(event) => void submitUpload(event)}>
           <div className="flex items-start gap-4">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-teal/10 text-teal">
@@ -298,15 +299,6 @@ export function ImagensPage() {
             </span>
           </label>
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            {uploadRules.map((rule) => (
-              <div key={rule.label} className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">{rule.label}</p>
-                <p className="mt-1 text-sm font-semibold text-slateblue">{rule.value}</p>
-              </div>
-            ))}
-          </div>
-
           {selectedFile ? (
             <div className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm">
               <FileCheck2 className="mt-0.5 shrink-0 text-teal" size={18} />
@@ -336,7 +328,50 @@ export function ImagensPage() {
           </button>
         </form>
 
-        <div className="space-y-5">
+        <aside className="space-y-5">
+          <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal/10 text-teal">
+                <FileCheck2 size={20} />
+              </span>
+              <div>
+                <h2 className="font-display text-lg font-semibold text-slateblue">Resumo do envio</h2>
+                <p className="mt-1 text-sm leading-6 text-slate-500">
+                  {selectedFile ? 'Arquivo selecionado para ser salvo.' : 'Selecione um arquivo para conferir os dados antes de salvar.'}
+                </p>
+              </div>
+            </div>
+
+            {selectedFile ? (
+              <dl className="mt-5 grid gap-4 text-sm">
+                <div>
+                  <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Arquivo</dt>
+                  <dd className="mt-1 break-all font-semibold text-slateblue">{selectedFile.name}</dd>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Categoria</dt>
+                    <dd className="mt-1 font-semibold text-slateblue">{categoriaLabels[category]}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Tamanho</dt>
+                    <dd className="mt-1 font-semibold text-slateblue">{formatarBytes(selectedFile.size)}</dd>
+                  </div>
+                </div>
+                <div>
+                  <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Tipo</dt>
+                  <dd className="mt-1 break-all font-semibold text-slateblue">{selectedFile.type || 'Tipo nao informado'}</dd>
+                </div>
+              </dl>
+            ) : (
+              <div className="mt-5 rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center">
+                <Paperclip className="mx-auto text-slate-400" size={28} />
+                <p className="mt-3 text-sm font-semibold text-slateblue">Nenhum arquivo selecionado</p>
+                <p className="mt-1 text-sm leading-6 text-slate-500">O resumo aparece aqui antes do envio.</p>
+              </div>
+            )}
+          </section>
+
           <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-start gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
@@ -350,24 +385,32 @@ export function ImagensPage() {
               </div>
             </div>
 
-            <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
-              <div>
-                <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Categoria</dt>
-                <dd className="mt-1 font-medium text-slateblue">{lastUploaded ? categoriaLabels[lastUploaded.category] : '-'}</dd>
+            {lastUploaded ? (
+              <dl className="mt-5 grid gap-4 text-sm">
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Categoria</dt>
+                    <dd className="mt-1 font-medium text-slateblue">{categoriaLabels[lastUploaded.category]}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Tamanho</dt>
+                    <dd className="mt-1 font-medium text-slateblue">{formatarBytes(lastUploaded.size)}</dd>
+                  </div>
+                </div>
+                <div>
+                  <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Arquivo</dt>
+                  <dd className="mt-1 break-all font-medium text-slateblue">{lastUploaded.originalName}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Link publico</dt>
+                  <dd className="mt-1 break-all font-medium text-teal">{lastUploaded.url}</dd>
+                </div>
+              </dl>
+            ) : (
+              <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 px-4 py-5 text-sm leading-6 text-slate-500">
+                Nenhum anexo foi enviado nesta sessao. Depois do primeiro envio, os dados do arquivo ficam destacados aqui.
               </div>
-              <div>
-                <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Tamanho</dt>
-                <dd className="mt-1 font-medium text-slateblue">{lastUploaded ? formatarBytes(lastUploaded.size) : '-'}</dd>
-              </div>
-              <div className="sm:col-span-2">
-                <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Arquivo</dt>
-                <dd className="mt-1 break-all font-medium text-slateblue">{lastUploaded?.originalName ?? '-'}</dd>
-              </div>
-              <div className="sm:col-span-2">
-                <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Link publico</dt>
-                <dd className="mt-1 break-all font-medium text-teal">{lastUploaded?.url ?? '-'}</dd>
-              </div>
-            </dl>
+            )}
 
             {lastUploaded ? (
               <a href={lastUploaded.url} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 rounded-md border border-teal/20 px-4 py-3 text-sm font-semibold text-teal transition hover:bg-teal/5">
@@ -376,8 +419,32 @@ export function ImagensPage() {
               </a>
             ) : null}
           </section>
-        </div>
+
+        </aside>
       </div>
+
+      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slateblue">
+              <ShieldCheck size={20} />
+            </span>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal">Validacao</p>
+              <h2 className="mt-1 font-display text-lg font-semibold text-slateblue">Controles aplicados no upload</h2>
+            </div>
+          </div>
+          <p className="max-w-2xl text-sm leading-6 text-slate-500">O anexo so entra no historico quando passa pelas validacoes de formato, tamanho e conteudo real.</p>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {controlesUpload.map((rule) => (
+            <div key={rule.label} className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">{rule.label}</p>
+              <p className="mt-1 text-sm font-semibold text-slateblue">{rule.value}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
