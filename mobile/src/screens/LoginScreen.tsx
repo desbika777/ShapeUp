@@ -4,6 +4,7 @@ import { isValidEmail, type RespostaAutenticacao } from '@shape/shared';
 import { ActionButton } from '../components/ActionButton';
 import { TextInputField } from '../components/TextInputField';
 import { apiRequest } from '../lib/api';
+import { DETECTED_LAN_API_URL } from '../lib/config';
 import { colors, spacing } from '../theme';
 
 type LoginScreenProps = {
@@ -18,8 +19,20 @@ export function LoginScreen({ apiUrl, onApiUrlChange, onLogin }: LoginScreenProp
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit() {
+  function getLoginApiUrl() {
     const normalizedApiUrl = apiUrl.trim();
+    const isLoopback = /\/\/(127\.0\.0\.1|localhost)(:|\/)/.test(normalizedApiUrl);
+
+    if (isLoopback && DETECTED_LAN_API_URL) {
+      onApiUrlChange(DETECTED_LAN_API_URL);
+      return DETECTED_LAN_API_URL;
+    }
+
+    return normalizedApiUrl;
+  }
+
+  async function handleSubmit() {
+    const normalizedApiUrl = getLoginApiUrl();
 
     if (!normalizedApiUrl) {
       setError('Informe a URL da API.');
@@ -63,6 +76,7 @@ export function LoginScreen({ apiUrl, onApiUrlChange, onLogin }: LoginScreenProp
 
         <View style={styles.form}>
           <TextInputField label="URL da API" autoCapitalize="none" autoCorrect={false} value={apiUrl} onChangeText={onApiUrlChange} />
+          {DETECTED_LAN_API_URL ? <Text style={styles.apiHint}>API detectada para o celular: {DETECTED_LAN_API_URL}</Text> : null}
           <TextInputField label="E-mail" autoCapitalize="none" autoComplete="email" keyboardType="email-address" value={email} onChangeText={setEmail} />
           <TextInputField label="Senha" secureTextEntry value={password} onChangeText={setPassword} />
 
@@ -90,6 +104,12 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontSize: 14,
     fontWeight: '700',
+  },
+  apiHint: {
+    color: colors.muted,
+    fontSize: 12,
+    lineHeight: 17,
+    marginTop: -spacing.xs,
   },
   form: {
     gap: spacing.md,

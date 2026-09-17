@@ -28,6 +28,8 @@ export async function apiRequest<T>(apiUrl: string, path: string, options: ApiOp
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
+  }).catch(() => {
+    throw new ApiError('Nao foi possivel conectar a API. No celular, use o IP do computador na rede Wi-Fi, por exemplo http://192.168.x.x:3333/api.', 0);
   });
 
   const payload = (await response.json().catch(() => null)) as PayloadErroApi | T | null;

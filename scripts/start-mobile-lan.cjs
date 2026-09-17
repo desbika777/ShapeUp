@@ -50,6 +50,7 @@ const child = spawn(npmCommand, args, {
     ...process.env,
     EXPO_PUBLIC_API_URL: apiUrl,
   },
+  shell: process.platform === 'win32',
   stdio: 'inherit',
 });
 
