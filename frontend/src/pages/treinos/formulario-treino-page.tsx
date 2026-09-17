@@ -13,6 +13,7 @@ import { QueryState } from '@/components/ui/query-state';
 import { useToast } from '@/components/ui/toast';
 import { useAuth } from '@/hooks/use-auth';
 import { apiRequest } from '@/lib/api';
+import { brazilianDateToIso, formatDateForBrazilianInput, maskBrazilianDate } from '@/lib/format';
 import { workoutSchema } from '@/lib/schemas';
 
 export function FormularioTreinoPage() {
@@ -42,18 +43,30 @@ export function FormularioTreinoPage() {
   });
 
   useEffect(() => {
-    // Datas ISO vindas da API sao cortadas para o formato aceito pelo input date.
+    // Datas vindas da API sao exibidas em formato brasileiro no formulario.
     if (data) {
-      form.reset({ ...data, startDate: data.startDate.slice(0, 10), endDate: data.endDate.slice(0, 10) });
+      form.reset({
+        ...data,
+        startDate: formatDateForBrazilianInput(data.startDate),
+        endDate: formatDateForBrazilianInput(data.endDate),
+      });
     }
   }, [data, form]);
 
   // Envia POST para criar e PUT para atualizar.
   const mutation = useMutation({
-    mutationFn: (values: EntradaTreino) => apiRequest<Treino>(isEdit ? `/treinos/${id}` : '/treinos', {
-      method: isEdit ? 'PUT' : 'POST',
-      body: JSON.stringify(values),
-    }, token ?? undefined),
+    mutationFn: (values: EntradaTreino) => {
+      const payload: EntradaTreino = {
+        ...values,
+        startDate: brazilianDateToIso(values.startDate),
+        endDate: brazilianDateToIso(values.endDate),
+      };
+
+      return apiRequest<Treino>(isEdit ? `/treinos/${id}` : '/treinos', {
+        method: isEdit ? 'PUT' : 'POST',
+        body: JSON.stringify(payload),
+      }, token ?? undefined);
+    },
     onSuccess: async () => {
       // Treinos afetam a lista e os indicadores do dashboard.
       await Promise.all([
@@ -103,8 +116,34 @@ export function FormularioTreinoPage() {
               <FormField label="Nivel" error={form.formState.errors.level?.message}><select className={inputClassName(!!form.formState.errors.level)} {...form.register('level')}><option value="INICIANTE">Iniciante</option><option value="INTERMEDIARIO">Intermediario</option><option value="AVANCADO">Avancado</option></select></FormField>
               <div className="md:col-span-2"><FormField label="Titulo do treino" error={form.formState.errors.title?.message}><div className="relative"><Dumbbell className="pointer-events-none absolute left-3 top-3.5 text-slate-400" size={18} /><input className={`${inputClassName(!!form.formState.errors.title)} pl-10`} placeholder="Ex.: Hipertrofia inicial" {...form.register('title')} /></div></FormField></div>
               <div className="md:col-span-2"><FormField label="Objetivo" error={form.formState.errors.objective?.message}><div className="relative"><Target className="pointer-events-none absolute left-3 top-3.5 text-slate-400" size={18} /><textarea rows={3} className={`${inputClassName(!!form.formState.errors.objective)} pl-10`} placeholder="Descreva o foco do treino." {...form.register('objective')} /></div></FormField></div>
-              <FormField label="Inicio" error={form.formState.errors.startDate?.message}><div className="relative"><CalendarDays className="pointer-events-none absolute left-3 top-3.5 text-slate-400" size={18} /><input type="date" className={`${inputClassName(!!form.formState.errors.startDate)} pl-10`} {...form.register('startDate')} /></div></FormField>
-              <FormField label="Fim" error={form.formState.errors.endDate?.message}><div className="relative"><CalendarDays className="pointer-events-none absolute left-3 top-3.5 text-slate-400" size={18} /><input type="date" className={`${inputClassName(!!form.formState.errors.endDate)} pl-10`} {...form.register('endDate')} /></div></FormField>
+              <FormField label="Inicio" error={form.formState.errors.startDate?.message}>
+                <div className="relative">
+                  <CalendarDays className="pointer-events-none absolute left-3 top-3.5 text-slate-400" size={18} />
+                  <input
+                    inputMode="numeric"
+                    maxLength={10}
+                    placeholder="dd/mm/aaaa"
+                    className={`${inputClassName(!!form.formState.errors.startDate)} pl-10`}
+                    value={form.watch('startDate')}
+                    onBlur={() => void form.trigger('startDate')}
+                    onChange={(event) => form.setValue('startDate', maskBrazilianDate(event.target.value), { shouldValidate: true })}
+                  />
+                </div>
+              </FormField>
+              <FormField label="Fim" error={form.formState.errors.endDate?.message}>
+                <div className="relative">
+                  <CalendarDays className="pointer-events-none absolute left-3 top-3.5 text-slate-400" size={18} />
+                  <input
+                    inputMode="numeric"
+                    maxLength={10}
+                    placeholder="dd/mm/aaaa"
+                    className={`${inputClassName(!!form.formState.errors.endDate)} pl-10`}
+                    value={form.watch('endDate')}
+                    onBlur={() => void form.trigger('endDate')}
+                    onChange={(event) => form.setValue('endDate', maskBrazilianDate(event.target.value), { shouldValidate: true })}
+                  />
+                </div>
+              </FormField>
               <div className="md:col-span-2"><FormField label="Observacoes" error={form.formState.errors.notes?.message}><div className="relative"><FileText className="pointer-events-none absolute left-3 top-3.5 text-slate-400" size={18} /><textarea rows={4} className={`${inputClassName(!!form.formState.errors.notes)} pl-10`} placeholder="Inclua restricoes, cuidado tecnico ou orientacoes ao professor." {...form.register('notes')} /></div></FormField></div>
             </div>
             <FormActions backTo="/treinos" isSubmitting={mutation.isPending || form.formState.isSubmitting} submitLabel="Salvar treino" />

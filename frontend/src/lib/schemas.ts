@@ -1,6 +1,7 @@
 // Validacoes dos formularios do frontend usando Zod.
 import { EMAIL_REGEX, isStrongPassword, isValidCpf } from '@shape/shared';
 import { z } from 'zod';
+import { parseDateInput } from './format';
 
 // Login exige e-mail valido e senha preenchida.
 export const loginSchema = z.object({
@@ -129,9 +130,13 @@ export const workoutSchema = z.object({
   objective: z.string().min(5, 'Informe o objetivo do treino.'),
   level: z.enum(['INICIANTE', 'INTERMEDIARIO', 'AVANCADO']),
   notes: z.string().min(5, 'Descreva observacoes importantes.'),
-  startDate: z.string().min(1, 'Informe a data inicial.'),
-  endDate: z.string().min(1, 'Informe a data final.'),
-}).refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
+  startDate: z.string().min(1, 'Informe a data inicial.').refine((value) => Boolean(parseDateInput(value)), 'Informe a data inicial no formato dd/mm/aaaa.'),
+  endDate: z.string().min(1, 'Informe a data final.').refine((value) => Boolean(parseDateInput(value)), 'Informe a data final no formato dd/mm/aaaa.'),
+}).refine((data) => {
+  const start = parseDateInput(data.startDate);
+  const end = parseDateInput(data.endDate);
+  return Boolean(start && end && end >= start);
+}, {
   path: ['endDate'],
   message: 'A data final deve ser igual ou posterior a data inicial.',
 });

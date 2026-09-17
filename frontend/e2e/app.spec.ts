@@ -270,6 +270,38 @@ test.describe('CRUDs principais', () => {
     await expect(page.getByText('Aluno excluido')).toBeVisible();
     await expect(page.getByRole('row', { name: new RegExp(editedName) })).toHaveCount(0);
   });
+
+  test('cadastra e exclui treinos com datas em formato brasileiro', async ({ page, request }, testInfo) => {
+    const manager = await createManager(request, testInfo);
+    const seed = nextSeed(testInfo);
+    const plan = await createPlan(request, manager.token, `Plano Treinos ${seed}`);
+    const student = await createStudent(request, manager.token, { planId: plan.id, seed, name: `Aluno Treino ${seed}` });
+    const workoutTitle = `Treino E2E ${seed}`;
+
+    await authenticate(page, manager.token);
+    await page.goto('/treinos');
+    await expect(page.getByText('Prescricao de treinos')).toBeVisible();
+
+    await page.getByRole('link', { name: 'Novo treino' }).click();
+    await page.getByLabel('Aluno').selectOption(student.id);
+    await page.getByLabel('Nivel').selectOption('INTERMEDIARIO');
+    await page.getByLabel('Titulo do treino').fill(workoutTitle);
+    await page.getByLabel('Objetivo').fill('Acompanhar evolucao de forca e condicionamento.');
+    await page.getByLabel('Inicio').fill('17/09/2026');
+    await page.getByLabel('Fim').fill('17/10/2026');
+    await page.getByLabel('Observacoes').fill('Registrar cargas, descansos e resposta do aluno.');
+    await page.getByRole('button', { name: 'Salvar treino' }).click();
+
+    const workoutRow = page.getByRole('row', { name: new RegExp(workoutTitle) });
+    await expect(workoutRow).toBeVisible();
+    await expect(workoutRow).toContainText('17/09/2026');
+    await expect(workoutRow).toContainText('17/10/2026');
+
+    await workoutRow.getByRole('button', { name: 'Excluir' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Excluir' }).click();
+    await expect(page.getByText('Treino excluido')).toBeVisible();
+    await expect(workoutRow).toHaveCount(0);
+  });
 });
 
 test.describe('anexos operacionais', () => {
