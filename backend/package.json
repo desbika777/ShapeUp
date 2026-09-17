@@ -1,5 +1,5 @@
 {
-  "name": "@shapeup/backend",
+  "name": "@shape/backend",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -13,30 +13,34 @@
     "prisma:generate": "node scripts/prisma-generate.cjs",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "tsx prisma/seed.ts"
+    "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:cleanup-e2e": "tsx prisma/cleanup-e2e.ts"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.2.0",
     "@types/node": "^25.4.0",
     "@types/nodemailer": "^7.0.11",
     "@types/supertest": "^7.2.0",
-    "prisma": "^6.16.2",
+    "prisma": "^6.19.3",
     "supertest": "^7.2.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.11"
   },
   "dependencies": {
-    "@prisma/client": "^6.16.2",
+    "@prisma/client": "^6.19.3",
+    "@shape/shared": "1.0.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "nodemailer": "^8.0.4",
+    "multer": "^2.3.0",
+    "nodemailer": "9.1.1",
     "zod": "^4.3.6"
   }
 }

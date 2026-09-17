@@ -1,9 +1,11 @@
+// Teste do provedor de toast usado para feedback visual ao usuario.
 import { describe, expect, it, vi } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
 import { fireEvent } from '@testing-library/react';
 import { ToastProvider, useToast } from '@/components/ui/toast';
 
 function Demo() {
+  // Componente minimo para disparar uma notificacao dentro do teste.
   const { toast } = useToast();
   return (
     <button type="button" onClick={() => toast({ variant: 'success', title: 'Ok', message: 'Salvo' })}>

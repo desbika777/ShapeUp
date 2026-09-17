@@ -1,3 +1,4 @@
+// Inicializa o React e registra os provedores globais do app.
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -5,16 +6,18 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '@/context/auth-context';
 import { App } from '@/App';
 import '@/index.css';
-import { ApiError } from '@/lib/api';
+import { ErroApi } from '@/lib/api';
 import { ToastProvider } from '@/components/ui/toast';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      // Evita recarregamentos excessivos enquanto o usuario alterna janelas.
       refetchOnWindowFocus: false,
       staleTime: 15_000,
       retry(failureCount, error) {
-        if (error instanceof ApiError) {
+        // Erros esperados de permissao/validacao nao precisam de novas tentativas.
+        if (error instanceof ErroApi) {
           if (error.statusCode === 401 || error.statusCode === 404) return false;
           if (error.statusCode && error.statusCode >= 400 && error.statusCode < 500) return false;
         }
@@ -27,6 +30,7 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
+    {/* Ordem dos provedores: cache de dados, rotas, mensagens, autenticacao e telas. */}
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <ToastProvider>

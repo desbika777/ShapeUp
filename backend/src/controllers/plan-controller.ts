@@ -1,19 +1,18 @@
-import type { Request, Response } from 'express';
+// Controlador dos planos: transforma parametros HTTP em chamadas de service.
+import type { Response } from 'express';
 import { planListSchema, planSchema } from '../services/schemas.js';
-import { getPagination } from '../utils/pagination.js';
-import { PlanService } from '../services/plan-service.js';
-import type { AuthenticatedRequest } from '../middlewares/auth-middleware.js';
+import { obterPaginacao } from '../utils/pagination.js';
+import { obterParametroRota } from '../utils/http.js';
+import { ServicoPlano } from '../services/plan-service.js';
+import type { RequisicaoAutenticada } from '../middlewares/auth-middleware.js';
 
-function routeId(request: Request) {
-  return Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
-}
+export class ControladorPlano {
+  constructor(private readonly service: ServicoPlano) {}
 
-export class PlanController {
-  constructor(private readonly service: PlanService) {}
-
-  list = async (request: AuthenticatedRequest, response: Response) => {
+  // Lista planos com filtros e paginacao.
+  list = async (request: RequisicaoAutenticada, response: Response) => {
     const query = planListSchema.parse(request.query);
-    const pagination = getPagination(query.page, query.pageSize);
+    const pagination = obterPaginacao(query.page, query.pageSize);
     const result = await this.service.list(request.userId ?? '', pagination.page, pagination.pageSize, pagination.skip, {
       search: query.search,
       status: query.status,
@@ -21,25 +20,29 @@ export class PlanController {
     return response.status(200).json(result);
   };
 
-  getById = async (request: AuthenticatedRequest, response: Response) => {
-    const result = await this.service.getById(request.userId ?? '', routeId(request));
+  // Busca um plano especifico do usuario logado.
+  getById = async (request: RequisicaoAutenticada, response: Response) => {
+    const result = await this.service.getById(request.userId ?? '', obterParametroRota(request, 'id'));
     return response.status(200).json(result);
   };
 
-  create = async (request: AuthenticatedRequest, response: Response) => {
+  // Cria um novo plano comercial.
+  create = async (request: RequisicaoAutenticada, response: Response) => {
     const payload = planSchema.parse(request.body);
     const result = await this.service.create(request.userId ?? '', payload);
     return response.status(201).json(result);
   };
 
-  update = async (request: AuthenticatedRequest, response: Response) => {
+  // Atualiza plano existente.
+  update = async (request: RequisicaoAutenticada, response: Response) => {
     const payload = planSchema.parse(request.body);
-    const result = await this.service.update(request.userId ?? '', routeId(request), payload);
+    const result = await this.service.update(request.userId ?? '', obterParametroRota(request, 'id'), payload);
     return response.status(200).json(result);
   };
 
-  delete = async (request: AuthenticatedRequest, response: Response) => {
-    await this.service.delete(request.userId ?? '', routeId(request));
+  // Remove plano quando nao ha alunos vinculados.
+  delete = async (request: RequisicaoAutenticada, response: Response) => {
+    await this.service.delete(request.userId ?? '', obterParametroRota(request, 'id'));
     return response.status(204).send();
   };
 }

@@ -1,24 +1,44 @@
-# ShapeUp Platform
+# Shape Up - Gestao de Academias
 
-Sistema completo de gestao para academias com frontend e backend separados, autenticacao JWT, 3 CRUDs completos, dashboard, TypeScript estrito, Prisma, Docker, Nginx com HTTPS local e testes automatizados.
+O Shape Up e um sistema para donos de academia organizarem planos, alunos, treinos e anexos operacionais em um unico lugar. O projeto possui site em React, app mobile em Expo, API em Node/Express, banco MySQL com Prisma, autenticacao JWT, Docker, Nginx e testes automatizados.
 
-Este repositorio contem a versao final preparada para a rubrica. As instrucoes abaixo servem para reproduzir o ambiente em outra maquina, acessar o banco, executar testes e demonstrar os recursos implementados.
+Este repositorio reune a versao usada na entrega final do projeto. As instrucoes abaixo mostram como subir o ambiente, acessar o banco, rodar testes e apresentar os principais fluxos.
+
+## Escopo do MVP
+
+Nesta versao, o Shape Up e um sistema administrativo para donos de academia. O acesso publico permite login e recuperacao de senha; a conta master da Shape Up cria uma conta de cliente para cada academia vendida. O cliente nao cria outros gestores: ele entra com senha provisoria, define a propria senha no primeiro acesso e gerencia planos, alunos, treinos e anexos da propria academia. Login de aluno fica documentado como evolucao futura.
+
+## Documentacao Principal
+
+- `docs/roadmap-rubrica.md`: acompanhamento da entrega, com status, evidencias e proximas acoes.
+- `docs/mapa-rubrica.md`: mapa criterio por criterio da rubrica.
+- `docs/contextualizacao-problema.md`: problema, justificativa e evolucao do produto.
+- `docs/requisitos.md`: requisitos funcionais e nao funcionais.
+- `docs/modelagem-der.md`: DER com 27 tabelas em PT-BR.
+- `docs/diagramas-uml.md`: 2 casos de uso, 2 atividades e 2 sequencias.
+- `docs/arquitetura-evidencias.md`: arquitetura, camadas, CRUDs e padronizacao.
+- `docs/validacao-usabilidade-seguranca.md`: testes, usabilidade, compatibilidade e seguranca.
+- `docs/cynefin-abordagem-gestao.md`: Cynefin e abordagem agil.
+- `docs/backlog-jira-inicial.md`: backlog inicial para Jira.
+- `docs/nomenclatura-ptbr.md`: padrao de portugues usado no projeto.
 
 ## Stack
 
 - Frontend: React, Vite, TypeScript, React Router, TanStack Query, React Hook Form, Zod, Tailwind CSS, Recharts
+- Mobile: Expo, React Native, TypeScript e Expo Go
 - Backend: Node.js, Express, TypeScript, Prisma, MySQL, JWT, bcrypt
 - Infra: Docker Compose, MySQL com volume persistente, Nginx como proxy reverso HTTPS
-- Shared: tipos globais reutilizados entre front e back
+- Shared: tipos globais e validadores reutilizados por web, mobile e backend
 - Testes: Vitest, Testing Library, Supertest, Playwright
 
 ## Estrutura
 
 - `frontend`: aplicacao React
+- `mobile`: aplicativo Expo/React Native para uso no Expo Go
 - `backend`: API Express + Prisma
-- `shared`: tipos compartilhados
+- `shared`: tipos e validacoes compartilhadas
 - `docker/nginx`: proxy reverso, cabecalhos de seguranca e certificados locais
-- `docs/gitflow.md`: padrao de branches e validacoes GitFlow
+- `docs`: evidencias da rubrica, diagramas, requisitos, DER, Cynefin, Jira e padroes
 
 ## Setup com Docker, Nginx e HTTPS
 
@@ -33,14 +53,15 @@ Este repositorio contem a versao final preparada para a rubrica. As instrucoes a
 4. Suba a stack:
    - `docker compose up --build`
 5. Acesse:
+   - `http://127.0.0.1` para teste manual sem certificado
    - `https://localhost`
    - `https://shapeup.local`
 
 Somente o Nginx publica portas externas (`80` e `443`). MySQL, backend e frontend ficam isolados na network interna do Compose.
 
-> Ao usar a stack Docker/Nginx, nao abra `http://localhost:5173`. Esse endereco e apenas do Vite em desenvolvimento local. No Docker, a API passa por `/api` no Nginx; por isso o login deve ser testado em `https://localhost` ou `https://shapeup.local`.
+> Ao usar a stack Docker/Nginx, nao abra `http://localhost:5173`. Esse endereco e apenas do Vite em desenvolvimento local. No Docker, a API passa por `/api` no Nginx; por isso o login deve ser testado em `http://127.0.0.1`, `https://localhost` ou `https://shapeup.local`.
 
-Se o navegador mostrar erro de certificado, instale/confiar no certificado local gerado pelo `mkcert`. Se `shapeup.local` nao abrir, confirme que `127.0.0.1 shapeup.local` existe no arquivo de hosts do Windows. Enquanto o hosts nao estiver configurado, use `https://localhost`.
+Se o navegador mostrar erro de certificado em `https://localhost`, use `http://127.0.0.1` para teste manual rapido ou instale/confiar no certificado local gerado pelo `mkcert`. Se `shapeup.local` nao abrir, confirme que `127.0.0.1 shapeup.local` existe no arquivo de hosts do Windows.
 
 ## Acesso ao MySQL pelo DBeaver
 
@@ -64,8 +85,8 @@ Com a stack ativa, rode:
 
 Credenciais criadas:
 
-- e-mail: `admin@shapeup.com`
-- senha: `ShapeUp@123`
+- Master Shape Up: `admin@shape.com.br` / `Shape@123`
+- Cliente demo: `gestor@shapeup.com.br` / `Shape@123`
 
 ## Desenvolvimento local sem proxy
 
@@ -77,38 +98,69 @@ Credenciais criadas:
    - `npm run dev:backend`
    - `npm run dev:frontend`
 
+## Execucao mobile com Expo Go
+
+Para demonstrar no aplicativo Expo Go instalado pela App Store ou Play Store, publique a API em uma porta acessivel pela rede local:
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml -f docker-compose.expo.yml --env-file .env up -d --build
+```
+
+Descubra o IPv4 da maquina na rede Wi-Fi:
+
+```powershell
+Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -notlike '127.*' } | Select-Object IPAddress, InterfaceAlias
+```
+
+Depois inicie o Expo apontando para o backend pelo IP da maquina:
+
+```powershell
+$env:EXPO_PUBLIC_API_URL="http://SEU_IP_DA_MAQUINA:3333/api"
+npm run dev:mobile
+```
+
+No celular, abra o Expo Go e leia o QR Code exibido no terminal. O app mobile tambem permite editar a URL da API na tela de login, o que ajuda na demonstracao caso o IP mude.
+
 ## Scripts principais
 
 - `npm run build`
 - `npm run test`
 - `npm run lint`
+- `npm run lint:mobile`
 - `npm run e2e`
 - `npm run e2e:docker`
 - `npm run dev:backend`
 - `npm run dev:frontend`
+- `npm run dev:mobile`
 
 Para E2E via Docker/HTTPS:
 
+- `npm run e2e` detecta a stack Docker `shapeup-backend` em execucao e usa automaticamente o perfil Docker/HTTPS.
 - instale o Chromium do Playwright se ainda nao existir: `npm exec --workspace frontend playwright install chromium`
 - comando recomendado para o ambiente Docker/Nginx: `npm run e2e:docker`
 - com `shapeup.local` no hosts: `$env:E2E_BASE_URL="https://shapeup.local"; $env:E2E_API_URL="https://shapeup.local/api"; npm run e2e`
 - sem permissao de admin para editar hosts no Windows: `$env:E2E_BASE_URL="https://shapeup.local"; $env:E2E_API_URL="https://localhost/api"; $env:E2E_HOST_ALIAS="shapeup.local"; $env:NODE_TLS_REJECT_UNAUTHORIZED="0"; npm run e2e`
 
-## Qualidade e GitFlow
+## Qualidade e GitHub
 
 - `pre-commit`: executa `npm run lint`
-- `commit-msg`: valida mensagens no formato `tipo: resumo curto`
-- `pre-push`: executa `npm run e2e`
+- `commit-msg`: aceita mensagem curta simples ou no formato `tipo: resumo curto`
+- `pre-push`: executa `npm run e2e`, com deteccao automatica do perfil Docker/HTTPS quando a stack esta ativa
 - Fluxo de branches documentado em `docs/gitflow.md`
 
 ## Cobertura funcional entregue
 
 - autenticacao com JWT, opcao "Lembrar meu acesso" e persistencia em `localStorage` ou `sessionStorage`
-- cadastro, login, consulta e edicao do proprio usuario
+- rotas visiveis em PT-BR: `/entrar`, `/cadastro`, `/painel`, `/planos`, `/alunos`, `/treinos`
+- endpoints da API em PT-BR: `/api/autenticacao/entrar`, `/api/planos`, `/api/alunos`, `/api/treinos`
+- login, consulta e edicao da conta autenticada
+- cliente mobile Expo com login, JWT, painel administrativo, planos, alunos e treinos
+- criacao interna de clientes pela conta master; auto cadastro publico bloqueado
 - validacao de e-mail, CPF e senha forte
 - CRUD de planos, alunos e treinos com paginacao
 - relacionamento plano -> aluno e aluno -> treino
 - dashboard com KPIs, graficos e alunos recentes
+- anexos operacionais com Multer em `/api/imagens`, aceitando imagens e PDFs, salvando o arquivo no backend e registrando metadados no banco para listagem e abertura posterior
 - testes de backend com Supertest
 - testes de frontend com Vitest + Testing Library
-- testes E2E de login, cadastro e CRUDs de planos e alunos
+- testes E2E de login, acesso controlado, CRUDs de planos/alunos e anexos operacionais com Multer

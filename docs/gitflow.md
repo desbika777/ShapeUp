@@ -1,4 +1,4 @@
-# GitFlow ShapeUp
+# GitFlow Shape Up
 
 ## Branches permanentes
 

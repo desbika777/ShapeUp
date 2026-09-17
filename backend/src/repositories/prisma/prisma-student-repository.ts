@@ -1,8 +1,10 @@
-import type { DashboardMetrics, PaginatedResponse, Student, StudentInput } from '@shapeup/shared';
-import type { IStudentRepository, StudentListParams } from '../interfaces.js';
+// Repositorio Prisma dos alunos: concentra consultas e gravacoes da carteira de alunos.
+import type { IndicadoresPainel, RespostaPaginada, Aluno, EntradaAluno } from '@shape/shared';
+import type { IRepositorioAluno, ParametrosListagemAlunos } from '../interfaces.js';
 import { prisma } from '../../lib/prisma.js';
 
 function meta(totalItems: number, page: number, pageSize: number) {
+  // Mantem o formato de paginacao igual ao restante da API.
   return {
     page,
     pageSize,
@@ -11,7 +13,7 @@ function meta(totalItems: number, page: number, pageSize: number) {
   };
 }
 
-function mapStudent(student: {
+function mapearAluno(student: {
   id: string;
   name: string;
   email: string;
@@ -19,12 +21,13 @@ function mapStudent(student: {
   phone: string;
   birthDate: Date;
   goal: string;
-  status: Student['status'];
+  status: Aluno['status'];
   planId: string;
   createdAt: Date;
   updatedAt: Date;
-  plan?: { name: string };
-}): Student {
+  plano?: { name: string };
+}): Aluno {
+  // Adapta datas e relacionamento do plano para o contrato compartilhado com o frontend.
   return {
     id: student.id,
     name: student.name,
@@ -35,17 +38,18 @@ function mapStudent(student: {
     goal: student.goal,
     status: student.status,
     planId: student.planId,
-    planName: student.plan?.name,
+    planName: student.plano?.name,
     createdAt: student.createdAt.toISOString(),
     updatedAt: student.updatedAt.toISOString(),
   };
 }
 
-export class PrismaStudentRepository implements IStudentRepository {
-  async list(params: StudentListParams): Promise<PaginatedResponse<Student>> {
+export class RepositorioPrismaAluno implements IRepositorioAluno {
+  async list(params: ParametrosListagemAlunos): Promise<RespostaPaginada<Aluno>> {
     const rawSearch = params.search?.trim();
     const cpfDigits = rawSearch ? rawSearch.replace(/\D/g, '') : '';
 
+    // Permite buscar aluno por nome, e-mail ou CPF digitado com/sem pontuacao.
     const where = {
       ownerId: params.ownerId,
       ...(params.status ? { status: params.status } : {}),
@@ -59,77 +63,79 @@ export class PrismaStudentRepository implements IStudentRepository {
       } : {}),
     };
 
+    // Carrega o plano junto para exibir o nome na tabela de alunos.
     const [items, totalItems] = await Promise.all([
-      prisma.student.findMany({
+      prisma.aluno.findMany({
         skip: params.skip,
         take: params.pageSize,
         where,
-        include: { plan: true },
+        include: { plano: true },
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.student.count({ where }),
+      prisma.aluno.count({ where }),
     ]);
 
-    return { data: items.map(mapStudent), meta: meta(totalItems, params.page, params.pageSize) };
+    return { data: items.map(mapearAluno), meta: meta(totalItems, params.page, params.pageSize) };
   }
 
-  async create(ownerId: string, input: StudentInput) {
-    const created = await prisma.student.create({
+  async create(ownerId: string, input: EntradaAluno) {
+    const created = await prisma.aluno.create({
       data: {
         ownerId,
         ...input,
         birthDate: new Date(input.birthDate),
       },
-      include: { plan: true },
+      include: { plano: true },
     });
-    return mapStudent(created);
+    return mapearAluno(created);
   }
 
   async findById(ownerId: string, id: string) {
-    const student = await prisma.student.findFirst({ where: { id, ownerId }, include: { plan: true } });
-    return student ? mapStudent(student) : null;
+    const student = await prisma.aluno.findFirst({ where: { id, ownerId }, include: { plano: true } });
+    return student ? mapearAluno(student) : null;
   }
 
   async findByEmail(ownerId: string, email: string) {
-    const student = await prisma.student.findUnique({
+    const student = await prisma.aluno.findUnique({
       where: { ownerId_email: { ownerId, email } },
-      include: { plan: true },
+      include: { plano: true },
     });
-    return student ? mapStudent(student) : null;
+    return student ? mapearAluno(student) : null;
   }
 
   async findByCpf(ownerId: string, cpf: string) {
-    const student = await prisma.student.findUnique({
+    const student = await prisma.aluno.findUnique({
       where: { ownerId_cpf: { ownerId, cpf } },
-      include: { plan: true },
+      include: { plano: true },
     });
-    return student ? mapStudent(student) : null;
+    return student ? mapearAluno(student) : null;
   }
 
-  async update(_ownerId: string, id: string, input: StudentInput) {
-    const updated = await prisma.student.update({
+  async update(_ownerId: string, id: string, input: EntradaAluno) {
+    const updated = await prisma.aluno.update({
       where: { id },
       data: { ...input, birthDate: new Date(input.birthDate) },
-      include: { plan: true },
+      include: { plano: true },
     });
-    return mapStudent(updated);
+    return mapearAluno(updated);
   }
 
   async delete(_ownerId: string, id: string) {
-    await prisma.student.delete({ where: { id } });
+    await prisma.aluno.delete({ where: { id } });
   }
 
-  async countAll(ownerId: string) {
-    return prisma.student.count({ where: { ownerId } });
+  async contarTodos(ownerId: string) {
+    return prisma.aluno.count({ where: { ownerId } });
   }
 
-  async countByPlan(ownerId: string, planId: string) {
-    return prisma.student.count({ where: { ownerId, planId } });
+  async contarPorPlano(ownerId: string, planId: string) {
+    return prisma.aluno.count({ where: { ownerId, planId } });
   }
 
-  async countNewInCurrentMonth(ownerId: string) {
+  async contarNovosNoMesAtual(ownerId: string) {
+    // Indicador do dashboard para acompanhar entrada de alunos no mes atual.
     const now = new Date();
-    return prisma.student.count({
+    return prisma.aluno.count({
       where: {
         ownerId,
         createdAt: {
@@ -139,8 +145,9 @@ export class PrismaStudentRepository implements IStudentRepository {
     });
   }
 
-  async findRecent(ownerId: string, limit: number): Promise<DashboardMetrics['recentStudents']> {
-    const students = await prisma.student.findMany({
+  async buscarRecentes(ownerId: string, limit: number): Promise<IndicadoresPainel['recentStudents']> {
+    // Lista os alunos mais recentes para o painel inicial.
+    const students = await prisma.aluno.findMany({
       where: { ownerId },
       take: limit,
       orderBy: { createdAt: 'desc' },

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-labelledby="title desc">
+  <title id="title">Manutencao de equipamentos</title>
+  <desc id="desc">Ilustracao de registro de manutencao de equipamento de academia.</desc>
+  <rect width="640" height="400" fill="#f1f5f9"/>
+  <rect x="90" y="76" width="460" height="248" rx="22" fill="#ffffff" stroke="#cbd5e1" stroke-width="4"/>
+  <rect x="138" y="118" width="128" height="164" rx="18" fill="#1e3a8a"/>
+  <rect x="168" y="146" width="68" height="108" rx="14" fill="#64748b"/>
+  <circle cx="202" cy="200" r="20" fill="#e2e8f0"/>
+  <path d="M340 145l38 38M378 145l-38 38" stroke="#0f766e" stroke-width="14" stroke-linecap="round"/>
+  <rect x="326" y="230" width="178" height="16" rx="8" fill="#1e3a8a"/>
+  <rect x="326" y="264" width="132" height="12" rx="6" fill="#94a3b8"/>
+  <circle cx="456" cy="154" r="34" fill="#ecfdf5"/>
+  <path d="M441 154l10 10 21-26" fill="none" stroke="#047857" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
