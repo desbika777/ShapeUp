@@ -286,11 +286,12 @@ test.describe('anexos operacionais', () => {
       buffer: PDF_MINIMO,
     });
 
-    await page.getByRole('button', { name: 'Salvar anexo no backend' }).click();
+    await page.getByRole('button', { name: 'Salvar anexo' }).click();
 
-    await expect(page.getByText('Registro confirmado no backend.')).toBeVisible();
+    await expect(page.getByText('Anexo pronto para consulta.')).toBeVisible();
     await expect(page.locator('dd').filter({ hasText: /evidencia-rubrica\.pdf$/ }).first()).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Anexos salvos' })).toBeVisible();
+    await page.getByPlaceholder('Buscar por arquivo, descricao ou categoria').fill('evidencia');
     await expect(page.getByRole('article').filter({ hasText: 'evidencia-rubrica.pdf' })).toBeVisible();
     await expect(page.getByLabel('Miniatura PDF de evidencia-rubrica.pdf')).toBeVisible();
 

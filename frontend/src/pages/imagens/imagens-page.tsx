@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Activity, AlertCircle, CheckCircle2, ClipboardList, ExternalLink, FileCheck2, FileImage, Paperclip, ReceiptText, ShieldCheck, Trash2, Upload, Wrench } from 'lucide-react';
+import { Activity, AlertCircle, CheckCircle2, ClipboardList, ExternalLink, FileCheck2, FileImage, Paperclip, ReceiptText, Search, ShieldCheck, Trash2, Upload, Wrench } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { AnexoAcademia, CategoriaAnexo } from '@shape/shared';
 import {
   CATEGORIAS_ANEXO,
@@ -55,6 +55,10 @@ function ehPdf(attachment: Pick<AnexoAcademia, 'mimeType' | 'extension'>) {
   return attachment.mimeType === 'application/pdf' || attachment.extension === '.pdf';
 }
 
+function normalizarBusca(value: string) {
+  return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
 const exemplosAnexos = [
   {
     title: 'Comprovante de matricula',
@@ -102,6 +106,11 @@ const categoriaIcons: Record<CategoriaAnexo, LucideIcon> = {
   OUTRO: Paperclip,
 };
 
+const filtrosCategoria: Array<{ value: CategoriaAnexo | 'TODOS'; label: string }> = [
+  { value: 'TODOS', label: 'Todos' },
+  ...CATEGORIAS_ANEXO.map((item) => ({ value: item, label: categoriaLabels[item] })),
+];
+
 export function ImagensPage() {
   const { token } = useAuth();
   const { toast } = useToast();
@@ -111,18 +120,36 @@ export function ImagensPage() {
   const [description, setDescription] = useState('');
   const [clientError, setClientError] = useState('');
   const [lastUploaded, setLastUploaded] = useState<AnexoAcademia | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<CategoriaAnexo | 'TODOS'>('TODOS');
   const CategoryIcon = categoriaIcons[category];
   const controlesUpload = [
-    { label: 'Formato', value: 'PNG, JPG, JPEG, WEBP ou PDF' },
-    { label: 'Limite', value: formatarBytes(IMAGEM_TAMANHO_MAXIMO_BYTES) },
-    { label: 'Validacao', value: 'Extensao, tipo e conteudo real' },
-    { label: 'Registro', value: 'Arquivo salvo e metadados no banco' },
+    { label: 'Formatos aceitos', value: 'PNG, JPG, JPEG, WEBP ou PDF' },
+    { label: 'Tamanho maximo', value: formatarBytes(IMAGEM_TAMANHO_MAXIMO_BYTES) },
+    { label: 'Conferencia', value: 'Arquivo validado antes de salvar' },
+    { label: 'Organizacao', value: 'Historico separado por categoria' },
   ];
 
   const { data: anexos = [], isLoading: isLoadingAttachments } = useQuery({
     queryKey: ['anexos-academia'],
     queryFn: () => apiRequest<AnexoAcademia[]>('/imagens', { method: 'GET' }, token ?? undefined),
   });
+
+  const anexosVisiveis = useMemo(() => {
+    const termo = normalizarBusca(searchTerm.trim());
+
+    return anexos.filter((attachment) => {
+      const categoriaConfere = categoryFilter === 'TODOS' || attachment.category === categoryFilter;
+      const texto = normalizarBusca([
+        attachment.originalName,
+        attachment.description ?? '',
+        categoriaLabels[attachment.category],
+      ].join(' '));
+
+      return categoriaConfere && (!termo || texto.includes(termo));
+    });
+  }, [anexos, categoryFilter, searchTerm]);
+  const filtrosAtivos = searchTerm.trim().length > 0 || categoryFilter !== 'TODOS';
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
@@ -137,7 +164,7 @@ export function ImagensPage() {
       setSelectedFile(null);
       setDescription('');
       await queryClient.invalidateQueries({ queryKey: ['anexos-academia'] });
-      toast({ variant: 'success', title: 'Anexo salvo', message: 'Arquivo validado pelo Multer e registrado no backend.' });
+      toast({ variant: 'success', title: 'Anexo salvo', message: 'Arquivo pronto para consulta no historico.' });
     },
   });
 
@@ -145,7 +172,7 @@ export function ImagensPage() {
     mutationFn: (id: string) => apiRequest<void>(`/imagens/${id}`, { method: 'DELETE' }, token ?? undefined),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['anexos-academia'] });
-      toast({ variant: 'success', title: 'Anexo removido', message: 'Registro e arquivo foram removidos do backend.' });
+      toast({ variant: 'success', title: 'Anexo removido', message: 'O historico da academia foi atualizado.' });
     },
   });
 
@@ -201,41 +228,43 @@ export function ImagensPage() {
       <PageHeader
         eyebrow="Anexos"
         title="Anexos da academia"
-        description="Envie, valide e consulte imagens e PDFs da operacao da academia."
-        action={<div className="inline-flex items-center gap-2 rounded-md border border-teal/20 bg-teal/10 px-4 py-2 text-sm font-semibold text-teal"><ShieldCheck size={16} /> Multer funcional</div>}
+        description="Organize comprovantes, avaliacoes, manutencoes e documentos internos da academia."
+        action={<div className="inline-flex items-center gap-2 rounded-md border border-teal/20 bg-teal/10 px-4 py-2 text-sm font-semibold text-teal"><ShieldCheck size={16} /> Upload validado</div>}
       />
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal">Uso recomendado</p>
-            <h2 className="mt-2 font-display text-xl font-semibold text-slateblue">O que o dono pode anexar</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">Use esta area para centralizar comprovantes, avaliacoes fisicas, manutencoes e documentos internos que ajudam na rotina da academia.</p>
+      {!isLoadingAttachments && anexos.length === 0 ? (
+        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal">Primeiros anexos</p>
+              <h2 className="mt-2 font-display text-xl font-semibold text-slateblue">Sugestoes para comecar</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">Comece guardando registros que ajudam no atendimento, financeiro e manutencao da academia.</p>
+            </div>
+            <span className="inline-flex items-center gap-2 rounded-md bg-slate-100 px-3 py-2 text-sm font-semibold text-slateblue">
+              <Paperclip size={16} />
+              Exemplos de uso
+            </span>
           </div>
-          <span className="inline-flex items-center gap-2 rounded-md bg-slate-100 px-3 py-2 text-sm font-semibold text-slateblue">
-            <Paperclip size={16} />
-            Arquivos salvos
-          </span>
-        </div>
-        <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {exemplosAnexos.map((example) => {
-            const Icon = example.icon;
-            return (
-              <article key={example.title} className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
-                <img src={example.image} alt={example.title} className="aspect-[16/10] w-full bg-white object-contain p-2" />
-                <div className="p-4">
-                  <span className="inline-flex items-center gap-1.5 rounded-md bg-teal/10 px-2.5 py-1 text-xs font-semibold text-teal">
-                    <Icon size={14} />
-                    {example.tag}
-                  </span>
-                  <h3 className="mt-3 font-display text-base font-semibold text-slateblue">{example.title}</h3>
-                  <p className="mt-2 text-sm leading-5 text-slate-500">{example.description}</p>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </section>
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {exemplosAnexos.map((example) => {
+              const Icon = example.icon;
+              return (
+                <article key={example.title} className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+                  <img src={example.image} alt={example.title} className="aspect-[16/10] w-full bg-white object-contain p-2" />
+                  <div className="p-4">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-teal/10 px-2.5 py-1 text-xs font-semibold text-teal">
+                      <Icon size={14} />
+                      {example.tag}
+                    </span>
+                    <h3 className="mt-3 font-display text-base font-semibold text-slateblue">{example.title}</h3>
+                    <p className="mt-2 text-sm leading-5 text-slate-500">{example.description}</p>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
 
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
         <form className="space-y-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6" onSubmit={(event) => void submitUpload(event)}>
@@ -244,8 +273,8 @@ export function ImagensPage() {
               <Upload size={22} />
             </span>
             <div>
-              <h2 className="font-display text-xl font-semibold text-slateblue">Novo anexo operacional</h2>
-              <p className="mt-1 text-sm leading-6 text-slate-500">O arquivo e salvo no backend, validado pelo Multer e registrado para aparecer na lista abaixo.</p>
+              <h2 className="font-display text-xl font-semibold text-slateblue">Novo anexo da academia</h2>
+              <p className="mt-1 text-sm leading-6 text-slate-500">Envie uma imagem ou PDF e mantenha o registro disponivel no historico da academia.</p>
             </div>
           </div>
 
@@ -324,7 +353,7 @@ export function ImagensPage() {
             className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-slateblue px-5 py-3 text-sm font-semibold text-white transition hover:bg-slateblue/90 disabled:cursor-not-allowed disabled:opacity-55"
           >
             <Upload size={18} />
-            {uploadMutation.isPending ? 'Enviando...' : 'Salvar anexo no backend'}
+            {uploadMutation.isPending ? 'Enviando...' : 'Salvar anexo'}
           </button>
         </form>
 
@@ -380,7 +409,7 @@ export function ImagensPage() {
               <div>
                 <h2 className="font-display text-lg font-semibold text-slateblue">Ultimo anexo salvo</h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  {lastUploaded ? 'Registro confirmado no backend.' : 'Depois do envio, o ultimo anexo salvo aparece aqui.'}
+                  {lastUploaded ? 'Anexo pronto para consulta.' : 'Depois do envio, o ultimo anexo salvo aparece aqui.'}
                 </p>
               </div>
             </div>
@@ -425,11 +454,11 @@ export function ImagensPage() {
               <ShieldCheck size={20} />
             </span>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal">Validacao</p>
-              <h2 className="mt-1 font-display text-lg font-semibold text-slateblue">Controles aplicados no upload</h2>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal">Seguranca</p>
+              <h2 className="mt-1 font-display text-lg font-semibold text-slateblue">Padroes do upload</h2>
             </div>
           </div>
-          <p className="max-w-2xl text-sm leading-6 text-slate-500">O anexo so entra no historico quando passa pelas validacoes de formato, tamanho e conteudo real.</p>
+          <p className="max-w-2xl text-sm leading-6 text-slate-500">O Shape Up aceita arquivos compatíveis e bloqueia envios fora do padrao da academia.</p>
         </div>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {controlesUpload.map((rule) => (
@@ -444,24 +473,56 @@ export function ImagensPage() {
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal">Backend</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal">Historico</p>
             <h2 className="mt-2 font-display text-xl font-semibold text-slateblue">Anexos salvos</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">Esta lista vem de GET /api/imagens, ou seja, mostra os registros salvos depois do upload.</p>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">Pesquise por nome, descricao ou filtre por categoria para encontrar rapidamente um registro da academia.</p>
           </div>
           <span className="inline-flex rounded-md bg-slate-100 px-3 py-2 text-sm font-semibold text-slateblue">
-            {anexos.length} {anexos.length === 1 ? 'registro' : 'registros'}
+            {filtrosAtivos ? `${anexosVisiveis.length} de ${anexos.length}` : anexos.length} {anexos.length === 1 ? 'registro' : 'registros'}
           </span>
         </div>
+
+        {anexos.length > 0 ? (
+          <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
+            <label className="relative block">
+              <Search className="pointer-events-none absolute left-3 top-3.5 text-slate-400" size={18} />
+              <span className="sr-only">Buscar anexos</span>
+              <input
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Buscar por arquivo, descricao ou categoria"
+                className="h-12 w-full rounded-md border border-slate-200 bg-white px-4 pl-10 text-sm text-slateblue outline-none transition placeholder:text-slate-400 focus:border-teal focus:ring-2 focus:ring-teal/15"
+              />
+            </label>
+            <label>
+              <span className="sr-only">Filtrar por categoria</span>
+              <select
+                value={categoryFilter}
+                onChange={(event) => setCategoryFilter(event.target.value as CategoriaAnexo | 'TODOS')}
+                className="h-12 w-full rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slateblue outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/15"
+              >
+                {filtrosCategoria.map((item) => (
+                  <option key={item.value} value={item.value}>{item.label}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+        ) : null}
 
         {isLoadingAttachments ? (
           <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm font-semibold text-slate-500">Carregando anexos...</div>
         ) : anexos.length === 0 ? (
           <div className="mt-5">
-            <EmptyState title="Nenhum anexo salvo" description="Envie o primeiro comprovante, avaliacao ou documento interno para criar o registro no backend." />
+            <EmptyState title="Nenhum anexo salvo" description="Envie o primeiro comprovante, avaliacao ou documento interno da academia." />
+          </div>
+        ) : anexosVisiveis.length === 0 ? (
+          <div className="mt-5 rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center">
+            <p className="font-display text-lg font-semibold text-slateblue">Nenhum anexo encontrado</p>
+            <p className="mt-2 text-sm leading-6 text-slate-500">Ajuste a busca ou escolha outra categoria para ver mais registros.</p>
           </div>
         ) : (
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {anexos.map((attachment) => {
+            {anexosVisiveis.map((attachment) => {
               const Icon = categoriaIcons[attachment.category];
               const isImage = ehImagem(attachment);
               const isPdf = ehPdf(attachment);
@@ -485,7 +546,7 @@ export function ImagensPage() {
                     ) : (
                       <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-slate-100 p-5 text-center">
                         <FileImage size={42} className="text-teal" />
-                        <span className="text-sm font-semibold text-slateblue">Arquivo salvo no backend</span>
+                        <span className="text-sm font-semibold text-slateblue">Arquivo anexado</span>
                       </div>
                     )}
                     <a href={attachment.url} target="_blank" rel="noreferrer" className="absolute inset-0" aria-label={`Abrir ${attachment.originalName}`}>
