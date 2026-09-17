@@ -1,39 +1,52 @@
-import { useEffect, useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { Aluno, IndicadoresPainel, Plano, RespostaAutenticacao, RespostaPaginada, Treino } from '@shape/shared';
-import { ActionButton } from '../components/ActionButton';
-import { MetricCard } from '../components/MetricCard';
+import { Message } from '../components/Message';
 import { apiRequest } from '../lib/api';
 import { colors, spacing } from '../theme';
+import { AlunosTab } from './dashboard/AlunosTab';
+import { ClientesTab } from './dashboard/ClientesTab';
+import { ContaTab } from './dashboard/ContaTab';
+import { PainelTab } from './dashboard/PainelTab';
+import { PlanosTab } from './dashboard/PlanosTab';
+import { TreinosTab } from './dashboard/TreinosTab';
+import type { DashboardData, DashboardTab } from './dashboard/types';
 
 type DashboardScreenProps = {
   apiUrl: string;
   session: RespostaAutenticacao;
   onLogout: () => void;
+  onSessionUpdate: (session: RespostaAutenticacao) => void;
 };
 
-type MobileData = {
-  indicators: IndicadoresPainel;
-  plans: Plano[];
-  students: Aluno[];
-  workouts: Treino[];
-};
+const tabs: Array<{ key: DashboardTab; label: string; masterOnly?: boolean }> = [
+  { key: 'painel', label: 'Painel' },
+  { key: 'clientes', label: 'Clientes', masterOnly: true },
+  { key: 'planos', label: 'Planos' },
+  { key: 'alunos', label: 'Alunos' },
+  { key: 'treinos', label: 'Treinos' },
+  { key: 'conta', label: 'Conta' },
+];
 
-export function DashboardScreen({ apiUrl, session, onLogout }: DashboardScreenProps) {
-  const [data, setData] = useState<MobileData | null>(null);
+export function DashboardScreen({ apiUrl, session, onLogout, onSessionUpdate }: DashboardScreenProps) {
+  const [activeTab, setActiveTab] = useState<DashboardTab>(session.user.mustChangePassword ? 'conta' : 'painel');
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const isMaster = session.user.perfil === 'MASTER';
+  const isAdmin = session.user.perfil === 'ADMIN' || isMaster;
+  const visibleTabs = session.user.mustChangePassword ? tabs.filter((tab) => tab.key === 'conta') : tabs.filter((tab) => !tab.masterOnly || isMaster);
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError('');
 
     try {
       const [indicators, plans, students, workouts] = await Promise.all([
         apiRequest<IndicadoresPainel>(apiUrl, '/painel/indicadores', { token: session.token }),
-        apiRequest<RespostaPaginada<Plano>>(apiUrl, '/planos?page=1&pageSize=4', { token: session.token }),
-        apiRequest<RespostaPaginada<Aluno>>(apiUrl, '/alunos?page=1&pageSize=4', { token: session.token }),
-        apiRequest<RespostaPaginada<Treino>>(apiUrl, '/treinos?page=1&pageSize=4', { token: session.token }),
+        apiRequest<RespostaPaginada<Plano>>(apiUrl, '/planos?page=1&pageSize=20', { token: session.token }),
+        apiRequest<RespostaPaginada<Aluno>>(apiUrl, '/alunos?page=1&pageSize=20', { token: session.token }),
+        apiRequest<RespostaPaginada<Treino>>(apiUrl, '/treinos?page=1&pageSize=20', { token: session.token }),
       ]);
 
       setData({
@@ -47,65 +60,80 @@ export function DashboardScreen({ apiUrl, session, onLogout }: DashboardScreenPr
     } finally {
       setLoading(false);
     }
-  }
+  }, [apiUrl, session.token]);
 
   useEffect(() => {
     void loadData();
-  }, []);
+  }, [loadData]);
 
-  const totals = data?.indicators.totals;
+  useEffect(() => {
+    if (session.user.mustChangePassword) {
+      setActiveTab('conta');
+    }
+  }, [session.user.mustChangePassword]);
+
+  function renderActiveTab() {
+    if (error) {
+      return <Message tone="danger" title="Erro ao carregar" body={error} />;
+    }
+
+    if (!data) {
+      return <Message body="Carregando dados da academia..." />;
+    }
+
+    if (activeTab === 'painel') {
+      return <PainelTab data={data} />;
+    }
+
+    if (activeTab === 'planos') {
+      return <PlanosTab apiUrl={apiUrl} data={data} isAdmin={isAdmin} onRefresh={loadData} session={session} />;
+    }
+
+    if (activeTab === 'clientes') {
+      return <ClientesTab apiUrl={apiUrl} session={session} />;
+    }
+
+    if (activeTab === 'alunos') {
+      return <AlunosTab apiUrl={apiUrl} data={data} isAdmin={isAdmin} onRefresh={loadData} session={session} />;
+    }
+
+    if (activeTab === 'treinos') {
+      return <TreinosTab apiUrl={apiUrl} data={data} isAdmin={isAdmin} onRefresh={loadData} session={session} />;
+    }
+
+    return <ContaTab apiUrl={apiUrl} onLogout={onLogout} onSessionUpdate={onSessionUpdate} session={session} />;
+  }
 
   return (
     <ScrollView
       contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
       refreshControl={<RefreshControl refreshing={loading} onRefresh={loadData} tintColor={colors.primary} />}
     >
       <View style={styles.header}>
-        <View>
-          <Text style={styles.kicker}>Shape Mobile</Text>
-          <Text style={styles.title}>Painel da academia</Text>
-          <Text style={styles.subtitle}>{session.user.name} - {session.user.perfil}</Text>
+        <View style={styles.headerCopy}>
+          <Text style={styles.kicker}>Shape Up Mobile</Text>
+          <Text style={styles.title}>Gestao da academia</Text>
+          <Text style={styles.subtitle}>{session.user.name} - {isMaster ? 'master Shape Up' : 'dono da academia'}</Text>
         </View>
-        <ActionButton variant="secondary" onPress={onLogout}>
-          Sair
-        </ActionButton>
+        <Pressable accessibilityRole="button" onPress={onLogout} style={styles.logoutButton}>
+          <Text style={styles.logoutText}>Sair</Text>
+        </Pressable>
       </View>
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-
-      <View style={styles.metrics}>
-        <MetricCard label="Alunos" value={totals?.students ?? '-'} />
-        <MetricCard label="Planos ativos" value={totals?.activePlans ?? '-'} />
-        <MetricCard label="Treinos" value={totals?.workouts ?? '-'} />
-        <MetricCard label="Novos no mes" value={totals?.newStudentsThisMonth ?? '-'} />
+      <View style={styles.tabBar}>
+        {visibleTabs.map((tab) => {
+          const active = tab.key === activeTab;
+          return (
+            <Pressable key={tab.key} accessibilityRole="tab" onPress={() => setActiveTab(tab.key)} style={[styles.tab, active && styles.tabActive]}>
+              <Text style={[styles.tabText, active && styles.tabTextActive]}>{tab.label}</Text>
+            </Pressable>
+          );
+        })}
       </View>
 
-      <Section title="Planos" items={data?.plans.map((plan) => `${plan.name} - ${plan.status}`) ?? []} />
-      <Section title="Alunos" items={data?.students.map((student) => `${student.name} - ${student.status}`) ?? []} />
-      <Section title="Treinos" items={data?.workouts.map((workout) => `${workout.title} - ${workout.level}`) ?? []} />
-
-      <View style={styles.securityBox}>
-        <Text style={styles.securityTitle}>Validacao demonstravel</Text>
-        <Text style={styles.securityText}>O app Expo consome a mesma API, exige JWT e respeita os dados do perfil autenticado.</Text>
-      </View>
+      {renderActiveTab()}
     </ScrollView>
-  );
-}
-
-function Section({ title, items }: { title: string; items: string[] }) {
-  return (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      {items.length ? (
-        items.map((item) => (
-          <Text key={item} style={styles.item}>
-            {item}
-          </Text>
-        ))
-      ) : (
-        <Text style={styles.empty}>Nenhum registro para exibir.</Text>
-      )}
-    </View>
   );
 }
 
@@ -113,84 +141,78 @@ const styles = StyleSheet.create({
   container: {
     gap: spacing.lg,
     padding: spacing.lg,
-  },
-  empty: {
-    color: colors.muted,
-    fontSize: 14,
-  },
-  error: {
-    backgroundColor: '#fee2e2',
-    borderColor: '#fecaca',
-    borderRadius: 8,
-    borderWidth: 1,
-    color: colors.danger,
-    fontSize: 14,
-    fontWeight: '700',
-    padding: spacing.md,
+    paddingBottom: spacing.xl,
   },
   header: {
     alignItems: 'flex-start',
-    flexDirection: 'row',
-    gap: spacing.md,
-    justifyContent: 'space-between',
-  },
-  item: {
-    borderTopColor: colors.border,
-    borderTopWidth: 1,
-    color: colors.text,
-    fontSize: 15,
-    paddingVertical: spacing.sm,
-  },
-  kicker: {
-    color: colors.accent,
-    fontSize: 14,
-    fontWeight: '800',
-    textTransform: 'uppercase',
-  },
-  metrics: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  section: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderRadius: 8,
     borderWidth: 1,
+    flexDirection: 'row',
+    gap: spacing.md,
+    justifyContent: 'space-between',
     padding: spacing.md,
   },
-  sectionTitle: {
-    color: colors.primaryDark,
-    fontSize: 18,
-    fontWeight: '800',
-    marginBottom: spacing.sm,
+  headerCopy: {
+    flex: 1,
   },
-  securityBox: {
-    backgroundColor: '#ecfdf5',
-    borderColor: '#a7f3d0',
+  kicker: {
+    color: colors.accent,
+    fontSize: 12,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+  },
+  logoutButton: {
+    alignItems: 'center',
+    backgroundColor: '#eef5ff',
     borderRadius: 8,
-    borderWidth: 1,
-    padding: spacing.md,
+    justifyContent: 'center',
+    minHeight: 42,
+    paddingHorizontal: spacing.md,
   },
-  securityText: {
-    color: colors.success,
+  logoutText: {
+    color: colors.primary,
     fontSize: 14,
-    lineHeight: 21,
-  },
-  securityTitle: {
-    color: colors.success,
-    fontSize: 16,
     fontWeight: '800',
-    marginBottom: spacing.xs,
   },
   subtitle: {
     color: colors.muted,
-    fontSize: 15,
+    fontSize: 14,
     marginTop: spacing.xs,
+  },
+  tab: {
+    alignItems: 'center',
+    borderRadius: 8,
+    justifyContent: 'center',
+    minHeight: 42,
+    paddingHorizontal: spacing.md,
+  },
+  tabActive: {
+    backgroundColor: colors.primaryDark,
+  },
+  tabBar: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: 8,
+    borderWidth: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+    padding: spacing.xs,
+  },
+  tabText: {
+    color: colors.text,
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  tabTextActive: {
+    color: '#ffffff',
   },
   title: {
     color: colors.primaryDark,
-    fontSize: 28,
+    fontSize: 25,
     fontWeight: '900',
+    lineHeight: 31,
   },
 });

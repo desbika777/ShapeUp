@@ -1,19 +1,22 @@
-# Pacote Final de Evidencias - Shape
+# Pacote Final de Evidencias - Shape Up
 
 ## Objetivo
 
-Centralizar o que deve ser aberto, testado, mostrado e fotografado na reta final da entrega. Na proxima execucao, o foco deve ser validar o site em `http://127.0.0.1` para evitar bloqueio de certificado no navegador e registrar evidencias visuais.
+Centralizar o que deve ser aberto, testado, mostrado e fotografado na reta final da entrega. Na proxima execucao, o foco deve ser registrar as evidencias finais em `http://127.0.0.1`, validar o Expo Go quando celular e computador estiverem na mesma rede e preparar commit/push da rodada de polimento.
 
 ## Estado Atual
 
 | Area | Status | Evidencia |
 | --- | --- | --- |
-| Branch GitHub | Base sincronizada antes da auditoria; nova etapa deve ser commitada apos validacao | `feature/documentacao-rubrica` |
+| Branch GitHub | Sincronizada com o remoto antes desta revisao documental | `feature/documentacao-rubrica` no commit `385095c` |
+| Alinhamento da rubrica | Concluido em base documental | `docs/roadmap-rubrica.md` e `docs/checklist-rubrica-apresentacao.md` |
 | Upload Multer | Concluido | Tela `/imagens`, endpoint `POST /api/imagens`, validacoes e E2E |
 | Refatoracao final | Concluida | `shared`, helper HTTP, app Expo e validadores reutilizados |
-| Auditoria NPM | Revisada e validada | `docs/auditoria-dependencias.md` |
+| Auditoria NPM | Revisada e atualizada | `docs/auditoria-dependencias.md`; 14 vulnerabilidades residuais sem criticas/baixas |
 | Roteiro final | Concluido | `docs/roteiro-final-apresentacao.md` |
-| Expo Go fisico | Pendente controlado | Base tecnica pronta, sem print de celular ainda |
+| Guia operacional | Concluido | `docs/guia-comandos-dia-a-dia.md` orienta web, Expo, testes e commit/push |
+| QA visual do site | Terceira rodada parcial controlada | Layout, autenticacao, painel, listagens, upload, gestores, perfil, formularios internos e responsividade mobile revisados; falta coleta final dos prints oficiais |
+| Expo Go fisico | Validado em base tecnica | Projeto abriu no celular em 14/09/2026; app Expo foi ampliado com abas e CRUDs de planos, alunos e treinos; script LAN criado em 15/09/2026; falta print final quando houver mesma rede |
 
 ## Comandos Para Preparar o Ambiente
 
@@ -34,8 +37,9 @@ docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml -f docker-com
 
 | Perfil | E-mail | Senha | Uso na demonstracao |
 | --- | --- | --- | --- |
-| Administrador | `admin@shape.com.br` | `Shape@123` | Criar, editar, excluir e enviar imagem |
-| Usuario operacional | `usuario@shape.com.br` | `Usuario@123` | Demonstrar acesso limitado e bloqueio de rotas administrativas |
+| Gestor administrador | `admin@shape.com.br` | `Shape@123` | Gerenciar planos, alunos, treinos, imagens, painel e acessos de gestores |
+
+Observacao para a banca: aluno nao faz login nesta versao. O aluno e um cadastro da academia, e o portal/app do aluno fica como evolucao futura.
 
 ## Roteiro de Teste Dentro do Site
 
@@ -61,9 +65,8 @@ docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml -f docker-com
 9. Abrir `/treinos` e criar treino vinculado ao aluno de teste.
 10. Abrir `/imagens`, enviar uma imagem PNG/JPG valida e conferir URL/metadados.
 11. Tentar enviar um arquivo invalido para demonstrar rejeicao de seguranca.
-12. Sair e entrar como `usuario@shape.com.br`.
-13. Confirmar que a area administrativa nao permite criar/editar/excluir nem acessar `/imagens`.
-14. Voltar ao administrador e remover registros de teste, se necessario.
+12. Abrir `/usuarios` e confirmar que a tela fala em gestores administrativos, sem prometer outro tipo de acesso nesta versao.
+13. Remover registros de teste, se necessario.
 
 ## Prints Recomendados
 
@@ -77,7 +80,7 @@ docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml -f docker-com
 | Formulario de treino vinculado a aluno | R-03, R-04 |
 | Tela `/imagens` com upload realizado | R-12, R-13 |
 | Erro ao enviar arquivo invalido | R-05, R-13 |
-| Usuario operacional bloqueado em acao admin | R-14 |
+| Tela de gestores com acesso administrativo unico | R-14 |
 | Terminal com `npm run e2e` passando | R-05 |
 | Roadmap oficial aberto | R-08 e rastreabilidade geral |
 
@@ -86,6 +89,8 @@ docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml -f docker-com
 | Arquivo | Finalidade |
 | --- | --- |
 | `docs/roadmap-rubrica.md` | Fonte oficial de status por item da rubrica |
+| `docs/checklist-rubrica-apresentacao.md` | Defesa objetiva de cada criterio da rubrica |
+| `docs/checklist-qa-interface.md` | Guia da proxima auditoria visual e de codigo |
 | `docs/requisitos.md` | RFs/RNFs e status implementado/planejado |
 | `docs/modelagem-der.md` | DER e modelagem do banco |
 | `docs/diagramas-uml.md` | Casos de uso, atividades e sequencias |
@@ -97,27 +102,31 @@ docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml -f docker-com
 
 | Pendencia | Como tratar |
 | --- | --- |
-| Expo Go em celular fisico | Validar quando houver aparelho/rede disponivel e anexar print ao R-05 |
+| Prints finais do site | Abrir `http://127.0.0.1`, seguir `docs/checklist-qa-interface.md` e registrar as telas-chave para a apresentacao |
+| Expo Go em celular fisico | Acesso inicial ja validado; usar `npm run dev:mobile:lan` e anexar print final das abas operacionais ao R-05 quando houver mesma rede |
 | Vulnerabilidades residuais de Prisma/Expo | Manter justificativa em `docs/auditoria-dependencias.md`; nao usar `npm audit fix --force` antes da entrega |
 | Criterios NSA da rubrica | Confirmar com o professor ou manter justificativa de item nao verificavel |
 
 ## Pronto Para a Proxima Execucao
 
-Na proxima execucao, iniciar direto pelo site:
+Na proxima execucao, iniciar direto pela coleta e conferencia final:
 
 1. Subir Docker se necessario.
 2. Abrir `http://127.0.0.1`.
-3. Executar o roteiro manual acima.
-4. Registrar prints.
-5. Atualizar R-05 no roadmap se as evidencias forem coletadas.
+3. Registrar prints finais das telas principais do site.
+4. Validar as abas novas no Expo Go quando houver mesma rede.
+5. Rodar validacoes finais.
+6. Revisar diff e remover artefatos temporarios.
+7. Preparar commit/push da rodada de polimento.
 
 ## Ultima Validacao Tecnica
 
-Em 10/09/2026, depois da auditoria NPM, passaram:
+Em 15/09/2026, depois da auditoria NPM, da evolucao do Expo e da terceira rodada visual do site, passaram:
 
 - `npm run lint`;
 - `npm run test`;
 - `npm run build`;
 - `npm run lint:mobile`;
 - `npm run e2e`;
-- `npx expo install --check`.
+- `npm exec --workspace mobile -- expo install --check`;
+- `npm exec --workspace mobile -- expo export --platform ios --output-dir ..\tmp\expo-export-mobile`.

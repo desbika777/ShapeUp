@@ -4,7 +4,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import type { RespostaPaginada, Plano, Aluno, EntradaAluno } from '@shape/shared';
+import { AtSign, CalendarDays, IdCard, Phone, Target, UserRound } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { FormActions, FormCard, GuidanceCard } from '@/components/ui/form-layout';
 import { FormField, inputClassName } from '@/components/ui/form-field';
 import { PageHeader } from '@/components/ui/page-header';
 import { QueryState } from '@/components/ui/query-state';
@@ -74,33 +76,43 @@ export function FormularioAlunoPage() {
         isError={isEdit && isError}
         error={error}
         onRetry={() => void refetch()}
-        loadingFallback={<div className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel">Carregando aluno...</div>}
+        loadingFallback={<div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">Carregando aluno...</div>}
       >
         {/* Formulario validado por Zod antes do envio para /alunos. */}
-        <form
-          className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel"
-          onSubmit={form.handleSubmit(async (values) => {
-            try {
-              await mutation.mutateAsync(values);
-            } catch (err) {
-              toast({ variant: 'error', title: 'Falha ao salvar', message: err instanceof Error ? err.message : 'Nao foi possivel salvar agora.' });
-            }
-          })}
-        >
-          <div className="grid gap-5 md:grid-cols-2">
-            <div className="md:col-span-2"><FormField label="Nome" error={form.formState.errors.name?.message}><input className={inputClassName(!!form.formState.errors.name)} {...form.register('name')} /></FormField></div>
-            <FormField label="E-mail" error={form.formState.errors.email?.message}><input className={inputClassName(!!form.formState.errors.email)} {...form.register('email')} /></FormField>
-            <FormField label="CPF" error={form.formState.errors.cpf?.message}><input className={inputClassName(!!form.formState.errors.cpf)} value={form.watch('cpf')} onChange={(event) => form.setValue('cpf', formatCpf(event.target.value), { shouldValidate: true })} /></FormField>
-            <FormField label="Telefone" error={form.formState.errors.phone?.message}><input className={inputClassName(!!form.formState.errors.phone)} {...form.register('phone')} /></FormField>
-            <FormField label="Nascimento" error={form.formState.errors.birthDate?.message}><input type="date" className={inputClassName(!!form.formState.errors.birthDate)} {...form.register('birthDate')} /></FormField>
-            <div className="md:col-span-2"><FormField label="Objetivo" error={form.formState.errors.goal?.message}><textarea rows={4} className={inputClassName(!!form.formState.errors.goal)} {...form.register('goal')} /></FormField></div>
-            <FormField label="Plano" error={form.formState.errors.planId?.message}><select className={inputClassName(!!form.formState.errors.planId)} {...form.register('planId')}><option value="">Selecione</option>{plans?.data.map((plan) => <option key={plan.id} value={plan.id}>{plan.name}</option>)}</select></FormField>
-            <FormField label="Status" error={form.formState.errors.status?.message}><select className={inputClassName(!!form.formState.errors.status)} {...form.register('status')}><option value="ATIVO">Ativo</option><option value="INATIVO">Inativo</option></select></FormField>
-          </div>
-          <button disabled={mutation.isPending || form.formState.isSubmitting} className="mt-6 rounded-full bg-slateblue px-5 py-3 font-semibold text-white disabled:opacity-60">
-            {mutation.isPending ? 'Salvando...' : 'Salvar aluno'}
-          </button>
-        </form>
+        <div className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
+          <GuidanceCard
+            icon={UserRound}
+            eyebrow="Cadastro do aluno"
+            title="Dados completos melhoram atendimento e acompanhamento"
+            description="Este fluxo comprova o CRUD principal do projeto e o vinculo entre aluno, plano, status e objetivo."
+            items={[
+              'CPF e e-mail sao validados antes da gravacao.',
+              'O aluno precisa estar vinculado a um plano para alimentar indicadores reais.',
+              'O objetivo ajuda a contextualizar treinos e demonstrar valor para a persona da academia.',
+            ]}
+          />
+          <FormCard
+            onSubmit={form.handleSubmit(async (values) => {
+              try {
+                await mutation.mutateAsync(values);
+              } catch (err) {
+                toast({ variant: 'error', title: 'Falha ao salvar', message: err instanceof Error ? err.message : 'Nao foi possivel salvar agora.' });
+              }
+            })}
+          >
+            <div className="grid gap-5 md:grid-cols-2">
+              <div className="md:col-span-2"><FormField label="Nome completo" error={form.formState.errors.name?.message}><div className="relative"><UserRound className="pointer-events-none absolute left-3 top-3.5 text-slate-400" size={18} /><input className={`${inputClassName(!!form.formState.errors.name)} pl-10`} placeholder="Ex.: Mariana Alves" {...form.register('name')} /></div></FormField></div>
+              <FormField label="E-mail" error={form.formState.errors.email?.message}><div className="relative"><AtSign className="pointer-events-none absolute left-3 top-3.5 text-slate-400" size={18} /><input className={`${inputClassName(!!form.formState.errors.email)} pl-10`} placeholder="aluno@email.com" {...form.register('email')} /></div></FormField>
+              <FormField label="CPF" error={form.formState.errors.cpf?.message}><div className="relative"><IdCard className="pointer-events-none absolute left-3 top-3.5 text-slate-400" size={18} /><input className={`${inputClassName(!!form.formState.errors.cpf)} pl-10`} placeholder="000.000.000-00" value={form.watch('cpf')} onChange={(event) => form.setValue('cpf', formatCpf(event.target.value), { shouldValidate: true })} /></div></FormField>
+              <FormField label="Telefone" error={form.formState.errors.phone?.message}><div className="relative"><Phone className="pointer-events-none absolute left-3 top-3.5 text-slate-400" size={18} /><input className={`${inputClassName(!!form.formState.errors.phone)} pl-10`} placeholder="11999998888" {...form.register('phone')} /></div></FormField>
+              <FormField label="Nascimento" error={form.formState.errors.birthDate?.message}><div className="relative"><CalendarDays className="pointer-events-none absolute left-3 top-3.5 text-slate-400" size={18} /><input type="date" className={`${inputClassName(!!form.formState.errors.birthDate)} pl-10`} {...form.register('birthDate')} /></div></FormField>
+              <div className="md:col-span-2"><FormField label="Objetivo principal" error={form.formState.errors.goal?.message}><div className="relative"><Target className="pointer-events-none absolute left-3 top-3.5 text-slate-400" size={18} /><textarea rows={4} className={`${inputClassName(!!form.formState.errors.goal)} pl-10`} placeholder="Ex.: Ganho de massa, condicionamento ou emagrecimento." {...form.register('goal')} /></div></FormField></div>
+              <FormField label="Plano vinculado" error={form.formState.errors.planId?.message}><select className={inputClassName(!!form.formState.errors.planId)} {...form.register('planId')}><option value="">Selecione um plano</option>{plans?.data.map((plan) => <option key={plan.id} value={plan.id}>{plan.name}</option>)}</select></FormField>
+              <FormField label="Status" error={form.formState.errors.status?.message}><select className={inputClassName(!!form.formState.errors.status)} {...form.register('status')}><option value="ATIVO">Ativo</option><option value="INATIVO">Inativo</option></select></FormField>
+            </div>
+            <FormActions backTo="/alunos" isSubmitting={mutation.isPending || form.formState.isSubmitting} submitLabel="Salvar aluno" />
+          </FormCard>
+        </div>
       </QueryState>
     </div>
   );

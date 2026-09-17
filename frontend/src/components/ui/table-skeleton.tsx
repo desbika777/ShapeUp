@@ -6,7 +6,7 @@ type TableSkeletonProps = {
 
 export function TableSkeleton({ columns = 6, rows = 6 }: TableSkeletonProps) {
   return (
-    <div className="overflow-hidden rounded-[28px] border border-white/70 bg-white shadow-panel">
+    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
       <div className="animate-pulse">
         <div className="grid gap-3 border-b border-slate-100 bg-slate-50 px-6 py-4" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
           {Array.from({ length: columns }).map((_, index) => (

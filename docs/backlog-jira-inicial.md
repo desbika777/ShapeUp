@@ -1,8 +1,8 @@
-# Backlog Inicial Para Jira - Shape
+# Backlog Inicial Para Jira - Shape Up
 
 ## Objetivo
 
-Este documento organiza uma proposta inicial de backlog para ser cadastrada no Jira. Ele foi criado com base na rubrica, nos requisitos, nas regras de negocio e na modelagem inicial do Shape.
+Este documento organiza uma proposta inicial de backlog para ser cadastrada no Jira. Ele foi criado com base na rubrica, nos requisitos, nas regras de negocio e na modelagem inicial do Shape Up.
 
 ## Fluxo Sugerido No Jira
 
@@ -120,7 +120,7 @@ Entregas:
 
 #### US-001 - Contextualizar o problema
 
-Como integrante da equipe, quero documentar o problema que o Shape resolve, para justificar a proposta do projeto.
+Como integrante da equipe, quero documentar o problema que o Shape Up resolve, para justificar a proposta do projeto.
 
 Criterios de aceite:
 
@@ -153,7 +153,7 @@ Criterios de aceite:
 
 #### US-004 - Criar DER com 20+ tabelas
 
-Como integrante da equipe, quero criar o DER do Shape, para representar o banco de dados do sistema.
+Como integrante da equipe, quero criar o DER do Shape Up, para representar o banco de dados do sistema.
 
 Criterios de aceite:
 

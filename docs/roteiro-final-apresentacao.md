@@ -1,4 +1,4 @@
-# Roteiro Final de Apresentacao - Shape
+# Roteiro Final de Apresentacao - Shape Up
 
 ## Objetivo
 
@@ -6,9 +6,9 @@ Este roteiro organiza a apresentacao final para cobrir a rubrica sem depender de
 
 ## Abertura
 
-1. Apresentar o Shape como sistema de gestao para academias.
+1. Apresentar o Shape Up como sistema de gestao para academias.
 2. Explicar o problema: dados espalhados em planilhas, papel, aplicativos de mensagem e sistemas isolados.
-3. Conectar o produto as personas: gestor, recepcao e professor.
+3. Conectar o produto a persona principal: dono ou gestor da academia que precisa organizar a operacao.
 4. Mostrar que o projeto evoluiu de uma ideia inicial para uma arquitetura com web, mobile Expo, API, banco, Docker e documentacao.
 
 ## Engenharia e Analise
@@ -30,26 +30,27 @@ Este roteiro organiza a apresentacao final para cobrir a rubrica sem depender de
 ## Demonstracao Web
 
 1. Abrir `http://127.0.0.1` para teste manual sem erro de certificado, ou `https://localhost` se o certificado local estiver confiavel.
-2. Entrar com `admin@shape.com.br` e senha `Shape@123`.
-3. Mostrar o painel de desempenho.
-4. Mostrar CRUD de planos: listar, criar ou editar.
-5. Mostrar CRUD de alunos vinculado a plano.
-6. Mostrar CRUD de treinos vinculado a aluno.
-7. Mostrar tela `/imagens`.
-8. Enviar imagem valida e explicar Multer, extensao, MIME type, assinatura real, limite de 2 MB e nome unico.
-9. Tentar arquivo invalido para demonstrar validação.
-10. Entrar com `usuario@shape.com.br` e senha `Usuario@123`.
-11. Demonstrar bloqueio de acao administrativa.
+2. Entrar com `admin@shape.com.br` e senha `Shape@123` para mostrar a conta master Shape Up.
+3. Abrir `/usuarios` como tela de Clientes e explicar que o master cria uma conta por academia vendida.
+4. Entrar com `gestor@shapeup.com.br` e senha `Shape@123` para mostrar a conta cliente.
+5. Mostrar o painel de desempenho da academia.
+6. Mostrar CRUD de planos: listar, criar ou editar.
+7. Mostrar CRUD de alunos vinculado a plano.
+8. Mostrar CRUD de treinos vinculado a aluno.
+9. Mostrar tela `/imagens`.
+10. Enviar imagem valida e explicar Multer, extensao, MIME type, assinatura real, limite de 2 MB e nome unico.
+11. Tentar arquivo invalido para demonstrar validação.
 
 ## Demonstracao Mobile Expo
 
 1. Subir a stack com `docker-compose.expo.yml`.
-2. Descobrir o IPv4 da maquina.
-3. Iniciar `npm run dev:mobile` com `EXPO_PUBLIC_API_URL`.
-4. Abrir o Expo Go no celular e escanear o QR Code.
-5. Fazer login.
-6. Mostrar painel mobile com indicadores, planos, alunos e treinos.
-7. Registrar print da tela de login e do painel carregado para evidência final.
+2. Iniciar `npm run dev:mobile:lan`; o script detecta o IPv4 e configura a URL da API.
+3. Se o Expo Go nao encontrar o projeto pela rede local, tentar `npm run dev:mobile:tunnel`.
+4. Abrir o Expo Go no celular e escanear o QR Code ou tocar em `Shape Up Mobile`.
+5. Fazer login com `gestor@shapeup.com.br`.
+6. Mostrar painel mobile, abas de planos, alunos e treinos.
+7. Demonstrar que o gestor possui acoes de criacao/edicao/exclusao no app.
+8. Registrar print da tela de login, painel carregado e uma aba operacional para evidência final.
 
 ## Fechamento Pela Rubrica
 
@@ -58,13 +59,13 @@ Este roteiro organiza a apresentacao final para cobrir a rubrica sem depender de
 | Arquitetura e padronizacao | Workspaces `frontend`, `mobile`, `backend`, `shared`, Docker e Nginx |
 | Componentizacao e clean code | Componentes web/mobile, services, repositories e validadores compartilhados |
 | CRUD app x API x banco | Planos, alunos e treinos com frontend, API e MySQL |
-| Regra de negocio | CPF, e-mail, senha, permissoes, vinculos, datas e upload |
+| Regra de negocio | CPF, e-mail, senha, acesso administrativo, vinculos, datas e upload |
 | Validacao e seguranca | Testes, JWT, bcrypt, CORS, Nginx HTTPS, upload validado e Expo |
 | Auditoria de dependencias | `docs/auditoria-dependencias.md`, correcoes pontuais e justificativa dos riscos residuais |
 | Evolucao do produto | Roadmap, requisitos, DER, UML, Jira e commits |
 | Multer | `POST /api/imagens` e arquivos em `/uploads/imagens` |
 | Validacao de imagens | Extensao, MIME type, assinatura real, tamanho e UUID |
-| Admin e usuario | `exigirPerfil`, `AdminRoute`, seed e demonstracao com dois perfis |
+| Acesso administrativo | Auto cadastro publico bloqueado; master Shape Up cria clientes; cliente administra apenas a propria academia; alunos sao entidades gerenciadas e acesso de aluno e evolucao futura |
 
 ## Checklist Antes de Apresentar
 
@@ -73,8 +74,11 @@ Este roteiro organiza a apresentacao final para cobrir a rubrica sem depender de
 - Rodar `npm run build`.
 - Rodar `npm run lint:mobile`.
 - Rodar `npm run e2e`.
+- Rodar `npm exec --workspace mobile -- expo install --check`.
+- Rodar `npm exec --workspace mobile -- expo export --platform ios --output-dir ..\tmp\expo-export-mobile`.
 - Confirmar Docker com `docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml -f docker-compose.expo.yml ps`.
 - Abrir `http://127.0.0.1/health`.
+- Abrir `http://SEU_IP_DA_MAQUINA:3333/health` no navegador do celular.
 - Abrir `https://localhost/health`.
 - Abrir `docs/pacote-final-evidencias.md`.
 - Abrir o Expo Go no celular e tirar prints.

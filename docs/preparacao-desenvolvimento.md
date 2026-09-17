@@ -1,8 +1,8 @@
-# Preparacao Para Desenvolvimento - Shape
+# Preparacao Para Desenvolvimento - Shape Up
 
 ## Objetivo
 
-Este documento organiza o que precisa estar pronto antes de iniciar o desenvolvimento do corpo principal do projeto Shape, usando a rubrica do 4o periodo como guia.
+Este documento organiza o que precisa estar pronto antes de iniciar o desenvolvimento do corpo principal do projeto Shape Up, usando a rubrica do 4o periodo como guia.
 
 ## Estado Atual Verificado
 
@@ -96,7 +96,7 @@ No primeiro momento, podemos evoluir modelagem e codigo sem o DBeaver aberto. El
 
 ### 1. Centralizar Documentacao e Codigo
 
-Como vamos evoluir a copia limpa do SHAPEUP antigo, a documentacao do Shape deve ficar dentro da pasta real do projeto:
+Como vamos evoluir a copia limpa do SHAPEUP antigo, a documentacao do Shape Up deve ficar dentro da pasta real do projeto:
 
 `C:\Users\enzog\Desktop\ShapeUP_GitHub_20260623-172713\docs`
 

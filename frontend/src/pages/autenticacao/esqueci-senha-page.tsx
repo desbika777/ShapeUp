@@ -37,14 +37,14 @@ export function EsqueciSenhaPage() {
   return (
     <LayoutAutenticacao>
       {/* Mensagem generica evita revelar se o e-mail existe no sistema. */}
-      <p className="text-xs font-semibold uppercase tracking-[0.32em] text-teal">Recuperacao de acesso</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Recuperacao de acesso</p>
       <h2 className="mt-4 font-display text-4xl font-semibold text-slateblue">Redefinir senha</h2>
       <p className="mt-3 text-sm text-slate-500">Informe o e-mail da conta para receber o link seguro de redefinicao.</p>
       <form className="mt-8 space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
         <FormField label="E-mail" error={form.formState.errors.email?.message}>
           <input className={inputClassName(!!form.formState.errors.email)} {...form.register('email')} />
         </FormField>
-        <button disabled={form.formState.isSubmitting} className="w-full rounded-full bg-slateblue px-5 py-3 font-semibold text-white transition hover:translate-y-[-1px] disabled:opacity-60">
+        <button disabled={form.formState.isSubmitting} className="w-full rounded-md bg-slateblue px-5 py-3 font-semibold text-white transition hover:bg-slateblue/90 disabled:opacity-60">
           {form.formState.isSubmitting ? 'Enviando link...' : 'Enviar link de redefinicao'}
         </button>
       </form>

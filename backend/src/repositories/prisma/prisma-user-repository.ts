@@ -8,12 +8,14 @@ function mapearUsuario(record: {
   name: string;
   email: string;
   passwordHash: string;
+  mustChangePassword: boolean;
   cpf: string;
   createdAt: Date;
   updatedAt: Date;
   perfis?: Array<{ perfil: { name: string } }>;
 }): RegistroUsuario {
-  const perfil = record.perfis?.some((item) => item.perfil.name === 'ADMIN') ? 'ADMIN' : 'USUARIO';
+  const roleNames = record.perfis?.map((item) => item.perfil.name) ?? [];
+  const perfil: PerfilAcesso = roleNames.includes('MASTER') ? 'MASTER' : 'ADMIN';
 
   // Padroniza datas como string ISO para o service e o frontend.
   return {
@@ -21,6 +23,7 @@ function mapearUsuario(record: {
     name: record.name,
     email: record.email,
     passwordHash: record.passwordHash,
+    mustChangePassword: record.mustChangePassword,
     cpf: record.cpf,
     perfil,
     createdAt: record.createdAt.toISOString(),
@@ -48,7 +51,7 @@ function mapearTokenRecuperacaoSenha(record: {
 }
 
 export class RepositorioPrismaUsuario implements IRepositorioUsuario {
-  async create(input: { name: string; email: string; passwordHash: string; cpf: string; perfil: PerfilAcesso }) {
+  async create(input: { name: string; email: string; passwordHash: string; cpf: string; perfil: PerfilAcesso; mustChangePassword?: boolean }) {
     // Cria usuario ja com senha protegida por hash recebido do service.
     const { perfil, ...userData } = input;
     const created = await prisma.usuario.create({
@@ -61,7 +64,7 @@ export class RepositorioPrismaUsuario implements IRepositorioUsuario {
                 where: { name: perfil },
                 create: {
                   name: perfil,
-                  description: perfil === 'ADMIN' ? 'Acesso administrativo completo.' : 'Acesso operacional limitado.',
+                  description: 'Acesso administrativo completo.',
                 },
               },
             },
@@ -99,13 +102,27 @@ export class RepositorioPrismaUsuario implements IRepositorioUsuario {
     return user ? mapearUsuario(user) : null;
   }
 
-  async update(id: string, input: { name: string; passwordHash: string; cpf: string }) {
+  async update(id: string, input: { name: string; passwordHash: string; cpf: string; mustChangePassword?: boolean }) {
     const updated = await prisma.usuario.update({
       where: { id },
       data: input,
       include: { perfis: { include: { perfil: true } } },
     });
     return mapearUsuario(updated);
+  }
+
+  async delete(id: string) {
+    await prisma.$transaction(async (tx) => {
+      await tx.treino.deleteMany({ where: { ownerId: id } });
+      await tx.aluno.deleteMany({ where: { ownerId: id } });
+      await tx.plano.deleteMany({ where: { ownerId: id } });
+      await tx.anexoAcademia.deleteMany({ where: { ownerId: id } });
+      await tx.tokenRecuperacaoSenha.deleteMany({ where: { userId: id } });
+      await tx.usuarioPerfil.deleteMany({ where: { userId: id } });
+      await tx.notificacao.updateMany({ where: { userId: id }, data: { userId: null } });
+      await tx.logAuditoria.updateMany({ where: { userId: id }, data: { userId: null } });
+      await tx.usuario.delete({ where: { id } });
+    });
   }
 
   async criarTokenRecuperacaoSenha(input: { userId: string; tokenHash: string; expiresAt: Date }) {

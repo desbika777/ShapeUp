@@ -1,8 +1,8 @@
-# Regras de Negocio - Shape
+# Regras de Negocio - Shape Up
 
 ## Objetivo
 
-Este documento descreve regras de negocio iniciais do Shape. Elas devem orientar validacoes, services, banco de dados, testes e apresentacao dos fluxos principais.
+Este documento descreve regras de negocio iniciais do Shape Up. Elas devem orientar validacoes, services, banco de dados, testes e apresentacao dos fluxos principais.
 
 ## Usuarios, Perfis e Acesso
 

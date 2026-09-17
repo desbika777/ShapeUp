@@ -28,7 +28,7 @@ export const loginSchema = z.object({
   password: z.string().min(1),
 });
 
-export const registerSchema = z.object({
+export const managerAccessSchema = z.object({
   name: z.string().min(3),
   email: z.string().min(1),
   password: z.string().min(8),
@@ -36,8 +36,8 @@ export const registerSchema = z.object({
   cpf: z.string().min(11),
 });
 
-export const createUserSchema = registerSchema.extend({
-  perfil: z.enum(['ADMIN', 'USUARIO']),
+export const createUserSchema = managerAccessSchema.extend({
+  perfil: z.enum(['ADMIN', 'MASTER']).optional(),
 });
 
 export const updateUserSchema = z.object({
@@ -56,6 +56,11 @@ export const resetPasswordSchema = z.object({
   token: z.string().min(1),
   password: z.string().min(8),
   confirmPassword: z.string().min(8),
+});
+
+export const attachmentSchema = z.object({
+  category: z.enum(['COMPROVANTE', 'AVALIACAO', 'MANUTENCAO', 'DOCUMENTO', 'OUTRO']).default('OUTRO'),
+  description: z.string().max(180).optional(),
 });
 
 export const planSchema = z.object({

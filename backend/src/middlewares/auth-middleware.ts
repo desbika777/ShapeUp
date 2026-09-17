@@ -23,7 +23,7 @@ export function middlewareAutenticacao(request: RequisicaoAutenticada, response:
     // O subject do token guarda o id do usuario autenticado.
     const payload = jwt.verify(token, env.JWT_SECRET) as { sub: string; perfil?: PerfilAcesso };
     request.userId = payload.sub;
-    request.perfil = payload.perfil ?? 'USUARIO';
+    request.perfil = payload.perfil ?? 'ADMIN';
     return next();
   } catch {
     return response.status(401).json({ message: 'Token invalido ou expirado.' });

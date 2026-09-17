@@ -2,16 +2,18 @@
 // Validam regras de negocio sem depender do MySQL.
 import { existsSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
+import bcrypt from 'bcrypt';
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { IMAGEM_TAMANHO_MAXIMO_BYTES } from '@shape/shared';
-import type { IndicadoresPainel, RespostaPaginada, Plano, EntradaPlano, Aluno, EntradaAluno, Treino, EntradaTreino, PerfilAcesso } from '@shape/shared';
+import type { IndicadoresPainel, RespostaPaginada, Plano, EntradaPlano, Aluno, EntradaAluno, Treino, EntradaTreino, PerfilAcesso, AnexoAcademia, EntradaAnexo } from '@shape/shared';
 import { createApp } from '../src/app.js';
 import type {
   IRepositorioPlano,
   IRepositorioAluno,
   IRepositorioUsuario,
   IRepositorioTreino,
+  IRepositorioAnexo,
   ParametrosPaginacao,
   RegistroTokenRecuperacaoSenha,
   ParametrosListagemPlanos,
@@ -38,6 +40,7 @@ function paginate<T>(items: T[], params: ParametrosPaginacao): RespostaPaginada<
 type PlanoComDono = Plano & { ownerId: string };
 type AlunoComDono = Aluno & { ownerId: string };
 type TreinoComDono = Treino & { ownerId: string };
+type AnexoComDono = AnexoAcademia & { ownerId: string };
 
 const PNG_1X1_TRANSPARENTE = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=',
@@ -57,8 +60,8 @@ class RepositorioMemoriaUsuario implements IRepositorioUsuario {
   users: RegistroUsuario[] = [];
   passwordResetTokens: RegistroTokenRecuperacaoSenha[] = [];
 
-  async create(input: { name: string; email: string; passwordHash: string; cpf: string; perfil: PerfilAcesso }) {
-    const user = { id: crypto.randomUUID(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), ...input };
+  async create(input: { name: string; email: string; passwordHash: string; cpf: string; perfil: PerfilAcesso; mustChangePassword?: boolean }) {
+    const user = { id: crypto.randomUUID(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), mustChangePassword: false, ...input };
     this.users.push(user);
     return user;
   }
@@ -68,13 +71,18 @@ class RepositorioMemoriaUsuario implements IRepositorioUsuario {
   async findByEmail(email: string) { return this.users.find((user) => user.email === email) ?? null; }
   async findByCpf(cpf: string) { return this.users.find((user) => user.cpf === cpf) ?? null; }
   async findById(id: string) { return this.users.find((user) => user.id === id) ?? null; }
-  async update(id: string, input: { name: string; passwordHash: string; cpf: string }) {
+  async update(id: string, input: { name: string; passwordHash: string; cpf: string; mustChangePassword?: boolean }) {
     const user = this.users.find((item) => item.id === id)!;
     user.name = input.name;
     user.passwordHash = input.passwordHash;
     user.cpf = input.cpf;
+    user.mustChangePassword = input.mustChangePassword ?? user.mustChangePassword;
     user.updatedAt = new Date().toISOString();
     return user;
+  }
+  async delete(id: string) {
+    this.users = this.users.filter((user) => user.id !== id);
+    this.passwordResetTokens = this.passwordResetTokens.filter((token) => token.userId !== id);
   }
   async criarTokenRecuperacaoSenha(input: { userId: string; tokenHash: string; expiresAt: Date }) {
     const token = {
@@ -108,6 +116,45 @@ class ServicoEmailMemoria implements IServicoEmail {
 
   async send(message: MensagemEmail) {
     this.messages.push(message);
+  }
+}
+
+class RepositorioMemoriaAnexo implements IRepositorioAnexo {
+  // Simula anexos salvos pelo Multer e vinculados ao dono autenticado.
+  attachments: AnexoComDono[] = [];
+
+  async list(ownerId: string) {
+    return this.attachments.filter((attachment) => attachment.ownerId === ownerId);
+  }
+
+  async create(ownerId: string, input: EntradaAnexo & Omit<AnexoAcademia, 'id' | 'category' | 'description' | 'url' | 'uploadedAt' | 'createdAt' | 'updatedAt'>) {
+    const now = new Date().toISOString();
+    const attachment: AnexoComDono = {
+      id: crypto.randomUUID(),
+      ownerId,
+      category: input.category,
+      description: input.description?.trim() || null,
+      originalName: input.originalName,
+      fileName: input.fileName,
+      mimeType: input.mimeType,
+      size: input.size,
+      extension: input.extension,
+      relativePath: input.relativePath,
+      url: input.relativePath,
+      uploadedAt: now,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.attachments.unshift(attachment);
+    return attachment;
+  }
+
+  async findById(ownerId: string, id: string) {
+    return this.attachments.find((attachment) => attachment.ownerId === ownerId && attachment.id === id) ?? null;
+  }
+
+  async delete(ownerId: string, id: string) {
+    this.attachments = this.attachments.filter((attachment) => attachment.ownerId !== ownerId || attachment.id !== id);
   }
 }
 
@@ -229,12 +276,13 @@ class RepositorioMemoriaTreino implements IRepositorioTreino {
   }
 }
 
-describe('Shape API', () => {
+describe('Shape Up API', () => {
   // Cada teste recebe dependencias novas para evitar vazamento de estado.
   let userRepository: RepositorioMemoriaUsuario;
   let planRepository: RepositorioMemoriaPlano;
   let studentRepository: RepositorioMemoriaAluno;
   let workoutRepository: RepositorioMemoriaTreino;
+  let attachmentRepository: RepositorioMemoriaAnexo;
   let mailService: ServicoEmailMemoria;
   let app: ReturnType<typeof createApp>;
 
@@ -243,11 +291,31 @@ describe('Shape API', () => {
     planRepository = new RepositorioMemoriaPlano();
     studentRepository = new RepositorioMemoriaAluno();
     workoutRepository = new RepositorioMemoriaTreino();
+    attachmentRepository = new RepositorioMemoriaAnexo();
     mailService = new ServicoEmailMemoria();
-    app = createApp({ userRepository, planRepository, studentRepository, workoutRepository, mailService });
+    app = createApp({ userRepository, planRepository, studentRepository, workoutRepository, attachmentRepository, mailService });
   });
 
-  it('cadastra usuario e retorna JWT', async () => {
+  async function criarSessaoGestor(overrides: Partial<{ name: string; email: string; cpf: string; password: string; perfil: PerfilAcesso }> = {}) {
+    const password = overrides.password ?? 'Shape@123';
+    const user = await userRepository.create({
+      name: overrides.name ?? 'Gestor Teste',
+      email: overrides.email ?? 'gestor@shape.com.br',
+      cpf: overrides.cpf ?? '11144477735',
+      passwordHash: await bcrypt.hash(password, 10),
+      perfil: overrides.perfil ?? 'ADMIN',
+    });
+
+    const login = await request(app).post('/api/autenticacao/entrar').send({
+      email: user.email,
+      password,
+    });
+
+    expect(login.status).toBe(200);
+    return { user, token: login.body.token as string, password };
+  }
+
+  it('bloqueia cadastro publico de clientes', async () => {
     const response = await request(app).post('/api/autenticacao/cadastro').send({
       name: 'Gestor Teste',
       email: 'gestor@shape.com.br',
@@ -256,20 +324,13 @@ describe('Shape API', () => {
       cpf: '11144477735',
     });
 
-    expect(response.status).toBe(201);
-    expect(response.body.token).toBeTypeOf('string');
-    expect(response.body.user.email).toBe('gestor@shape.com.br');
-    expect(response.body.user.perfil).toBe('ADMIN');
+    expect(response.status).toBe(403);
+    expect(response.body.message).toBe('Cadastro publico desativado. O master Shape Up deve criar o acesso do cliente.');
+    expect(userRepository.users).toHaveLength(0);
   });
 
   it('bloqueia login com credenciais invalidas', async () => {
-    await request(app).post('/api/autenticacao/cadastro').send({
-      name: 'Gestor Teste',
-      email: 'gestor@shape.com.br',
-      password: 'Shape@123',
-      confirmPassword: 'Shape@123',
-      cpf: '11144477735',
-    });
+    await criarSessaoGestor();
 
     const response = await request(app).post('/api/autenticacao/entrar').send({
       email: 'gestor@shape.com.br',
@@ -281,15 +342,7 @@ describe('Shape API', () => {
   });
 
   it('permite atualizar perfil sem trocar senha e exige senha atual para alterar a senha', async () => {
-    const register = await request(app).post('/api/autenticacao/cadastro').send({
-      name: 'Gestor Teste',
-      email: 'gestor@shape.com.br',
-      password: 'Shape@123',
-      confirmPassword: 'Shape@123',
-      cpf: '11144477735',
-    });
-
-    const token = register.body.token as string;
+    const { token } = await criarSessaoGestor();
 
     const profileUpdate = await request(app).put('/api/usuarios/me').set('Authorization', `Bearer ${token}`).send({
       name: 'Gestor Atualizado',
@@ -323,13 +376,7 @@ describe('Shape API', () => {
   });
 
   it('envia link de redefinicao por e-mail e permite criar uma nova senha', async () => {
-    await request(app).post('/api/autenticacao/cadastro').send({
-      name: 'Gestor Teste',
-      email: 'gestor@shape.com.br',
-      password: 'Shape@123',
-      confirmPassword: 'Shape@123',
-      cpf: '11144477735',
-    });
+    await criarSessaoGestor();
 
     const forgotPassword = await request(app).post('/api/autenticacao/esqueci-senha').send({
       email: 'gestor@shape.com.br',
@@ -388,108 +435,147 @@ describe('Shape API', () => {
     expect(response.status).toBe(401);
   });
 
-  it('aplica controle funcional entre administrador e usuario operacional', async () => {
-    const register = await request(app).post('/api/autenticacao/cadastro').send({
-      name: 'Gestor Teste',
-      email: 'gestor@shape.com.br',
-      password: 'Shape@123',
-      confirmPassword: 'Shape@123',
-      cpf: '11144477735',
+  it('permite que o master crie cliente e bloqueia cliente de criar novas contas', async () => {
+    const { token: masterToken } = await criarSessaoGestor({
+      name: 'Master Shape Up',
+      email: 'admin@shape.com.br',
+      perfil: 'MASTER',
     });
 
-    const adminToken = register.body.token as string;
-
-    const createdUser = await request(app).post('/api/usuarios').set('Authorization', `Bearer ${adminToken}`).send({
-      name: 'Usuario Operacional',
-      email: 'usuario@shape.com.br',
-      password: 'Usuario@123',
-      confirmPassword: 'Usuario@123',
+    const createdUser = await request(app).post('/api/usuarios').set('Authorization', `Bearer ${masterToken}`).send({
+      name: 'Cliente Academia Demo',
+      email: 'cliente.demo@shape.com.br',
+      password: 'Shape@123',
+      confirmPassword: 'Shape@123',
       cpf: '39053344705',
-      perfil: 'USUARIO',
+      perfil: 'MASTER',
     });
 
     expect(createdUser.status).toBe(201);
-    expect(createdUser.body.perfil).toBe('USUARIO');
+    expect(createdUser.body.perfil).toBe('ADMIN');
+    expect(createdUser.body.mustChangePassword).toBe(true);
 
-    const users = await request(app).get('/api/usuarios').set('Authorization', `Bearer ${adminToken}`);
+    const users = await request(app).get('/api/usuarios').set('Authorization', `Bearer ${masterToken}`);
     expect(users.status).toBe(200);
-    expect(users.body).toHaveLength(2);
+    expect(users.body).toHaveLength(1);
     expect(users.body[0].passwordHash).toBeUndefined();
+    expect(users.body[0].email).toBe('cliente.demo@shape.com.br');
+
+    const masterPlanCreate = await request(app).post('/api/planos').set('Authorization', `Bearer ${masterToken}`).send({
+      name: 'Plano Master Shape Up',
+      description: 'Cadastro permitido para a academia da conta master.',
+      price: 149.9,
+      durationMonths: 6,
+      status: 'ATIVO',
+    });
+    expect(masterPlanCreate.status).toBe(201);
 
     const login = await request(app).post('/api/autenticacao/entrar').send({
-      email: 'usuario@shape.com.br',
-      password: 'Usuario@123',
+      email: 'cliente.demo@shape.com.br',
+      password: 'Shape@123',
     });
     const userToken = login.body.token as string;
+    expect(login.body.user.mustChangePassword).toBe(true);
+
+    const firstAccessWithoutPasswordChange = await request(app).put('/api/usuarios/me').set('Authorization', `Bearer ${userToken}`).send({
+      name: 'Cliente Academia Demo',
+      cpf: '39053344705',
+    });
+    expect(firstAccessWithoutPasswordChange.status).toBe(400);
+    expect(firstAccessWithoutPasswordChange.body.message).toBe('Defina uma nova senha para concluir o primeiro acesso.');
+
+    const firstAccessPasswordChange = await request(app).put('/api/usuarios/me').set('Authorization', `Bearer ${userToken}`).send({
+      name: 'Cliente Academia Demo',
+      cpf: '39053344705',
+      currentPassword: 'Shape@123',
+      password: 'Cliente@123',
+      confirmPassword: 'Cliente@123',
+    });
+    expect(firstAccessPasswordChange.status).toBe(200);
+    expect(firstAccessPasswordChange.body.mustChangePassword).toBe(false);
 
     const allowedList = await request(app).get('/api/planos').set('Authorization', `Bearer ${userToken}`);
     expect(allowedList.status).toBe(200);
 
-    const blockedPlanCreate = await request(app).post('/api/planos').set('Authorization', `Bearer ${userToken}`).send({
-      name: 'Plano Bloqueado',
-      description: 'Tentativa de cadastro sem permissao administrativa.',
+    const planCreate = await request(app).post('/api/planos').set('Authorization', `Bearer ${userToken}`).send({
+      name: 'Plano Cliente Demo',
+      description: 'Cadastro permitido para o dono da academia.',
       price: 99.9,
       durationMonths: 3,
       status: 'ATIVO',
     });
-    expect(blockedPlanCreate.status).toBe(403);
-    expect(blockedPlanCreate.body.message).toBe('Seu perfil nao permite executar esta acao.');
+    expect(planCreate.status).toBe(201);
 
-    const blockedUsers = await request(app).get('/api/usuarios').set('Authorization', `Bearer ${userToken}`);
-    expect(blockedUsers.status).toBe(403);
-  });
+    const usersFromClient = await request(app).get('/api/usuarios').set('Authorization', `Bearer ${userToken}`);
+    expect(usersFromClient.status).toBe(403);
 
-  it('recebe e salva imagem valida com Multer usando nome unico', async () => {
-    const register = await request(app).post('/api/autenticacao/cadastro').send({
-      name: 'Gestor Teste',
-      email: 'gestor@shape.com.br',
+    const createFromClient = await request(app).post('/api/usuarios').set('Authorization', `Bearer ${userToken}`).send({
+      name: 'Outro Socio',
+      email: 'outro.socio@shape.com.br',
       password: 'Shape@123',
       confirmPassword: 'Shape@123',
       cpf: '11144477735',
+      perfil: 'ADMIN',
     });
+    expect(createFromClient.status).toBe(403);
 
-    const token = register.body.token as string;
+    const clientDeleteAttempt = await request(app).delete(`/api/usuarios/${createdUser.body.id}`).set('Authorization', `Bearer ${userToken}`);
+    expect(clientDeleteAttempt.status).toBe(403);
+
+    const masterSelfDelete = await request(app).delete(`/api/usuarios/${users.body[0].id}`).set('Authorization', `Bearer ${masterToken}`);
+    expect(masterSelfDelete.status).toBe(204);
+
+    const usersAfterDelete = await request(app).get('/api/usuarios').set('Authorization', `Bearer ${masterToken}`);
+    expect(usersAfterDelete.status).toBe(200);
+    expect(usersAfterDelete.body).toHaveLength(0);
+  });
+
+  it('recebe e salva imagem valida com Multer usando nome unico', async () => {
+    const { token } = await criarSessaoGestor();
     const response = await request(app)
       .post('/api/imagens')
       .set('Authorization', `Bearer ${token}`)
-      .attach('imagem', PNG_1X1_TRANSPARENTE, { filename: 'Logo Shape.png', contentType: 'image/png' });
+      .field('category', 'AVALIACAO')
+      .field('description', 'Avaliacao fisica inicial do aluno.')
+      .attach('imagem', PNG_1X1_TRANSPARENTE, { filename: 'Logo Shape Up.png', contentType: 'image/png' });
 
     try {
       expect(response.status).toBe(201);
-      expect(response.body.originalName).toBe('Logo Shape.png');
-      expect(response.body.fileName).toMatch(/logo-shape\.png$/);
+      expect(response.body.id).toBeTruthy();
+      expect(response.body.category).toBe('AVALIACAO');
+      expect(response.body.description).toBe('Avaliacao fisica inicial do aluno.');
+      expect(response.body.originalName).toBe('Logo Shape Up.png');
+      expect(response.body.fileName).toMatch(/logo-shape-up\.png$/);
       expect(response.body.relativePath).toContain('/uploads/imagens/');
       expect(response.body.url).toContain('/uploads/imagens/');
       expect(response.body.mimeType).toBe('image/png');
       expect(response.body.size).toBe(PNG_1X1_TRANSPARENTE.length);
       expect(existsSync(path.join(process.cwd(), 'uploads', 'imagens', response.body.fileName))).toBe(true);
+
+      const list = await request(app).get('/api/imagens').set('Authorization', `Bearer ${token}`);
+      expect(list.status).toBe(200);
+      expect(list.body).toHaveLength(1);
+      expect(list.body[0].id).toBe(response.body.id);
+      expect(list.body[0].url).toContain('/uploads/imagens/');
     } finally {
       removerImagemTeste(response.body.fileName);
     }
   });
 
-  it('bloqueia upload de imagem para usuario sem perfil administrador', async () => {
-    const register = await request(app).post('/api/autenticacao/cadastro').send({
-      name: 'Gestor Teste',
-      email: 'gestor@shape.com.br',
+  it('permite upload de imagem para cliente criado pelo master', async () => {
+    const { token: masterToken } = await criarSessaoGestor({ perfil: 'MASTER' });
+    await request(app).post('/api/usuarios').set('Authorization', `Bearer ${masterToken}`).send({
+      name: 'Cliente Academia Demo',
+      email: 'cliente.demo@shape.com.br',
       password: 'Shape@123',
       confirmPassword: 'Shape@123',
-      cpf: '11144477735',
-    });
-
-    const adminToken = register.body.token as string;
-    await request(app).post('/api/usuarios').set('Authorization', `Bearer ${adminToken}`).send({
-      name: 'Usuario Operacional',
-      email: 'usuario@shape.com.br',
-      password: 'Usuario@123',
-      confirmPassword: 'Usuario@123',
       cpf: '39053344705',
-      perfil: 'USUARIO',
+      perfil: 'ADMIN',
     });
 
     const login = await request(app).post('/api/autenticacao/entrar').send({
-      email: 'usuario@shape.com.br',
-      password: 'Usuario@123',
+      email: 'cliente.demo@shape.com.br',
+      password: 'Shape@123',
     });
 
     const response = await request(app)
@@ -497,20 +583,16 @@ describe('Shape API', () => {
       .set('Authorization', `Bearer ${login.body.token}`)
       .attach('imagem', PNG_1X1_TRANSPARENTE, { filename: 'logo.png', contentType: 'image/png' });
 
-    expect(response.status).toBe(403);
-    expect(response.body.message).toBe('Seu perfil nao permite executar esta acao.');
+    try {
+      expect(response.status).toBe(201);
+      expect(response.body.mimeType).toBe('image/png');
+    } finally {
+      removerImagemTeste(response.body.fileName);
+    }
   });
 
   it('valida extensao, tipo real e tamanho maximo das imagens recebidas', async () => {
-    const register = await request(app).post('/api/autenticacao/cadastro').send({
-      name: 'Gestor Teste',
-      email: 'gestor@shape.com.br',
-      password: 'Shape@123',
-      confirmPassword: 'Shape@123',
-      cpf: '11144477735',
-    });
-
-    const token = register.body.token as string;
+    const { token } = await criarSessaoGestor();
 
     const invalidExtension = await request(app)
       .post('/api/imagens')
@@ -531,19 +613,11 @@ describe('Shape API', () => {
       .set('Authorization', `Bearer ${token}`)
       .attach('imagem', Buffer.alloc(IMAGEM_TAMANHO_MAXIMO_BYTES + 1), { filename: 'grande.png', contentType: 'image/png' });
     expect(tooLarge.status).toBe(400);
-    expect(tooLarge.body.message).toBe('A imagem deve ter no maximo 2 MB.');
+    expect(tooLarge.body.message).toBe('A imagem deve ter no maximo 8 MB.');
   });
 
   it('pagina planos e retorna 404 ao editar recurso inexistente', async () => {
-    const register = await request(app).post('/api/autenticacao/cadastro').send({
-      name: 'Gestor Teste',
-      email: 'gestor@shape.com.br',
-      password: 'Shape@123',
-      confirmPassword: 'Shape@123',
-      cpf: '11144477735',
-    });
-
-    const token = register.body.token as string;
+    const { token } = await criarSessaoGestor();
 
     await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Start', description: 'Plano inicial com suporte mensal.', price: 99.9, durationMonths: 3, status: 'ATIVO' });
     await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Pro', description: 'Plano avancado com consultoria completa.', price: 189.9, durationMonths: 6, status: 'ATIVO' });
@@ -558,15 +632,7 @@ describe('Shape API', () => {
   });
 
   it('filtra planos por status e busca', async () => {
-    const register = await request(app).post('/api/autenticacao/cadastro').send({
-      name: 'Gestor Teste',
-      email: 'gestor@shape.com.br',
-      password: 'Shape@123',
-      confirmPassword: 'Shape@123',
-      cpf: '11144477735',
-    });
-
-    const token = register.body.token as string;
+    const { token } = await criarSessaoGestor();
 
     await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Start', description: 'Plano inicial com suporte mensal.', price: 99.9, durationMonths: 3, status: 'ATIVO' });
     await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Pausado', description: 'Plano inativo para testes.', price: 129.9, durationMonths: 3, status: 'INATIVO' });
@@ -583,15 +649,7 @@ describe('Shape API', () => {
   });
 
   it('retorna 409 ao excluir plano vinculado a alunos', async () => {
-    const register = await request(app).post('/api/autenticacao/cadastro').send({
-      name: 'Gestor Teste',
-      email: 'gestor@shape.com.br',
-      password: 'Shape@123',
-      confirmPassword: 'Shape@123',
-      cpf: '11144477735',
-    });
-
-    const token = register.body.token as string;
+    const { token } = await criarSessaoGestor();
 
     const plan = await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({
       name: 'Plano Premium',
@@ -619,15 +677,7 @@ describe('Shape API', () => {
   });
 
   it('filtra alunos por plano, status e busca', async () => {
-    const register = await request(app).post('/api/autenticacao/cadastro').send({
-      name: 'Gestor Teste',
-      email: 'gestor@shape.com.br',
-      password: 'Shape@123',
-      confirmPassword: 'Shape@123',
-      cpf: '11144477735',
-    });
-
-    const token = register.body.token as string;
+    const { token } = await criarSessaoGestor();
 
     const planA = await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano A', description: 'Descricao valida com 10 caracteres.', price: 100, durationMonths: 6, status: 'ATIVO' });
     const planB = await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano B', description: 'Descricao valida com 10 caracteres.', price: 120, durationMonths: 6, status: 'ATIVO' });
@@ -652,14 +702,7 @@ describe('Shape API', () => {
   });
 
   it('filtra treinos por nivel, aluno e busca', async () => {
-    const register = await request(app).post('/api/autenticacao/cadastro').send({
-      name: 'Gestor Teste',
-      email: 'gestor@shape.com.br',
-      password: 'Shape@123',
-      confirmPassword: 'Shape@123',
-      cpf: '11144477735',
-    });
-    const token = register.body.token as string;
+    const { token } = await criarSessaoGestor();
 
     const plan = await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Premium', description: 'Plano premium anual com acompanhamento.', price: 249.9, durationMonths: 12, status: 'ATIVO' });
     const studentA = await request(app).post('/api/alunos').set('Authorization', `Bearer ${token}`).send({ name: 'Ana Silva', email: 'ana@shape.com.br', cpf: '39053344705', phone: '11999999999', birthDate: '1997-07-15', goal: 'Hipertrofia com foco em pernas', status: 'ATIVO', planId: plan.body.id });
@@ -685,14 +728,7 @@ describe('Shape API', () => {
   });
 
   it('cria aluno vinculado a plano e treino vinculado a aluno', async () => {
-    const register = await request(app).post('/api/autenticacao/cadastro').send({
-      name: 'Gestor Teste',
-      email: 'gestor@shape.com.br',
-      password: 'Shape@123',
-      confirmPassword: 'Shape@123',
-      cpf: '11144477735',
-    });
-    const token = register.body.token as string;
+    const { token } = await criarSessaoGestor();
 
     const plan = await request(app).post('/api/planos').set('Authorization', `Bearer ${token}`).send({ name: 'Plano Premium', description: 'Plano premium anual com acompanhamento.', price: 249.9, durationMonths: 12, status: 'ATIVO' });
     const student = await request(app).post('/api/alunos').set('Authorization', `Bearer ${token}`).send({ name: 'Ana Silva', email: 'ana@shape.com.br', cpf: '39053344705', phone: '11999999999', birthDate: '1997-07-15', goal: 'Hipertrofia com foco em pernas', status: 'ATIVO', planId: plan.body.id });
@@ -707,23 +743,16 @@ describe('Shape API', () => {
   });
 
   it('isola dados entre gestores diferentes', async () => {
-    const firstUser = await request(app).post('/api/autenticacao/cadastro').send({
+    const { token: firstToken } = await criarSessaoGestor({
       name: 'Enzo',
       email: 'enzo@shape.com.br',
-      password: 'Shape@123',
-      confirmPassword: 'Shape@123',
       cpf: '39053344705',
     });
-    const secondUser = await request(app).post('/api/autenticacao/cadastro').send({
+    const { token: secondToken } = await criarSessaoGestor({
       name: 'Pedro',
       email: 'pedro@shape.com.br',
-      password: 'Shape@123',
-      confirmPassword: 'Shape@123',
       cpf: '11144477735',
     });
-
-    const firstToken = firstUser.body.token as string;
-    const secondToken = secondUser.body.token as string;
 
     const plan = await request(app).post('/api/planos').set('Authorization', `Bearer ${firstToken}`).send({
       name: 'Plano Enzo',

@@ -1,4 +1,4 @@
-# Padrao de Nomenclatura PT-BR - Shape
+# Padrao de Nomenclatura PT-BR - Shape Up
 
 ## Objetivo
 
@@ -62,7 +62,7 @@ Alterar tudo de uma vez poderia gerar risco alto e pouco ganho. A leitura do rep
 | `/api/workouts` | `/api/treinos` |
 | `shapeup-platform` | `shape-platform` |
 | `@shapeup/shared` | `@shape/shared` |
-| Marca visual `ShapeUp` | Marca visual `Shape` |
+| Marca visual `ShapeUp` | Marca visual `Shape Up` |
 | `admin@shapeup.com` | `admin@shape.com.br` |
 | Senha seed `ShapeUp@123` | Senha seed `Shape@123` |
 | `model Academy` | `model Academia` |

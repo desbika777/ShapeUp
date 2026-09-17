@@ -1,8 +1,8 @@
-# Fluxo Git e GitHub - Shape
+# Fluxo Git e GitHub - Shape Up
 
 ## Objetivo
 
-Este documento define o fluxo de versionamento do Shape para manter o historico organizado, facilitar a colaboracao da dupla e gerar evidencias de progresso para a rubrica.
+Este documento define o fluxo de versionamento do Shape Up para manter o historico organizado, facilitar a colaboracao da dupla e gerar evidencias de progresso para a rubrica.
 
 ## Branches Principais
 

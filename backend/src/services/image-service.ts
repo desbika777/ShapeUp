@@ -1,8 +1,10 @@
 // Servico de imagens: valida o arquivo salvo pelo Multer e monta metadados publicos.
 import { open, unlink } from 'node:fs/promises';
 import path from 'node:path';
-import type { ImagemEnviada } from '@shape/shared';
+import type { AnexoAcademia, EntradaAnexo } from '@shape/shared';
+import { diretorioUploadImagens } from '../config/uploads.js';
 import { AppError } from '../core/app-error.js';
+import type { IRepositorioAnexo } from '../repositories/interfaces.js';
 
 const ASSINATURA_PNG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 
@@ -44,8 +46,22 @@ function montarUrl(baseUrl: string, relativePath: string) {
   return new URL(relativePath, `${baseUrl}/`).toString();
 }
 
+function publicarUrl(baseUrl: string, attachment: AnexoAcademia): AnexoAcademia {
+  return {
+    ...attachment,
+    url: montarUrl(baseUrl, attachment.relativePath),
+  };
+}
+
 export class ServicoImagem {
-  async registrarUpload(file: Express.Multer.File | undefined, baseUrl: string): Promise<ImagemEnviada> {
+  constructor(private readonly repository: IRepositorioAnexo) {}
+
+  async listar(ownerId: string, baseUrl: string) {
+    const attachments = await this.repository.list(ownerId);
+    return attachments.map((attachment) => publicarUrl(baseUrl, attachment));
+  }
+
+  async registrarUpload(ownerId: string, file: Express.Multer.File | undefined, baseUrl: string, input: EntradaAnexo): Promise<AnexoAcademia> {
     if (!file) {
       throw new AppError(400, 'Envie uma imagem no campo imagem.');
     }
@@ -60,15 +76,28 @@ export class ServicoImagem {
     const extension = path.extname(file.filename).toLowerCase();
     const relativePath = `/uploads/imagens/${file.filename}`;
 
-    return {
+    const attachment = await this.repository.create(ownerId, {
+      category: input.category,
+      description: input.description,
       originalName: file.originalname,
       fileName: file.filename,
       mimeType: file.mimetype,
       size: file.size,
       extension,
       relativePath,
-      url: montarUrl(baseUrl, relativePath),
-      uploadedAt: new Date().toISOString(),
-    };
+    });
+
+    return publicarUrl(baseUrl, attachment);
+  }
+
+  async remover(ownerId: string, id: string) {
+    const attachment = await this.repository.findById(ownerId, id);
+
+    if (!attachment) {
+      throw new AppError(404, 'Anexo nao encontrado.');
+    }
+
+    await this.repository.delete(ownerId, id);
+    await unlink(path.join(diretorioUploadImagens, attachment.fileName)).catch(() => undefined);
   }
 }

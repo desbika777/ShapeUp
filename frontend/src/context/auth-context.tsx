@@ -1,7 +1,7 @@
 // Contexto de autenticacao: guarda token, usuario logado e acoes de conta.
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import type { PropsWithChildren } from 'react';
-import type { RespostaAutenticacao, UsuarioAutenticado, EntradaLoginUsuario, EntradaCadastroUsuario, EntradaAtualizacaoUsuario } from '@shape/shared';
+import type { RespostaAutenticacao, UsuarioAutenticado, EntradaLoginUsuario, EntradaAtualizacaoUsuario } from '@shape/shared';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { apiRequest } from '@/lib/api';
@@ -50,7 +50,6 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (input: EntradaLoginUsuario, options?: { rememberAccess?: boolean }) => Promise<void>;
-  register: (input: EntradaCadastroUsuario) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
   updateProfile: (input: EntradaAtualizacaoUsuario) => Promise<void>;
@@ -125,17 +124,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
         body: JSON.stringify(input),
       });
       persistToken(response.token, options?.rememberAccess);
-      setToken(response.token);
-      setUser(response.user);
-      queryClient.clear();
-    },
-    async register(input) {
-      // Cadastro ja cria sessao para reduzir passos no primeiro acesso.
-      const response = await apiRequest<RespostaAutenticacao>('/autenticacao/cadastro', {
-        method: 'POST',
-        body: JSON.stringify(input),
-      });
-      persistToken(response.token);
       setToken(response.token);
       setUser(response.user);
       queryClient.clear();

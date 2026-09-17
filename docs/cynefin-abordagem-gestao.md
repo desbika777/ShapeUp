@@ -1,12 +1,12 @@
-# Analise Cynefin e Abordagem de Gestao - Shape
+# Analise Cynefin e Abordagem de Gestao - Shape Up
 
 ## Objetivo do Documento
 
-Este documento registra a analise do projeto Shape com base no Framework Cynefin e justifica a abordagem de gestao escolhida para conduzir o desenvolvimento.
+Este documento registra a analise do projeto Shape Up com base no Framework Cynefin e justifica a abordagem de gestao escolhida para conduzir o desenvolvimento.
 
 ## Resumo do Projeto
 
-O Shape e uma plataforma web para gestao completa de academias. O sistema pretende centralizar processos administrativos, financeiros e operacionais, como controle de alunos, planos, matriculas, pagamentos, treinos, avaliacoes fisicas, frequencia, aulas, professores, equipamentos e indicadores gerenciais.
+O Shape Up e uma plataforma web para gestao completa de academias. O sistema pretende centralizar processos administrativos, financeiros e operacionais, como controle de alunos, planos, matriculas, pagamentos, treinos, avaliacoes fisicas, frequencia, aulas, professores, equipamentos e indicadores gerenciais.
 
 O projeto sera desenvolvido como evolucao do antigo SHAPEUP, aproveitando a base tecnica anterior, mas com revisao de escopo, remodelagem do banco de dados, melhoria da arquitetura e documentacao mais completa.
 
@@ -23,7 +23,7 @@ O Framework Cynefin auxilia na classificacao de problemas e projetos conforme se
 
 ### Dominio Simples
 
-O Shape nao se encaixa como um projeto simples, pois nao se limita a executar tarefas repetitivas ou regras totalmente conhecidas. Apesar de existirem funcionalidades comuns, como cadastros e listagens, o sistema envolve varias regras de negocio, perfis de usuario, relacionamentos entre entidades e decisoes de arquitetura.
+O Shape Up nao se encaixa como um projeto simples, pois nao se limita a executar tarefas repetitivas ou regras totalmente conhecidas. Apesar de existirem funcionalidades comuns, como cadastros e listagens, o sistema envolve varias regras de negocio, perfis de usuario, relacionamentos entre entidades e decisoes de arquitetura.
 
 ### Dominio Complicado
 
@@ -55,11 +55,11 @@ Nesse contexto, o projeto exige ciclos de experimentacao, revisao e adaptacao.
 
 ### Dominio Caotico
 
-O Shape nao se encaixa no dominio caotico, pois nao se trata de uma situacao emergencial ou sem direcao. Existe uma rubrica clara, uma proposta de produto e uma base tecnica anterior que orientam o desenvolvimento.
+O Shape Up nao se encaixa no dominio caotico, pois nao se trata de uma situacao emergencial ou sem direcao. Existe uma rubrica clara, uma proposta de produto e uma base tecnica anterior que orientam o desenvolvimento.
 
 ## Classificacao Escolhida
 
-O projeto Shape sera classificado no dominio Complexo do Framework Cynefin.
+O projeto Shape Up sera classificado no dominio Complexo do Framework Cynefin.
 
 Justificativa:
 Embora existam solucoes tecnicas conhecidas para desenvolver sistemas web, o produto envolve muitas partes relacionadas, diferentes usuarios, regras de negocio e necessidade de evolucao progressiva. O escopo precisa ser refinado durante o desenvolvimento para equilibrar qualidade, prazo, rubrica e viabilidade. Por isso, a melhor forma de conduzir o projeto e trabalhar em ciclos curtos, validar entregas parciais e adaptar o backlog conforme o aprendizado da equipe.
@@ -244,6 +244,6 @@ Na pratica, os papeis serao compartilhados entre os integrantes, mas devem estar
 
 ## Justificativa Final
 
-A abordagem agil com Scrum adaptado e Kanban no Jira e adequada para o Shape porque o projeto possui incertezas de escopo, depende de entregas incrementais e precisa demonstrar progresso constante. Essa forma de trabalho permite que a equipe comece pelo essencial, valide a evolucao do produto, reorganize prioridades e produza evidencias claras para a rubrica.
+A abordagem agil com Scrum adaptado e Kanban no Jira e adequada para o Shape Up porque o projeto possui incertezas de escopo, depende de entregas incrementais e precisa demonstrar progresso constante. Essa forma de trabalho permite que a equipe comece pelo essencial, valide a evolucao do produto, reorganize prioridades e produza evidencias claras para a rubrica.
 
 Assim, a gestao do projeto deixa de ser apenas uma etapa burocratica e passa a apoiar o desenvolvimento real do sistema.

@@ -9,7 +9,6 @@ import type {
   EntradaEsqueciSenha,
   EntradaRedefinirSenha,
   EntradaLoginUsuario,
-  EntradaCadastroUsuario,
   EntradaAtualizacaoUsuario,
   EntradaCriacaoUsuario,
 } from '@shape/shared';
@@ -28,27 +27,13 @@ export class ServicoAutenticacao {
     private readonly mailService: IServicoEmail,
   ) {}
 
-  // Valida dados do gestor, protege a senha com hash e cria a conta.
-  async register(input: EntradaCadastroUsuario): Promise<RespostaAutenticacao> {
-    await this.validateNewUser(input);
-    const passwordHash = await bcrypt.hash(input.password, 10);
-    const user = await this.userRepository.create({
-      name: input.name.trim(),
-      email: normalizeEmail(input.email),
-      passwordHash,
-      cpf: normalizeCpf(input.cpf),
-      perfil: 'ADMIN',
-    });
-
-    return this.buildAuthResponse(user);
+  // Lista clientes criados pelo master da plataforma.
+  async listUsers() {
+    const users = await this.userRepository.list();
+    return users.filter((user) => user.perfil !== 'MASTER');
   }
 
-  // Lista usuarios para que o administrador acompanhe os acessos existentes.
-  listUsers() {
-    return this.userRepository.list();
-  }
-
-  // Cria usuario operacional com perfil escolhido pelo administrador.
+  // Cria a conta de um cliente/dono de academia. Esse cliente nao cria outras contas.
   async createUser(input: EntradaCriacaoUsuario): Promise<UsuarioAutenticado> {
     await this.validateNewUser(input);
     const passwordHash = await bcrypt.hash(input.password, 10);
@@ -57,13 +42,29 @@ export class ServicoAutenticacao {
       email: normalizeEmail(input.email),
       passwordHash,
       cpf: normalizeCpf(input.cpf),
-      perfil: input.perfil,
+      perfil: 'ADMIN',
+      mustChangePassword: true,
     });
 
     return this.toAuthUser(user);
   }
 
-  private async validateNewUser(input: EntradaCadastroUsuario | EntradaCriacaoUsuario) {
+  // Remove um cliente criado pelo master, preservando a conta master.
+  async deleteUser(currentUserId: string, userId: string): Promise<void> {
+    const user = await this.userRepository.findById(userId);
+
+    if (!user) {
+      throw new AppError(404, 'Cliente nao encontrado.');
+    }
+
+    if (user.id === currentUserId || user.perfil === 'MASTER') {
+      throw new AppError(400, 'A conta master nao pode ser excluida por aqui.');
+    }
+
+    await this.userRepository.delete(userId);
+  }
+
+  private async validateNewUser(input: EntradaCriacaoUsuario) {
     if (!isValidEmail(input.email)) {
       throw new AppError(400, 'Informe um e-mail valido.');
     }
@@ -89,11 +90,11 @@ export class ServicoAutenticacao {
     ]);
 
     if (emailAlreadyExists) {
-      throw new AppError(409, 'Ja existe um usuario com este e-mail.');
+      throw new AppError(409, 'Ja existe um cliente com este e-mail.');
     }
 
     if (cpfAlreadyExists) {
-      throw new AppError(409, 'Ja existe um usuario com este CPF.');
+      throw new AppError(409, 'Ja existe um cliente com este CPF.');
     }
   }
 
@@ -123,7 +124,7 @@ export class ServicoAutenticacao {
     const user = await this.userRepository.findById(userId);
 
     if (!user) {
-      throw new AppError(404, 'Usuario nao encontrado.');
+      throw new AppError(404, 'Conta nao encontrada.');
     }
 
     return this.toAuthUser(user);
@@ -134,7 +135,7 @@ export class ServicoAutenticacao {
     const user = await this.userRepository.findById(userId);
 
     if (!user) {
-      throw new AppError(404, 'Usuario nao encontrado.');
+      throw new AppError(404, 'Conta nao encontrada.');
     }
 
     if (!isValidCpf(input.cpf)) {
@@ -145,11 +146,15 @@ export class ServicoAutenticacao {
     const cpfOwner = await this.userRepository.findByCpf(normalizedCpf);
 
     if (cpfOwner && cpfOwner.id !== userId) {
-      throw new AppError(409, 'Ja existe um usuario com este CPF.');
+      throw new AppError(409, 'Ja existe uma conta com este CPF.');
     }
 
     const shouldChangePassword = Boolean(input.currentPassword || input.password || input.confirmPassword);
     let passwordHash = user.passwordHash;
+
+    if (user.mustChangePassword && !shouldChangePassword) {
+      throw new AppError(400, 'Defina uma nova senha para concluir o primeiro acesso.');
+    }
 
     if (shouldChangePassword) {
       if (!input.currentPassword) {
@@ -181,6 +186,7 @@ export class ServicoAutenticacao {
       name: input.name.trim(),
       passwordHash,
       cpf: normalizedCpf,
+      mustChangePassword: shouldChangePassword ? false : user.mustChangePassword,
     });
 
     return this.toAuthUser(updated);
@@ -210,18 +216,18 @@ export class ServicoAutenticacao {
 
     await this.mailService.send({
       to: user.email,
-      subject: 'Redefinicao de senha Shape',
+      subject: 'Redefinicao de senha Shape Up',
       text: [
         `Ola, ${user.name}.`,
         '',
-        'Recebemos uma solicitacao para redefinir a senha da sua conta Shape.',
+        'Recebemos uma solicitacao para redefinir a senha da sua conta Shape Up.',
         `Acesse o link abaixo para criar uma nova senha: ${resetUrl}`,
         '',
         'Se voce nao solicitou essa alteracao, ignore este e-mail.',
       ].join('\n'),
       html: [
         `<p>Ola, ${user.name}.</p>`,
-        '<p>Recebemos uma solicitacao para redefinir a senha da sua conta Shape.</p>',
+        '<p>Recebemos uma solicitacao para redefinir a senha da sua conta Shape Up.</p>',
         `<p><a href="${resetUrl}">Clique aqui para criar uma nova senha</a>.</p>`,
         '<p>Se voce nao solicitou essa alteracao, ignore este e-mail.</p>',
       ].join(''),
@@ -259,6 +265,7 @@ export class ServicoAutenticacao {
       name: user.name,
       passwordHash,
       cpf: user.cpf,
+      mustChangePassword: false,
     });
     await this.userRepository.excluirTokensRecuperacaoSenhaPorUsuario(user.id);
 
@@ -281,6 +288,7 @@ export class ServicoAutenticacao {
       email: user.email,
       cpf: user.cpf,
       perfil: user.perfil,
+      mustChangePassword: user.mustChangePassword,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

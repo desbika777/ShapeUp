@@ -13,7 +13,8 @@
     "prisma:generate": "node scripts/prisma-generate.cjs",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "tsx prisma/seed.ts"
+    "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:cleanup-e2e": "tsx prisma/cleanup-e2e.ts"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

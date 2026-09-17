@@ -15,7 +15,7 @@ export function ConfirmDialog({ title, description, onConfirm }: ConfirmDialogPr
         <p className="font-semibold">{title}</p>
         <p className="text-sm">{description}</p>
       </div>
-      <button onClick={onConfirm} className="rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-white">Confirmar</button>
+      <button onClick={onConfirm} className="rounded-md bg-amber-500 px-4 py-2 text-sm font-semibold text-white">Confirmar</button>
     </div>
   );
 }

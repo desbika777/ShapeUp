@@ -5,7 +5,6 @@ import {
   forgotPasswordSchema,
   loginSchema,
   createUserSchema,
-  registerSchema,
   resetPasswordSchema,
   updateUserSchema,
 } from '../services/schemas.js';
@@ -14,11 +13,11 @@ import type { RequisicaoAutenticada } from '../middlewares/auth-middleware.js';
 export class ControladorAutenticacao {
   constructor(private readonly service: ServicoAutenticacao) {}
 
-  // Cadastro cria o gestor e ja retorna token para entrar no sistema.
-  register = async (request: Request, response: Response) => {
-    const payload = registerSchema.parse(request.body);
-    const result = await this.service.register(payload);
-    return response.status(201).json(result);
+  // Cadastro publico fica fechado; novos clientes sao criados pela conta master.
+  register = async (_request: Request, response: Response) => {
+    return response.status(403).json({
+      message: 'Cadastro publico desativado. O master Shape Up deve criar o acesso do cliente.',
+    });
   };
 
   // Login valida credenciais e devolve usuario autenticado.
@@ -55,16 +54,22 @@ export class ControladorAutenticacao {
     return response.status(200).json(result);
   };
 
-  // Lista usuarios cadastrados para administracao dos acessos.
+  // Lista clientes cadastrados pelo master Shape Up.
   listUsers = async (_request: RequisicaoAutenticada, response: Response) => {
     const result = await this.service.listUsers();
     return response.status(200).json(result);
   };
 
-  // Cria usuario interno com perfil administrativo ou operacional.
+  // Cria uma conta de cliente para o dono da academia.
   createUser = async (request: RequisicaoAutenticada, response: Response) => {
     const payload = createUserSchema.parse(request.body);
-    const result = await this.service.createUser(payload);
+    const result = await this.service.createUser({ ...payload, perfil: 'ADMIN' });
     return response.status(201).json(result);
+  };
+
+  // Remove um cliente da plataforma.
+  deleteUser = async (request: RequisicaoAutenticada, response: Response) => {
+    await this.service.deleteUser(request.userId ?? '', String(request.params.id));
+    return response.status(204).send();
   };
 }

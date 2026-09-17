@@ -1,4 +1,4 @@
-# Objetivos e Escopo - Shape
+# Objetivos e Escopo - Shape Up
 
 ## Objetivo Geral
 
@@ -27,7 +27,7 @@ Desenvolver uma plataforma web para gestao completa de academias, centralizando 
 
 ## Publico-Alvo
 
-O Shape e voltado para academias completas que precisam organizar processos internos e melhorar o controle sobre alunos, equipe, planos, treinos, pagamentos e indicadores.
+O Shape Up e voltado para academias completas que precisam organizar processos internos e melhorar o controle sobre alunos, equipe, planos, treinos, pagamentos e indicadores.
 
 Usuarios envolvidos:
 
@@ -52,7 +52,7 @@ Necessidades:
 - controlar planos e matriculas;
 - tomar decisoes com base em dados confiaveis.
 
-Como o Shape ajuda:
+Como o Shape Up ajuda:
 Centraliza informacoes operacionais e financeiras, reduzindo dependencia de planilhas e facilitando a analise do desempenho da academia.
 
 ### Persona 2 - Recepcionista
@@ -68,7 +68,7 @@ Necessidades:
 - verificar situacao de matricula e pagamento;
 - manter informacoes atualizadas.
 
-Como o Shape ajuda:
+Como o Shape Up ajuda:
 Oferece uma interface organizada para rotinas frequentes, diminuindo retrabalho e erros de registro.
 
 ### Persona 3 - Professor ou Instrutor
@@ -84,7 +84,7 @@ Necessidades:
 - registrar observacoes sobre evolucao;
 - organizar exercicios por objetivo e nivel.
 
-Como o Shape ajuda:
+Como o Shape Up ajuda:
 Permite acompanhar o historico do aluno e manter treinos mais organizados, personalizados e rastreaveis.
 
 ### Persona 4 - Aluno
@@ -100,7 +100,7 @@ Necessidades:
 - receber orientacoes claras;
 - ter uma experiencia mais organizada com a academia.
 
-Como o Shape ajuda:
+Como o Shape Up ajuda:
 Melhora a transparencia das informacoes e facilita o acompanhamento individual do aluno.
 
 ## Escopo Inicial

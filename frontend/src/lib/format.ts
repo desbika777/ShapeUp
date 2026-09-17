@@ -41,5 +41,5 @@ export function formatarNivelTreino(value: NivelTreino) {
 }
 
 export function formatarPerfil(value: PerfilAcesso) {
-  return value === 'ADMIN' ? 'Administrador' : 'Usuario';
+  return value === 'MASTER' ? 'Master Shape Up' : 'Dono da academia';
 }

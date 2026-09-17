@@ -1,10 +1,11 @@
 // Monta as dependencias da aplicacao em um unico lugar.
 // Isso facilita testes, porque podemos trocar repositorios reais por repositorios em memoria.
-import type { IRepositorioPlano, IRepositorioAluno, IRepositorioUsuario, IRepositorioTreino } from './repositories/interfaces.js';
+import type { IRepositorioPlano, IRepositorioAluno, IRepositorioUsuario, IRepositorioTreino, IRepositorioAnexo } from './repositories/interfaces.js';
 import { RepositorioPrismaPlano } from './repositories/prisma/prisma-plan-repository.js';
 import { RepositorioPrismaAluno } from './repositories/prisma/prisma-student-repository.js';
 import { RepositorioPrismaUsuario } from './repositories/prisma/prisma-user-repository.js';
 import { RepositorioPrismaTreino } from './repositories/prisma/prisma-workout-repository.js';
+import { RepositorioPrismaAnexo } from './repositories/prisma/prisma-attachment-repository.js';
 import { ControladorAutenticacao } from './controllers/auth-controller.js';
 import { ControladorPainel } from './controllers/dashboard-controller.js';
 import { ControladorImagem } from './controllers/image-controller.js';
@@ -25,6 +26,7 @@ export type DependenciasRepositorios = {
   planRepository: IRepositorioPlano;
   studentRepository: IRepositorioAluno;
   workoutRepository: IRepositorioTreino;
+  attachmentRepository: IRepositorioAnexo;
   mailService: IServicoEmail;
 };
 
@@ -34,6 +36,7 @@ export function createControllers(overrides?: Partial<DependenciasRepositorios>)
   const planRepository = overrides?.planRepository ?? new RepositorioPrismaPlano();
   const studentRepository = overrides?.studentRepository ?? new RepositorioPrismaAluno();
   const workoutRepository = overrides?.workoutRepository ?? new RepositorioPrismaTreino();
+  const attachmentRepository = overrides?.attachmentRepository ?? new RepositorioPrismaAnexo();
   const mailService = overrides?.mailService ?? new ServicoEmailSmtp();
 
   const authService = new ServicoAutenticacao(userRepository, mailService);
@@ -41,7 +44,7 @@ export function createControllers(overrides?: Partial<DependenciasRepositorios>)
   const studentService = new ServicoAluno(studentRepository, planRepository);
   const workoutService = new ServicoTreino(workoutRepository, studentRepository);
   const dashboardService = new ServicoPainel(studentRepository, planRepository, workoutRepository);
-  const imageService = new ServicoImagem();
+  const imageService = new ServicoImagem(attachmentRepository);
 
   // Controladores recebem servicos prontos e ficam responsaveis apenas pelo fluxo HTTP.
   return {

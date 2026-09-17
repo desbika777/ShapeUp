@@ -1,4 +1,4 @@
-# Roteiro de Progresso - Shape
+# Roteiro de Progresso - Shape Up
 
 ## Objetivo
 
@@ -10,13 +10,13 @@ O projeto nao deve ser apenas "um sistema de academia com CRUD". Ele deve parece
 
 ## Visao do produto
 
-Nome do app: Shape
+Nome do app: Shape Up
 
 Referencias de nome/identidade:
 
-- Shape;
 - Shape Up;
-- Shape App.
+- Shape Up;
+- Shape Up App.
 
 Proposta:
 Uma plataforma web para gestao completa de academias, permitindo controlar alunos, planos, matriculas, treinos, avaliacoes fisicas, frequencia, pagamentos, aulas, professores, equipamentos e indicadores do negocio.
@@ -409,8 +409,8 @@ Progresso atual:
 - rotas do frontend traduzidas para PT-BR;
 - endpoints da API traduzidos para PT-BR;
 - paginas principais do frontend organizadas em pastas em PT-BR;
-- marca visual ajustada para Shape;
-- e-mails, senha seed e textos de recuperacao alinhados ao nome Shape;
+- marca visual ajustada para Shape Up;
+- e-mails, senha seed e textos de recuperacao alinhados ao nome Shape Up;
 - documento de arquitetura e evidencias criado;
 - documento de validacao de usabilidade, compatibilidade e seguranca criado;
 - documento de nomenclatura PT-BR criado;
@@ -501,7 +501,7 @@ Esse fluxo ja permite demonstrar:
 
 Decisoes ja tomadas:
 
-- nome do app: Shape;
+- nome do app: Shape Up;
 - foco do produto: academia completa;
 - base tecnica: evoluir a copia limpa do SHAPEUP antigo.
 

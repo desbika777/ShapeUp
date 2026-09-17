@@ -19,7 +19,7 @@ export function AlunosPage() {
   const { token, user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const isAdmin = user?.perfil === 'ADMIN';
+  const isAdmin = user?.perfil === 'ADMIN' || user?.perfil === 'MASTER';
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
@@ -63,9 +63,9 @@ export function AlunosPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Alunos" title="Carteira de alunos" description="Centralize dados cadastrais, objetivos, plano atual e situacao operacional dos alunos." action={isAdmin ? <Link to="/alunos/novo" className="rounded-full bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo aluno</Link> : undefined} />
+      <PageHeader eyebrow="Alunos" title="Carteira de alunos" description="Centralize dados cadastrais, objetivos, plano atual e situacao operacional dos alunos." action={isAdmin ? <Link to="/alunos/novo" className="rounded-md bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo aluno</Link> : undefined} />
       {/* Filtros permitem encontrar alunos por texto, status ou plano. */}
-      <div className="grid gap-3 rounded-[28px] border border-white/70 bg-white p-4 shadow-panel md:grid-cols-[1.2fr_0.8fr_0.8fr]">
+      <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-[1.2fr_0.8fr_0.8fr]">
         <input
           value={search}
           onChange={(event) => {
@@ -73,7 +73,7 @@ export function AlunosPage() {
             setPage(1);
           }}
           placeholder="Buscar por nome, e-mail ou CPF..."
-          className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slateblue"
+          className="h-11 rounded-md border border-slate-200 bg-white px-4 text-sm text-slateblue"
         />
         <select
           value={status}
@@ -81,7 +81,7 @@ export function AlunosPage() {
             setStatus(event.target.value as StatusAluno | 'ALL');
             setPage(1);
           }}
-          className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slateblue"
+          className="h-11 rounded-md border border-slate-200 bg-white px-4 text-sm text-slateblue"
         >
           <option value="ALL">Status (todos)</option>
           <option value="ATIVO">Ativos</option>
@@ -93,7 +93,7 @@ export function AlunosPage() {
             setPlanId(event.target.value);
             setPage(1);
           }}
-          className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slateblue"
+          className="h-11 rounded-md border border-slate-200 bg-white px-4 text-sm text-slateblue"
         >
           <option value="">Plano (todos)</option>
           {plansOptions?.data.map((plan) => <option key={plan.id} value={plan.id}>{plan.name}</option>)}

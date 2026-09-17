@@ -1,8 +1,8 @@
-# Arquitetura e Evidencias Tecnicas - Shape
+# Arquitetura e Evidencias Tecnicas - Shape Up
 
 ## Objetivo
 
-Este documento mostra como a arquitetura do Shape atende a rubrica de Arquitetura de Software: padronizacao, componentizacao, clean code, CRUD integrado, regras de negocio e validacoes.
+Este documento mostra como a arquitetura do Shape Up atende a rubrica de Arquitetura de Software: padronizacao, componentizacao, clean code, CRUD integrado, regras de negocio e validacoes.
 
 ## Visao em Camadas
 
@@ -59,7 +59,7 @@ flowchart TD
 | Area | Rota |
 | --- | --- |
 | Entrar | `/entrar` |
-| Cadastro | `/cadastro` |
+| Acesso controlado | `/cadastro` |
 | Recuperar senha | `/recuperar-senha` |
 | Redefinir senha | `/redefinir-senha` |
 | Painel | `/painel` |
@@ -73,7 +73,8 @@ flowchart TD
 
 | Funcionalidade | Endpoint |
 | --- | --- |
-| Cadastro | `POST /api/autenticacao/cadastro` |
+| Cadastro publico bloqueado | `POST /api/autenticacao/cadastro` |
+| Criar gestor | `POST /api/usuarios` |
 | Entrar | `POST /api/autenticacao/entrar` |
 | Esqueci senha | `POST /api/autenticacao/esqueci-senha` |
 | Redefinir senha | `POST /api/autenticacao/redefinir-senha` |
@@ -93,7 +94,7 @@ O projeto possui tres CRUDs principais integrados:
 - Alunos: tela, validacao, API, service, repository e tabela `alunos`;
 - Treinos: tela, validacao, API, service, repository e tabela `treinos`.
 
-Para a rubrica, basta um CRUD completo, mas o Shape entrega mais de um fluxo demonstravel.
+Para a rubrica, basta um CRUD completo, mas o Shape Up entrega mais de um fluxo demonstravel.
 
 ## Boas Praticas Presentes
 

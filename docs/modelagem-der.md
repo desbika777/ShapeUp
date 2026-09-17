@@ -1,8 +1,8 @@
-# Modelagem de Dados e DER - Shape
+# Modelagem de Dados e DER - Shape Up
 
 ## Objetivo
 
-Este documento apresenta a proposta inicial de modelagem de dados do Shape. A modelagem foi pensada para atender a rubrica do 4o periodo, especialmente o requisito de Diagrama Entidade-Relacionamento com minimo de 20 tabelas, mantendo coerencia com o dominio de uma academia completa.
+Este documento apresenta a proposta inicial de modelagem de dados do Shape Up. A modelagem foi pensada para atender a rubrica do 4o periodo, especialmente o requisito de Diagrama Entidade-Relacionamento com minimo de 20 tabelas, mantendo coerencia com o dominio de uma academia completa.
 
 ## Estrategia de Modelagem
 
@@ -14,7 +14,7 @@ A base antiga do SHAPEUP possuia 5 modelos principais:
 - Treino;
 - TokenRecuperacaoSenha.
 
-Para a nova versao Shape, a modelagem sera ampliada para representar uma academia completa, incluindo:
+Para a nova versao Shape Up, a modelagem sera ampliada para representar uma academia completa, incluindo:
 
 - controle de academia;
 - usuarios e permissoes;

@@ -34,11 +34,11 @@ function validCpf(seed: number) {
 }
 
 function managerData(testInfo: TestInfo) {
-  // Dados de gestor usados nos cenarios de autenticacao.
+  // Dados de cliente usados nos cenarios de autenticacao.
   const seed = nextSeed(testInfo);
   return {
-    name: `Gestor E2E ${seed}`,
-    email: `gestor.${seed}@shape.test`,
+    name: `Cliente E2E ${seed}`,
+    email: `cliente.${seed}@shape.test`,
     cpf: validCpf(seed),
     password: PASSWORD,
     confirmPassword: PASSWORD,
@@ -51,13 +51,38 @@ async function expectApiOk(response: Awaited<ReturnType<APIRequestContext['post'
   }
 }
 
-async function createManager(request: APIRequestContext, testInfo: TestInfo) {
-  // Cria gestor diretamente pela API para preparar cenarios autenticados.
-  const manager = managerData(testInfo);
-  const response = await request.post(`${API_URL}/autenticacao/cadastro`, { data: manager });
+async function loginViaApi(request: APIRequestContext, email: string, password: string) {
+  const response = await request.post(`${API_URL}/autenticacao/entrar`, {
+    data: { email, password },
+  });
   await expectApiOk(response);
-  const payload = await response.json() as { token: string };
-  return { ...manager, token: payload.token };
+  return response.json() as Promise<{ token: string }>;
+}
+
+async function createManager(request: APIRequestContext, testInfo: TestInfo) {
+  // Cria cliente pela rota master para respeitar o fluxo real de acesso controlado.
+  const adminEmail = process.env.E2E_ADMIN_EMAIL ?? 'admin@shape.com.br';
+  const adminPassword = process.env.E2E_ADMIN_PASSWORD ?? PASSWORD;
+  const admin = await loginViaApi(request, adminEmail, adminPassword);
+  const manager = managerData(testInfo);
+  const response = await request.post(`${API_URL}/usuarios`, {
+    headers: { Authorization: `Bearer ${admin.token}` },
+    data: { ...manager, perfil: 'ADMIN' },
+  });
+  await expectApiOk(response);
+  const session = await loginViaApi(request, manager.email, manager.password);
+  const firstAccess = await request.put(`${API_URL}/usuarios/me`, {
+    headers: { Authorization: `Bearer ${session.token}` },
+    data: {
+      name: manager.name,
+      cpf: manager.cpf,
+      currentPassword: manager.password,
+      password: manager.password,
+      confirmPassword: manager.password,
+    },
+  });
+  await expectApiOk(firstAccess);
+  return { ...manager, token: session.token };
 }
 
 async function createPlan(request: APIRequestContext, token: string, name: string) {
@@ -124,29 +149,17 @@ async function authenticate(page: Page, token: string) {
   }, token);
 }
 
-async function fillRegisterForm(page: Page, input: ReturnType<typeof managerData>) {
-  // Preenche cadastro completo pelo navegador para validar a experiencia real.
-  await page.getByLabel('Nome completo').fill(input.name);
-  await page.getByLabel('E-mail').fill(input.email);
-  await page.getByLabel('CPF').fill(input.cpf);
-  await page.locator('input[name="password"]').fill(input.password);
-  await page.locator('input[name="confirmPassword"]').fill(input.confirmPassword);
-}
-
 test.describe('autenticacao', () => {
-  // Garante que cadastro e login funcionam tambem pela interface.
-  test('bloqueia cadastro invalido e cria usuario com sucesso', async ({ page }, testInfo) => {
+  // Garante que cadastro publico permanece fechado e login funciona pela interface.
+  test('explica o cadastro controlado sem liberar formulario publico', async ({ page }) => {
     await page.goto('/cadastro');
 
-    await page.getByRole('button', { name: 'Cadastrar e entrar' }).click();
-    await expect(page.getByText('Informe um nome com ao menos 3 caracteres.')).toBeVisible();
-    await expect(page.getByText('Informe um e-mail valido.')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Cadastro liberado pela Shape Up' })).toBeVisible();
+    await expect(page.getByText('O Shape Up nao permite auto cadastro publico.')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Cadastrar e entrar' })).toHaveCount(0);
 
-    const manager = managerData(testInfo);
-    await fillRegisterForm(page, manager);
-    await page.getByRole('button', { name: 'Cadastrar e entrar' }).click();
-
-    await expect(page.getByText('Painel de desempenho')).toBeVisible();
+    await page.getByRole('link', { name: 'Entrar com acesso' }).click();
+    await expect(page.getByRole('heading', { name: 'Entrar na central Shape Up' })).toBeVisible();
   });
 
   test('exibe falha de login e autentica com credenciais validas', async ({ page, request }, testInfo) => {
@@ -183,8 +196,8 @@ test.describe('CRUDs principais', () => {
     await page.getByLabel('Nome').fill(planName);
     await page.getByLabel('Descricao').fill('Plano E2E com acompanhamento completo.');
     await page.getByLabel('Valor').fill('199.90');
-    await page.getByLabel('Duracao (meses)').fill('12');
-    await page.getByLabel('Status').selectOption('ATIVO');
+    await page.getByLabel('Duracao em meses').fill('12');
+    await page.getByLabel('Status operacional').selectOption('ATIVO');
     await page.getByRole('button', { name: 'Salvar plano' }).click();
 
     await expect(page.getByRole('row', { name: new RegExp(planName) })).toBeVisible();
@@ -262,13 +275,13 @@ test.describe('CRUDs principais', () => {
   });
 });
 
-test.describe('upload de imagens', () => {
-  test('envia imagem pela interface administrativa e exibe metadados salvos', async ({ page, request }, testInfo) => {
+test.describe('anexos visuais', () => {
+  test('envia anexo pela interface administrativa e exibe metadados salvos', async ({ page, request }, testInfo) => {
     const manager = await createManager(request, testInfo);
 
     await authenticate(page, manager.token);
     await page.goto('/imagens');
-    await expect(page.getByText('Upload validado')).toBeVisible();
+    await expect(page.getByText('Anexos da academia')).toBeVisible();
 
     await page.locator('input[type="file"]').setInputFiles({
       name: 'evidencia-rubrica.png',
@@ -276,11 +289,25 @@ test.describe('upload de imagens', () => {
       buffer: PNG_1X1_TRANSPARENTE,
     });
 
-    await page.getByRole('button', { name: 'Enviar imagem' }).click();
+    await page.getByRole('button', { name: 'Salvar anexo no backend' }).click();
 
-    await expect(page.getByText('Imagem enviada')).toBeVisible();
+    await expect(page.getByText('Registro confirmado no backend.')).toBeVisible();
     await expect(page.locator('dd').filter({ hasText: /evidencia-rubrica\.png$/ }).first()).toBeVisible();
-    await expect(page.getByText('image/png')).toBeVisible();
     await expect(page.locator('dd').filter({ hasText: '/uploads/imagens/' }).first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Anexos salvos' })).toBeVisible();
+    await expect(page.getByRole('article').filter({ hasText: 'evidencia-rubrica.png' })).toBeVisible();
+
+    const attachmentsResponse = await request.get(`${API_URL}/imagens`, {
+      headers: { Authorization: `Bearer ${manager.token}` },
+    });
+    await expectApiOk(attachmentsResponse);
+    const attachments = await attachmentsResponse.json() as Array<{ id: string; originalName: string }>;
+    const uploaded = attachments.find((attachment) => attachment.originalName === 'evidencia-rubrica.png');
+    expect(uploaded).toBeTruthy();
+
+    const deleteResponse = await request.delete(`${API_URL}/imagens/${uploaded?.id}`, {
+      headers: { Authorization: `Bearer ${manager.token}` },
+    });
+    await expectApiOk(deleteResponse);
   });
 });

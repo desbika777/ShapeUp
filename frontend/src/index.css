@@ -2,7 +2,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-  /* Cores base usadas antes dos componentes carregarem. */
 
 :root {
   /* Cores base usadas antes dos componentes carregarem. */

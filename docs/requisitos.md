@@ -1,8 +1,8 @@
-# Requisitos - Shape
+# Requisitos - Shape Up
 
 ## Objetivo
 
-Este documento registra os requisitos funcionais e nao funcionais do Shape, servindo como base para backlog, DER, implementacao, testes e apresentacao da rubrica.
+Este documento registra os requisitos funcionais e nao funcionais do Shape Up, servindo como base para backlog, DER, implementacao, testes e apresentacao da rubrica.
 
 ## Escala de Prioridade
 
@@ -12,16 +12,16 @@ Este documento registra os requisitos funcionais e nao funcionais do Shape, serv
 
 ## Requisitos Funcionais
 
-### Autenticacao e Usuarios
+### Autenticacao e Gestores
 
 | Codigo | Prioridade | Requisito |
 | --- | --- | --- |
-| RF-001 | MVP | O sistema deve permitir cadastro de usuarios autorizados. |
+| RF-001 | MVP | O sistema deve permitir cadastro de gestores autorizados. |
 | RF-002 | MVP | O sistema deve permitir login com email e senha. |
-| RF-003 | MVP | O sistema deve proteger rotas internas para usuarios autenticados. |
+| RF-003 | MVP | O sistema deve proteger rotas internas para gestores autenticados. |
 | RF-004 | MVP | O sistema deve permitir recuperacao de senha por token. |
-| RF-005 | P1 | O sistema deve permitir associar usuarios a perfis de acesso. |
-| RF-006 | P1 | O sistema deve permitir controlar permissoes por perfil, como administrador, recepcionista, professor e financeiro. |
+| RF-005 | P1 | O sistema deve permitir evoluir perfis de acesso para equipe ou alunos. |
+| RF-006 | P1 | O sistema deve permitir controlar permissoes por perfil em versoes futuras, como recepcionista, professor, financeiro ou aluno. |
 
 ### Gestao da Academia
 
@@ -135,7 +135,7 @@ Este documento registra os requisitos funcionais e nao funcionais do Shape, serv
 | Codigo | Prioridade | Requisito |
 | --- | --- | --- |
 | RF-054 | MVP | O sistema deve possuir um cliente mobile executavel no Expo Go. |
-| RF-055 | MVP | O app mobile deve permitir login e consulta de indicadores, planos, alunos e treinos pela API. |
+| RF-055 | MVP | O app mobile deve permitir login, consulta de indicadores e operacao dos fluxos principais de planos, alunos e treinos pela API. |
 
 ## Requisitos Nao Funcionais
 
@@ -143,7 +143,7 @@ Este documento registra os requisitos funcionais e nao funcionais do Shape, serv
 | --- | --- | --- |
 | RNF-001 | Seguranca | Senhas devem ser armazenadas usando hash seguro. |
 | RNF-002 | Seguranca | Rotas protegidas devem exigir token JWT valido. |
-| RNF-003 | Seguranca | Usuarios devem acessar apenas dados permitidos pelo seu perfil e academia. |
+| RNF-003 | Seguranca | Gestores devem acessar apenas dados relacionados a sua academia. |
 | RNF-004 | Seguranca | Dados sensiveis nao devem ser expostos em respostas da API. |
 | RNF-005 | Usabilidade | A interface deve ser clara, organizada e adequada a rotinas administrativas frequentes. |
 | RNF-006 | Usabilidade | Formularios devem exibir mensagens de erro compreensiveis. |
@@ -182,8 +182,8 @@ Para a primeira entrega funcional, a prioridade deve ser:
 
 | Grupo | Status | Requisitos | Evidencia |
 | --- | --- | --- | --- |
-| Autenticacao e usuarios | Implementado | RF-001, RF-002, RF-003, RF-004, RF-005 | Cadastro, login, rotas protegidas, recuperacao de senha, criacao de usuario e testes |
-| Controle de permissoes | Implementado em base da rubrica | RF-006 | Perfis ADMIN e USUARIO funcionando no backend e frontend |
+| Autenticacao e gestores | Implementado | RF-001, RF-002, RF-003, RF-004, RF-005 | Cadastro, login, rotas protegidas, recuperacao de senha, criacao de gestor e testes |
+| Controle de acesso | Implementado em base da rubrica | RF-006 | MVP focado em gestor ADMIN; acesso de aluno/equipe fica como evolucao futura documentada |
 | Gestao da academia | Parcial/modelado | RF-007, RF-009 | Entidade `Academia` existe no DER/schema; dados operacionais ficam vinculados ao usuario proprietario no MVP |
 | Gestao da academia | Planejado | RF-008 | Configuracao completa de academia fica como evolucao |
 | Alunos | Implementado | RF-010, RF-011, RF-012, RF-013, RF-014 | CRUD de alunos com filtros, status, validacoes e testes |
@@ -202,13 +202,13 @@ Para a primeira entrega funcional, a prioridade deve ser:
 | Dashboard financeiro | Planejado | RF-050 | Evolucao apos MVP |
 | Relatorios | Planejado | RF-051 | Evolucao apos MVP |
 | Imagens | Implementado | RF-052, RF-053 | Multer, validacao de imagem, storage local, URL publica e E2E |
-| Aplicativo mobile | Implementado em base tecnica | RF-054, RF-055 | Workspace Expo, login, painel e listagens pela API; falta print no celular fisico |
+| Aplicativo mobile | Implementado em base tecnica | RF-054, RF-055 | Workspace Expo, login, painel, abas e CRUDs de planos/alunos/treinos pela API; falta print final no celular fisico |
 
 | Categoria | Status | Requisitos | Evidencia |
 | --- | --- | --- | --- |
-| Seguranca | Implementado | RNF-001, RNF-002, RNF-003, RNF-004, RNF-019 | bcrypt, JWT, controle ADMIN/USUARIO, respostas sem senha e validacao de upload |
+| Seguranca | Implementado | RNF-001, RNF-002, RNF-003, RNF-004, RNF-019 | bcrypt, JWT, acesso administrativo do gestor, respostas sem senha e validacao de upload |
 | Usabilidade | Implementado | RNF-005, RNF-006 | Formularios com validacao, mensagens, estados vazios e feedback por toast |
-| Compatibilidade e responsividade | Parcial com base tecnica | RNF-007, RNF-008, RNF-020 | Web responsiva, Playwright, Expo pronto; falta evidencia visual no celular fisico |
+| Compatibilidade e responsividade | Parcial com base tecnica | RNF-007, RNF-008, RNF-020 | Web responsiva, Playwright, Expo Go validado em base tecnica e script LAN automatizado; falta print final no celular fisico |
 | Performance | Implementado | RNF-009 | Listagens paginadas e filtros principais |
 | Manutenibilidade | Implementado | RNF-010, RNF-011 | Camadas separadas, validadores em `shared`, services e repositories |
 | Confiabilidade | Implementado | RNF-012, RNF-013 | Zod, AppError e error handler padronizado |

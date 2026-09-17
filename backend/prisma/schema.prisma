@@ -32,13 +32,14 @@ model Academia {
   @@map("academias")
 }
 
-/// Tabela de usuarios que acessam o Shape.
+/// Tabela de usuarios que acessam o Shape Up.
 model Usuario {
   id                     String                  @id @default(cuid())
   academyId              String?
   name                   String
   email                  String                  @unique
   passwordHash           String
+  mustChangePassword     Boolean                 @default(false)
   cpf                    String                  @unique
   status                 StatusUsuario           @default(ATIVO)
   createdAt              DateTime                @default(now())
@@ -50,6 +51,7 @@ model Usuario {
   planos                 Plano[]
   alunos                 Aluno[]                 @relation("AlunoResponsavel")
   treinos                Treino[]
+  anexos                 AnexoAcademia[]         @relation("AnexoResponsavel")
   notificacoes           Notificacao[]
   logsAuditoria          LogAuditoria[]
 
@@ -95,6 +97,26 @@ model TokenRecuperacaoSenha {
 
   @@index([userId])
   @@map("tokens_recuperacao_senha")
+}
+
+/// Anexos operacionais enviados com Multer e vinculados ao dono da academia.
+model AnexoAcademia {
+  id           String        @id @default(cuid())
+  ownerId      String
+  category     CategoriaAnexo @default(OUTRO)
+  description  String?       @db.VarChar(180)
+  originalName String
+  fileName     String        @unique
+  mimeType     String
+  size         Int
+  extension    String
+  relativePath String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  responsavel  Usuario       @relation("AnexoResponsavel", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+  @@map("anexos_academia")
 }
 
 /// Tabela de funcionarios e professores da academia.
@@ -536,6 +558,14 @@ model LogAuditoria {
 enum StatusAcademia {
   ATIVO
   INATIVO
+}
+
+enum CategoriaAnexo {
+  COMPROVANTE
+  AVALIACAO
+  MANUTENCAO
+  DOCUMENTO
+  OUTRO
 }
 
 enum StatusUsuario {

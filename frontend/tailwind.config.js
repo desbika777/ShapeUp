@@ -17,10 +17,10 @@ export default {
         body: ['Sora', 'sans-serif'],
       },
       boxShadow: {
-        panel: '0 18px 50px rgba(15, 39, 64, 0.12)',
+        panel: '0 12px 32px rgba(15, 39, 64, 0.10)',
       },
       backgroundImage: {
-        'hero-mesh': 'radial-gradient(circle at top left, rgba(20,184,166,0.28), transparent 40%), radial-gradient(circle at top right, rgba(15,118,110,0.18), transparent 28%), linear-gradient(180deg, #f8fffe 0%, #eef4f7 100%)',
+        'hero-mesh': 'linear-gradient(180deg, #f8fbfc 0%, #eef3f5 100%)',
       },
     },
   },

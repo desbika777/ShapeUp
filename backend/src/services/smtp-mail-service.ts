@@ -9,7 +9,7 @@ export class ServicoEmailSmtp implements IServicoEmail {
   async send(message: MensagemEmail): Promise<void> {
     // Em ambiente sem SMTP configurado, registra no console para facilitar testes locais.
     if (!this.transport || !env.MAIL_FROM) {
-      console.info('[Shape] Link de redefinicao gerado em ambiente local:', message.text);
+      console.info('[Shape Up] Link de redefinicao gerado em ambiente local:', message.text);
       return;
     }
 

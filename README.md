@@ -1,8 +1,12 @@
-# Shape - Plataforma de Gestao de Academias
+# Shape Up - Plataforma de Gestao de Academias
 
 Sistema completo de gestao para academias, evoluido a partir do antigo SHAPEUP e reorganizado para atender a rubrica do 4o periodo de TADS. O projeto possui frontend web, aplicativo mobile Expo, backend separado, autenticacao JWT, rotas em PT-BR, 3 CRUDs completos, dashboard, TypeScript estrito, Prisma, Docker, Nginx com HTTPS local e testes automatizados.
 
 Este repositorio contem a versao final preparada para a rubrica. As instrucoes abaixo servem para reproduzir o ambiente em outra maquina, acessar o banco, executar testes e demonstrar os recursos implementados.
+
+## Escopo do MVP
+
+Nesta versao, o Shape Up e um sistema administrativo para donos de academia. O acesso publico permite login e recuperacao de senha; a conta master da Shape Up cria uma conta de cliente para cada academia vendida. O cliente nao cria outros gestores: ele entra com senha provisoria, define a propria senha no primeiro acesso e gerencia planos, alunos, treinos e anexos da propria academia. Login de aluno fica documentado como evolucao futura.
 
 ## Evidencias da Rubrica
 
@@ -81,8 +85,8 @@ Com a stack ativa, rode:
 
 Credenciais criadas:
 
-- e-mail: `admin@shape.com.br`
-- senha: `Shape@123`
+- Master Shape Up: `admin@shape.com.br` / `Shape@123`
+- Cliente demo: `gestor@shapeup.com.br` / `Shape@123`
 
 ## Desenvolvimento local sem proxy
 
@@ -149,14 +153,14 @@ Para E2E via Docker/HTTPS:
 - autenticacao com JWT, opcao "Lembrar meu acesso" e persistencia em `localStorage` ou `sessionStorage`
 - rotas visiveis em PT-BR: `/entrar`, `/cadastro`, `/painel`, `/planos`, `/alunos`, `/treinos`
 - endpoints da API em PT-BR: `/api/autenticacao/entrar`, `/api/planos`, `/api/alunos`, `/api/treinos`
-- cadastro, login, consulta e edicao do proprio usuario
-- cliente mobile Expo com login, JWT, painel, planos, alunos e treinos resumidos
-- controle funcional entre perfil administrador e usuario operacional
+- login, consulta e edicao da conta autenticada
+- cliente mobile Expo com login, JWT, painel administrativo, planos, alunos e treinos
+- criacao interna de clientes pela conta master; auto cadastro publico bloqueado
 - validacao de e-mail, CPF e senha forte
 - CRUD de planos, alunos e treinos com paginacao
 - relacionamento plano -> aluno e aluno -> treino
 - dashboard com KPIs, graficos e alunos recentes
-- upload de imagens com Multer em `/api/imagens`, validando extensao, MIME type, tamanho maximo, assinatura real e nome unico
+- anexos visuais com Multer em `/api/imagens`, salvando o arquivo no backend e registrando metadados no banco para listagem e abertura posterior
 - testes de backend com Supertest
 - testes de frontend com Vitest + Testing Library
-- testes E2E de login, cadastro, CRUDs de planos/alunos e upload de imagens
+- testes E2E de login, acesso controlado, CRUDs de planos/alunos e anexos visuais com Multer

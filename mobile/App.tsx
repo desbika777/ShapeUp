@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import type { RespostaAutenticacao } from '@shape/shared';
 import { DashboardScreen } from './src/screens/DashboardScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
@@ -12,16 +13,18 @@ export default function App() {
   const [session, setSession] = useState<RespostaAutenticacao | null>(null);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="dark" />
-      <View style={styles.container}>
-        {session ? (
-          <DashboardScreen apiUrl={apiUrl} session={session} onLogout={() => setSession(null)} />
-        ) : (
-          <LoginScreen apiUrl={apiUrl} onApiUrlChange={setApiUrl} onLogin={setSession} />
-        )}
-      </View>
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <SafeAreaView edges={['top', 'right', 'bottom', 'left']} style={styles.safeArea}>
+        <StatusBar style="dark" />
+        <View style={styles.container}>
+          {session ? (
+            <DashboardScreen apiUrl={apiUrl} session={session} onLogout={() => setSession(null)} onSessionUpdate={setSession} />
+          ) : (
+            <LoginScreen apiUrl={apiUrl} onApiUrlChange={setApiUrl} onLogin={setSession} />
+          )}
+        </View>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 

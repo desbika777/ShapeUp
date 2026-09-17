@@ -24,7 +24,7 @@ export function QueryState({
 }: QueryStateProps) {
   if (isLoading) {
     // Cada tela pode enviar um skeleton proprio; se nao enviar, usamos fallback simples.
-    return <>{loadingFallback ?? <div className="rounded-[28px] border border-white/70 bg-white p-6 shadow-panel">Carregando...</div>}</>;
+    return <>{loadingFallback ?? <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">Carregando...</div>}</>;
   }
 
   if (isError) {
@@ -32,14 +32,14 @@ export function QueryState({
     const message = error instanceof ErroApi ? error.message : 'Nao foi possivel carregar os dados agora.';
 
     return (
-      <div className="rounded-[28px] border border-rose-200 bg-rose-50 p-6 text-rose-900 shadow-panel">
+      <div className="rounded-lg border border-rose-200 bg-rose-50 p-6 text-rose-900 shadow-sm">
         <p className="font-semibold">Algo deu errado</p>
         <p className="mt-2 text-sm">{message}</p>
         {onRetry ? (
           <button
             type="button"
             onClick={onRetry}
-            className="mt-5 rounded-full bg-rose-600 px-5 py-3 text-sm font-semibold text-white"
+            className="mt-5 rounded-md bg-rose-600 px-5 py-3 text-sm font-semibold text-white"
           >
             Tentar novamente
           </button>

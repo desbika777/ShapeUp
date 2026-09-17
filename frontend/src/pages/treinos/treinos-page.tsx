@@ -19,7 +19,7 @@ export function TreinosPage() {
   const { token, user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const isAdmin = user?.perfil === 'ADMIN';
+  const isAdmin = user?.perfil === 'ADMIN' || user?.perfil === 'MASTER';
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
@@ -63,9 +63,9 @@ export function TreinosPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Treinos" title="Prescricao de treinos" description="Organize treinos por aluno, nivel, periodo e objetivo, com historico claro e operacao padronizada." action={isAdmin ? <Link to="/treinos/novo" className="rounded-full bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo treino</Link> : undefined} />
+      <PageHeader eyebrow="Treinos" title="Prescricao de treinos" description="Organize treinos por aluno, nivel, periodo e objetivo, com historico claro e operacao padronizada." action={isAdmin ? <Link to="/treinos/novo" className="rounded-md bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo treino</Link> : undefined} />
       {/* Filtros ajudam a localizar treinos por objetivo, nivel ou aluno. */}
-      <div className="grid gap-3 rounded-[28px] border border-white/70 bg-white p-4 shadow-panel md:grid-cols-[1.2fr_0.7fr_1.1fr]">
+      <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-[1.2fr_0.7fr_1.1fr]">
         <input
           value={search}
           onChange={(event) => {
@@ -73,7 +73,7 @@ export function TreinosPage() {
             setPage(1);
           }}
           placeholder="Buscar por treino, objetivo ou aluno..."
-          className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slateblue"
+          className="h-11 rounded-md border border-slate-200 bg-white px-4 text-sm text-slateblue"
         />
         <select
           value={level}
@@ -81,7 +81,7 @@ export function TreinosPage() {
             setLevel(event.target.value as NivelTreino | 'ALL');
             setPage(1);
           }}
-          className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slateblue"
+          className="h-11 rounded-md border border-slate-200 bg-white px-4 text-sm text-slateblue"
         >
           <option value="ALL">Nivel (todos)</option>
           <option value="INICIANTE">Iniciante</option>
@@ -94,7 +94,7 @@ export function TreinosPage() {
             setStudentId(event.target.value);
             setPage(1);
           }}
-          className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slateblue"
+          className="h-11 rounded-md border border-slate-200 bg-white px-4 text-sm text-slateblue"
         >
           <option value="">Aluno (todos)</option>
           {studentsOptions?.data.map((student) => <option key={student.id} value={student.id}>{student.name}</option>)}

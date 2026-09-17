@@ -12,6 +12,8 @@
     "dev:frontend": "npm run dev --workspace frontend",
     "dev:backend": "npm run dev --workspace backend",
     "dev:mobile": "npm run start --workspace mobile",
+    "dev:mobile:lan": "node scripts/start-mobile-lan.cjs",
+    "dev:mobile:tunnel": "node scripts/start-mobile-lan.cjs --tunnel",
     "build": "npm run build --workspace shared && npm run build --workspace backend && npm run build --workspace frontend",
     "test": "npm run lint --workspace shared && npm run build --workspace shared && npm run test --workspace backend && npm run test --workspace frontend",
     "lint": "npm run lint --workspace shared && npm run build --workspace shared && npm run lint --workspace backend && npm run lint --workspace frontend",

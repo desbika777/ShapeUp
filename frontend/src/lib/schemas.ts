@@ -12,12 +12,12 @@ export const loginFormSchema = loginSchema.extend({
   rememberAccess: z.boolean(),
 });
 
-// Cadastro exige dados validos e confirmacao de senha igual.
-export const registerSchema = z
+// Base de validacao para criacao interna de clientes.
+export const managerAccessSchema = z
   .object({
     name: z.string().min(3, 'Informe um nome com ao menos 3 caracteres.'),
     email: z.string().regex(EMAIL_REGEX, 'Informe um e-mail valido.'),
-    password: z.string().refine(isStrongPassword, 'Use uma senha forte com 8+ caracteres, maiuscula, minuscula, numero e simbolo.'),
+    password: z.string().refine(isStrongPassword, 'Use a senha provisoria gerada ou gere outra senha.'),
     confirmPassword: z.string().min(8, 'Confirme a senha.'),
     cpf: z.string().refine(isValidCpf, 'Informe um CPF valido.'),
   })
@@ -26,9 +26,9 @@ export const registerSchema = z
     message: 'A confirmacao da senha nao confere.',
   });
 
-// Criacao interna de usuario inclui o perfil de acesso que sera aplicado pela API.
-export const createUserSchema = registerSchema.extend({
-  perfil: z.enum(['ADMIN', 'USUARIO']),
+// Criacao interna sempre gera a conta do dono da academia.
+export const createUserSchema = managerAccessSchema.extend({
+  perfil: z.enum(['ADMIN', 'MASTER']),
 });
 
 // Recuperacao de senha pede somente o e-mail cadastrado.

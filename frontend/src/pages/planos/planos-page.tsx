@@ -19,7 +19,7 @@ export function PlanosPage() {
   const { token, user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const isAdmin = user?.perfil === 'ADMIN';
+  const isAdmin = user?.perfil === 'ADMIN' || user?.perfil === 'MASTER';
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
@@ -54,9 +54,9 @@ export function PlanosPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Planos" title="Catalogo comercial da academia" description="Gerencie planos, duracao, ticket medio e status de venda com uma operacao organizada e escalavel." action={isAdmin ? <Link to="/planos/novo" className="rounded-full bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo plano</Link> : undefined} />
+      <PageHeader eyebrow="Planos" title="Catalogo comercial da academia" description="Gerencie planos, duracao, ticket medio e status de venda com uma operacao organizada e escalavel." action={isAdmin ? <Link to="/planos/novo" className="rounded-md bg-slateblue px-5 py-3 text-sm font-semibold text-white">Novo plano</Link> : undefined} />
       {/* Filtros de busca e status usados para reduzir a tabela. */}
-      <div className="grid gap-3 rounded-[28px] border border-white/70 bg-white p-4 shadow-panel md:grid-cols-[1.4fr_0.6fr]">
+      <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-[1.4fr_0.6fr]">
         <input
           value={search}
           onChange={(event) => {
@@ -64,7 +64,7 @@ export function PlanosPage() {
             setPage(1);
           }}
           placeholder="Buscar por nome ou descricao..."
-          className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slateblue"
+          className="h-11 rounded-md border border-slate-200 bg-white px-4 text-sm text-slateblue"
         />
         <select
           value={status}
@@ -72,7 +72,7 @@ export function PlanosPage() {
             setStatus(event.target.value as StatusPlano | 'ALL');
             setPage(1);
           }}
-          className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slateblue"
+          className="h-11 rounded-md border border-slate-200 bg-white px-4 text-sm text-slateblue"
         >
           <option value="ALL">Status (todos)</option>
           <option value="ATIVO">Ativos</option>

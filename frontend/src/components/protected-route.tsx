@@ -11,7 +11,7 @@ export function ProtectedRoute() {
     // Enquanto o token salvo e validado, exibimos carregamento elegante.
     return (
       <div className="flex min-h-screen items-center justify-center bg-hero-mesh px-6">
-        <div className="flex flex-col items-center gap-4 rounded-[32px] border border-white/60 bg-white/85 px-8 py-7 text-center shadow-panel backdrop-blur">
+        <div className="flex flex-col items-center gap-4 rounded-lg border border-slate-200 bg-white px-8 py-7 text-center shadow-sm">
           <BrandLogo size="md" theme="dark" />
           <p className="font-body text-sm font-medium text-slate-500">Carregando seu ambiente de gestao...</p>
         </div>

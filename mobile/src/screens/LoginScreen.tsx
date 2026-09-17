@@ -46,7 +46,7 @@ export function LoginScreen({ apiUrl, onApiUrlChange, onLogin }: LoginScreenProp
       });
       onLogin(session);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Nao foi possivel entrar no Shape.');
+      setError(err instanceof Error ? err.message : 'Nao foi possivel entrar no Shape Up.');
     } finally {
       setLoading(false);
     }
@@ -56,9 +56,9 @@ export function LoginScreen({ apiUrl, onApiUrlChange, onLogin }: LoginScreenProp
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.keyboard}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
-          <Text style={styles.brand}>Shape</Text>
-          <Text style={styles.title}>Acesso mobile</Text>
-          <Text style={styles.subtitle}>Conecte o Expo Go a API local para demonstrar o app em dispositivo real.</Text>
+          <Text style={styles.brand}>Shape Up</Text>
+          <Text style={styles.title}>Gestao mobile</Text>
+          <Text style={styles.subtitle}>Conecte o Expo Go a API local para gerenciar a academia em dispositivo real.</Text>
         </View>
 
         <View style={styles.form}>

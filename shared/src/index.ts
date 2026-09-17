@@ -1,6 +1,6 @@
 // Tipos compartilhados entre frontend e backend.
 // Mantem os contratos da API iguais nos dois lados do projeto.
-export type PerfilAcesso = 'ADMIN' | 'USUARIO';
+export type PerfilAcesso = 'MASTER' | 'ADMIN';
 
 export type RespostaPaginada<T> = {
   data: T[];
@@ -19,25 +19,18 @@ export type UsuarioAutenticado = {
   email: string;
   cpf: string;
   perfil: PerfilAcesso;
+  mustChangePassword: boolean;
   createdAt: string;
   updatedAt: string;
 };
 
-// Resposta padrao de cadastro/login: token JWT e usuario.
+// Resposta padrao de login: token JWT e usuario.
 export type RespostaAutenticacao = {
   token: string;
   user: UsuarioAutenticado;
 };
 
 // Entradas usadas nas telas e services de autenticacao.
-export type EntradaCadastroUsuario = {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  cpf: string;
-};
-
 export type EntradaLoginUsuario = {
   email: string;
   password: string;
@@ -122,7 +115,7 @@ export function isStrongPassword(password: string) {
 // Parametros oficiais para upload de imagens via Multer.
 export const IMAGEM_EXTENSOES_PERMITIDAS = ['.png', '.jpg', '.jpeg', '.webp'] as const;
 export const IMAGEM_MIME_TYPES_PERMITIDOS = ['image/png', 'image/jpeg', 'image/webp'] as const;
-export const IMAGEM_TAMANHO_MAXIMO_BYTES = 2 * 1024 * 1024;
+export const IMAGEM_TAMANHO_MAXIMO_BYTES = 8 * 1024 * 1024;
 
 export type ImagemEnviada = {
   originalName: string;
@@ -133,6 +126,23 @@ export type ImagemEnviada = {
   relativePath: string;
   url: string;
   uploadedAt: string;
+};
+
+export const CATEGORIAS_ANEXO = ['COMPROVANTE', 'AVALIACAO', 'MANUTENCAO', 'DOCUMENTO', 'OUTRO'] as const;
+
+export type CategoriaAnexo = typeof CATEGORIAS_ANEXO[number];
+
+export type AnexoAcademia = ImagemEnviada & {
+  id: string;
+  category: CategoriaAnexo;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type EntradaAnexo = {
+  category: CategoriaAnexo;
+  description?: string;
 };
 
 // Status e niveis controlam valores permitidos em selects e banco.

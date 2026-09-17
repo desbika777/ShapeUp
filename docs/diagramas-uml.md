@@ -1,8 +1,8 @@
-# Diagramas UML da Rubrica - Shape
+# Diagramas UML da Rubrica - Shape Up
 
 ## Objetivo
 
-Este documento reune os diagramas exigidos pela rubrica: 2 casos de uso, 2 atividades e 2 sequencias. Todos representam funcionalidades reais do Shape e podem ser usados diretamente na apresentacao.
+Este documento reune os diagramas exigidos pela rubrica: 2 casos de uso, 2 atividades e 2 sequencias. Todos representam funcionalidades reais do Shape Up e podem ser usados diretamente na apresentacao.
 
 ## Caso de Uso 1 - Gestao Principal da Academia
 

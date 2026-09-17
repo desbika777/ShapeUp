@@ -14,6 +14,8 @@ import type {
   EntradaTreino,
   NivelTreino,
   IndicadoresPainel,
+  AnexoAcademia,
+  EntradaAnexo,
 } from '@shape/shared';
 
 export type ParametrosPaginacao = {
@@ -59,16 +61,25 @@ export type RegistroTokenRecuperacaoSenha = {
 
 // Operacoes necessarias para cadastro, login, perfil e recuperacao de senha.
 export interface IRepositorioUsuario {
-  create(input: { name: string; email: string; passwordHash: string; cpf: string; perfil: PerfilAcesso }): Promise<RegistroUsuario>;
+  create(input: { name: string; email: string; passwordHash: string; cpf: string; perfil: PerfilAcesso; mustChangePassword?: boolean }): Promise<RegistroUsuario>;
   list(): Promise<UsuarioAutenticado[]>;
   findByEmail(email: string): Promise<RegistroUsuario | null>;
   findByCpf(cpf: string): Promise<RegistroUsuario | null>;
   findById(id: string): Promise<RegistroUsuario | null>;
-  update(id: string, input: { name: string; passwordHash: string; cpf: string }): Promise<RegistroUsuario>;
+  update(id: string, input: { name: string; passwordHash: string; cpf: string; mustChangePassword?: boolean }): Promise<RegistroUsuario>;
+  delete(id: string): Promise<void>;
   criarTokenRecuperacaoSenha(input: { userId: string; tokenHash: string; expiresAt: Date }): Promise<RegistroTokenRecuperacaoSenha>;
   buscarTokenRecuperacaoSenhaPorHash(tokenHash: string): Promise<RegistroTokenRecuperacaoSenha | null>;
   marcarTokenRecuperacaoSenhaUsado(id: string): Promise<void>;
   excluirTokensRecuperacaoSenhaPorUsuario(userId: string): Promise<void>;
+}
+
+// Operacoes de persistencia para anexos operacionais enviados com Multer.
+export interface IRepositorioAnexo {
+  list(ownerId: string): Promise<AnexoAcademia[]>;
+  create(ownerId: string, input: EntradaAnexo & Omit<AnexoAcademia, 'id' | 'category' | 'description' | 'url' | 'uploadedAt' | 'createdAt' | 'updatedAt'>): Promise<AnexoAcademia>;
+  findById(ownerId: string, id: string): Promise<AnexoAcademia | null>;
+  delete(ownerId: string, id: string): Promise<void>;
 }
 
 // Operacoes de persistencia para planos comerciais da academia.

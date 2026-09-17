@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-labelledby="title desc">
+  <title id="title">Avaliacao fisica</title>
+  <desc id="desc">Ilustracao de ficha de avaliacao fisica de aluno.</desc>
+  <rect width="640" height="400" fill="#f8fafc"/>
+  <rect x="72" y="62" width="496" height="276" rx="20" fill="#ffffff" stroke="#dbe3ef" stroke-width="4"/>
+  <circle cx="170" cy="142" r="42" fill="#dbeafe"/>
+  <circle cx="170" cy="130" r="17" fill="#2563eb"/>
+  <path d="M132 198c10-26 65-26 76 0" fill="#2563eb"/>
+  <rect x="250" y="108" width="202" height="16" rx="8" fill="#1e3a8a"/>
+  <rect x="250" y="144" width="254" height="12" rx="6" fill="#94a3b8"/>
+  <rect x="250" y="174" width="208" height="12" rx="6" fill="#cbd5e1"/>
+  <rect x="126" y="242" width="388" height="58" rx="12" fill="#f0fdfa"/>
+  <path d="M156 274h42l18-26 30 44 22-34h58" fill="none" stroke="#0f766e" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="374" y="260" width="104" height="12" rx="6" fill="#14b8a6"/>
+  <rect x="374" y="284" width="74" height="12" rx="6" fill="#99f6e4"/>
+</svg>

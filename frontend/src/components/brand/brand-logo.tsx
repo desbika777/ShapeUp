@@ -1,4 +1,4 @@
-// Componentes da marca Shape usados no login, sidebar e estados de carregamento.
+// Componentes da marca Shape Up usados no login, sidebar e estados de carregamento.
 import { useId } from 'react';
 import { cn } from '@/lib/cn';
 
@@ -105,7 +105,7 @@ export function BrandLogo({
       {!markOnly && (
         <div className="min-w-0">
           <p className={cn('font-display font-semibold leading-none tracking-normal', styles.title, titleColor)}>
-            <span>Shape</span>
+            <span>Shape Up</span>
           </p>
           {subtitle ? (
             <p className={cn('mt-1 font-body font-medium tracking-[0.08em] uppercase', styles.subtitle, subtitleColor)}>{subtitle}</p>

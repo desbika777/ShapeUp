@@ -33,7 +33,7 @@ export async function apiRequest<T>(apiUrl: string, path: string, options: ApiOp
   const payload = (await response.json().catch(() => null)) as PayloadErroApi | T | null;
 
   if (!response.ok) {
-    const message = isErrorPayload(payload) ? payload.message : 'Nao foi possivel conectar ao Shape.';
+    const message = isErrorPayload(payload) ? payload.message : 'Nao foi possivel conectar ao Shape Up.';
     throw new ApiError(message, response.status);
   }
 

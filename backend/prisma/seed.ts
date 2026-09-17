@@ -1,4 +1,4 @@
-// Seed local do Shape.
+// Seed local do Shape Up.
 // Cria dados iniciais para testar o sistema e demonstrar a modelagem do projeto.
 import 'dotenv/config';
 import {
@@ -25,7 +25,7 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Senha padrao do usuario administrador: Shape@123.
+  // Senha padrao das contas de demonstracao: Shape@123.
   const passwordHash = await bcrypt.hash('Shape@123', 10);
   const now = new Date();
 
@@ -33,41 +33,47 @@ async function main() {
   const academy = await prisma.academia.upsert({
     where: { document: '12345678000190' },
     update: {
-      name: 'Shape Academia Central',
+      name: 'Shape Up Academia Central',
       phone: '11940028922',
-      email: 'contato@shape.com',
+      email: 'contato@shapeup.com.br',
       status: 'ATIVO',
     },
     create: {
       id: 'seed-academy-central',
-      name: 'Shape Academia Central',
+      name: 'Shape Up Academia Central',
       document: '12345678000190',
       phone: '11940028922',
-      email: 'contato@shape.com',
+      email: 'contato@shapeup.com.br',
       status: 'ATIVO',
     },
   });
 
-  // Perfis de acesso usados para demonstrar controle entre administrador e usuario.
+  // Perfis principais: MASTER vende/cria clientes; ADMIN e dono da academia cliente.
+  const masterRole = await prisma.perfil.upsert({
+    where: { name: 'MASTER' },
+    update: { description: 'Conta master da plataforma Shape Up.' },
+    create: { id: 'seed-role-master', name: 'MASTER', description: 'Conta master da plataforma Shape Up.' },
+  });
+
   const adminRole = await prisma.perfil.upsert({
     where: { name: 'ADMIN' },
-    update: { description: 'Acesso administrativo completo.' },
-    create: { id: 'seed-role-admin', name: 'ADMIN', description: 'Acesso administrativo completo.' },
+    update: { description: 'Dono de academia cliente com acesso completo a propria operacao.' },
+    create: { id: 'seed-role-admin', name: 'ADMIN', description: 'Dono de academia cliente com acesso completo a propria operacao.' },
   });
 
-  const userRole = await prisma.perfil.upsert({
+  await prisma.perfil.upsert({
     where: { name: 'USUARIO' },
-    update: { description: 'Acesso operacional limitado.' },
-    create: { id: 'seed-role-user', name: 'USUARIO', description: 'Acesso operacional limitado.' },
+    update: { description: 'Perfil reservado para evolucao futura do acesso de alunos ou equipe.' },
+    create: { id: 'seed-role-user', name: 'USUARIO', description: 'Perfil reservado para evolucao futura do acesso de alunos ou equipe.' },
   });
 
-  const teacherRole = await prisma.perfil.upsert({
+  await prisma.perfil.upsert({
     where: { name: 'PROFESSOR' },
     update: { description: 'Acesso para professores e instrutores.' },
     create: { id: 'seed-role-professor', name: 'PROFESSOR', description: 'Acesso para professores e instrutores.' },
   });
 
-  // Gestor principal usado para acessar o sistema localmente.
+  // Conta master usada por Enzo/Pedro para criar clientes da plataforma.
   // Busca por e-mail ou CPF para reaproveitar registros antigos do seed sem gerar duplicidade.
   const adminExistente = await prisma.usuario.findFirst({
     where: { OR: [{ email: 'admin@shape.com.br' }, { cpf: '11144477735' }] },
@@ -78,7 +84,7 @@ async function main() {
       where: { id: adminExistente.id },
       data: {
         academyId: academy.id,
-        name: 'Administrador Shape',
+        name: 'Master Shape Up',
         email: 'admin@shape.com.br',
         passwordHash,
         cpf: '11144477735',
@@ -88,7 +94,7 @@ async function main() {
     : await prisma.usuario.create({
       data: {
         academyId: academy.id,
-        name: 'Administrador Shape',
+        name: 'Master Shape Up',
         email: 'admin@shape.com.br',
         passwordHash,
         cpf: '11144477735',
@@ -96,28 +102,34 @@ async function main() {
       },
     });
 
-  // Vincula o gestor ao perfil administrativo.
+  // Normaliza registros antigos do seed para que a conta principal seja apenas master.
+  await prisma.usuarioPerfil.deleteMany({
+    where: {
+      userId: admin.id,
+      roleId: { not: masterRole.id },
+    },
+  });
+
+  // Vincula a conta principal ao perfil master.
   await prisma.usuarioPerfil.upsert({
-    where: { userId_roleId: { userId: admin.id, roleId: adminRole.id } },
+    where: { userId_roleId: { userId: admin.id, roleId: masterRole.id } },
     update: {},
-    create: { userId: admin.id, roleId: adminRole.id },
+    create: { userId: admin.id, roleId: masterRole.id },
   });
 
-  // Usuario operacional usado para demonstrar acesso limitado.
-  // Senha padrao do usuario operacional: Usuario@123.
-  const operationalPasswordHash = await bcrypt.hash('Usuario@123', 10);
-  const usuarioExistente = await prisma.usuario.findFirst({
-    where: { OR: [{ email: 'usuario@shape.com.br' }, { cpf: '52998224725' }] },
+  // Cliente de demonstracao: dono de academia que gerencia a propria operacao.
+  const gestorApoioExistente = await prisma.usuario.findFirst({
+    where: { OR: [{ email: 'gestor@shapeup.com.br' }, { cpf: '52998224725' }] },
   });
 
-  const usuarioOperacional = usuarioExistente
+  const gestorApoio = gestorApoioExistente
     ? await prisma.usuario.update({
-      where: { id: usuarioExistente.id },
+      where: { id: gestorApoioExistente.id },
       data: {
         academyId: academy.id,
-        name: 'Usuario Operacional',
-        email: 'usuario@shape.com.br',
-        passwordHash: operationalPasswordHash,
+        name: 'Cliente Academia Demo',
+        email: 'gestor@shapeup.com.br',
+        passwordHash,
         cpf: '52998224725',
         status: 'ATIVO',
       },
@@ -126,18 +138,26 @@ async function main() {
       data: {
         id: 'seed-user-operacional',
         academyId: academy.id,
-        name: 'Usuario Operacional',
-        email: 'usuario@shape.com.br',
-        passwordHash: operationalPasswordHash,
+        name: 'Cliente Academia Demo',
+        email: 'gestor@shapeup.com.br',
+        passwordHash,
         cpf: '52998224725',
         status: 'ATIVO',
       },
     });
 
+  // Normaliza registros antigos do seed para que o cliente seja apenas dono da academia.
+  await prisma.usuarioPerfil.deleteMany({
+    where: {
+      userId: gestorApoio.id,
+      roleId: { not: adminRole.id },
+    },
+  });
+
   await prisma.usuarioPerfil.upsert({
-    where: { userId_roleId: { userId: usuarioOperacional.id, roleId: userRole.id } },
+    where: { userId_roleId: { userId: gestorApoio.id, roleId: adminRole.id } },
     update: {},
-    create: { userId: usuarioOperacional.id, roleId: userRole.id },
+    create: { userId: gestorApoio.id, roleId: adminRole.id },
   });
 
   // Professor/instrutor usado nos treinos, aulas e avaliacoes.
@@ -160,12 +180,6 @@ async function main() {
       position: 'Professora',
       status: StatusFuncionario.ATIVO,
     },
-  });
-
-  await prisma.usuarioPerfil.upsert({
-    where: { userId_roleId: { userId: admin.id, roleId: teacherRole.id } },
-    update: {},
-    create: { userId: admin.id, roleId: teacherRole.id },
   });
 
   // Plano comercial inicial para matricular alunos.
