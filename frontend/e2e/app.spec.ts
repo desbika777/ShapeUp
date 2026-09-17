@@ -290,10 +290,9 @@ test.describe('anexos operacionais', () => {
 
     await expect(page.getByText('Registro confirmado no backend.')).toBeVisible();
     await expect(page.locator('dd').filter({ hasText: /evidencia-rubrica\.pdf$/ }).first()).toBeVisible();
-    await expect(page.locator('dd').filter({ hasText: '/uploads/imagens/' }).first()).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Anexos salvos' })).toBeVisible();
     await expect(page.getByRole('article').filter({ hasText: 'evidencia-rubrica.pdf' })).toBeVisible();
-    await expect(page.getByText('PDF salvo no backend')).toBeVisible();
+    await expect(page.getByLabel('Miniatura PDF de evidencia-rubrica.pdf')).toBeVisible();
 
     const attachmentsResponse = await request.get(`${API_URL}/imagens`, {
       headers: { Authorization: `Bearer ${manager.token}` },

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Activity, AlertCircle, CheckCircle2, ClipboardList, ExternalLink, FileCheck2, FileImage, FileText, Paperclip, ReceiptText, ShieldCheck, Trash2, Upload, Wrench } from 'lucide-react';
+import { Activity, AlertCircle, CheckCircle2, ClipboardList, ExternalLink, FileCheck2, FileImage, Paperclip, ReceiptText, ShieldCheck, Trash2, Upload, Wrench } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import type { AnexoAcademia, CategoriaAnexo } from '@shape/shared';
@@ -386,38 +386,33 @@ export function ImagensPage() {
             </div>
 
             {lastUploaded ? (
-              <dl className="mt-5 grid gap-4 text-sm">
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+              <div className="mt-5 space-y-4">
+                <dl className="grid gap-4 text-sm">
                   <div>
-                    <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Categoria</dt>
-                    <dd className="mt-1 font-medium text-slateblue">{categoriaLabels[lastUploaded.category]}</dd>
+                    <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Arquivo</dt>
+                    <dd className="mt-1 line-clamp-2 break-all font-medium text-slateblue">{lastUploaded.originalName}</dd>
                   </div>
-                  <div>
-                    <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Tamanho</dt>
-                    <dd className="mt-1 font-medium text-slateblue">{formatarBytes(lastUploaded.size)}</dd>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Categoria</dt>
+                      <dd className="mt-1 font-medium text-slateblue">{categoriaLabels[lastUploaded.category]}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Tamanho</dt>
+                      <dd className="mt-1 font-medium text-slateblue">{formatarBytes(lastUploaded.size)}</dd>
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Arquivo</dt>
-                  <dd className="mt-1 break-all font-medium text-slateblue">{lastUploaded.originalName}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Link publico</dt>
-                  <dd className="mt-1 break-all font-medium text-teal">{lastUploaded.url}</dd>
-                </div>
-              </dl>
+                </dl>
+                <a href={lastUploaded.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-md border border-teal/20 px-4 py-3 text-sm font-semibold text-teal transition hover:bg-teal/5">
+                  <ExternalLink size={16} />
+                  Abrir anexo salvo
+                </a>
+              </div>
             ) : (
               <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 px-4 py-5 text-sm leading-6 text-slate-500">
                 Nenhum anexo foi enviado nesta sessao. Depois do primeiro envio, os dados do arquivo ficam destacados aqui.
               </div>
             )}
-
-            {lastUploaded ? (
-              <a href={lastUploaded.url} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 rounded-md border border-teal/20 px-4 py-3 text-sm font-semibold text-teal transition hover:bg-teal/5">
-                <ExternalLink size={16} />
-                Abrir anexo salvo
-              </a>
-            ) : null}
           </section>
 
         </aside>
@@ -472,16 +467,31 @@ export function ImagensPage() {
               const isPdf = ehPdf(attachment);
               return (
                 <article key={attachment.id} className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
-                  <a href={attachment.url} target="_blank" rel="noreferrer" className="block bg-white">
+                  <div className="relative aspect-video overflow-hidden bg-white">
                     {isImage ? (
-                      <img src={attachment.url} alt={attachment.originalName} className="aspect-video w-full object-contain p-3" />
+                      <img src={attachment.url} alt={attachment.originalName} className="h-full w-full object-contain p-3" />
+                    ) : isPdf ? (
+                      <div className="flex h-full w-full items-center justify-center bg-white p-4" aria-label={`Miniatura PDF de ${attachment.originalName}`}>
+                        <div className="relative flex h-full w-[58%] min-w-[140px] max-w-[210px] flex-col rounded-md border border-slate-200 bg-white p-4 shadow-sm">
+                          <span className="inline-flex w-fit rounded-md bg-rose-50 px-2 py-1 text-[11px] font-bold text-rose-700">PDF</span>
+                          <div className="mt-4 space-y-2">
+                            <span className="block h-2 w-3/4 rounded bg-slate-300" />
+                            <span className="block h-2 w-full rounded bg-slate-200" />
+                            <span className="block h-2 w-5/6 rounded bg-slate-200" />
+                          </div>
+                          <div className="mt-auto rounded-md bg-teal/10 px-3 py-2 text-center text-xs font-semibold text-teal">Documento anexado</div>
+                        </div>
+                      </div>
                     ) : (
-                      <div className="flex aspect-video w-full flex-col items-center justify-center gap-3 bg-slate-100 p-5 text-center">
-                        {isPdf ? <FileText size={42} className="text-teal" /> : <FileImage size={42} className="text-teal" />}
-                        <span className="text-sm font-semibold text-slateblue">{isPdf ? 'PDF salvo no backend' : 'Arquivo salvo no backend'}</span>
+                      <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-slate-100 p-5 text-center">
+                        <FileImage size={42} className="text-teal" />
+                        <span className="text-sm font-semibold text-slateblue">Arquivo salvo no backend</span>
                       </div>
                     )}
-                  </a>
+                    <a href={attachment.url} target="_blank" rel="noreferrer" className="absolute inset-0" aria-label={`Abrir ${attachment.originalName}`}>
+                      <span className="sr-only">Abrir {attachment.originalName}</span>
+                    </a>
+                  </div>
                   <div className="space-y-4 p-4">
                     <div>
                       <span className="inline-flex items-center gap-1.5 rounded-md bg-teal/10 px-2.5 py-1 text-xs font-semibold text-teal">
