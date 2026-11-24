@@ -9,6 +9,7 @@ const projectRoot = path.resolve(__dirname, '..');
 const projectName = `shapeup-e2e-${process.pid}-${Date.now().toString(36)}`;
 const composePath = path.join(projectRoot, `.compose-e2e-${process.pid}.yml`);
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shapeup-e2e-'));
+const certificateDir = path.join(tempDir, 'certs');
 const envPath = path.join(tempDir, '.env');
 const playwrightConfigPath = path.join(tempDir, 'playwright.config.mjs');
 const composeEnv = { ...process.env };
@@ -61,7 +62,52 @@ function createComposeFile() {
   }
 
   compose = compose.replace(defaultPorts, '    ports:\n      - "127.0.0.1::80"\n      - "127.0.0.1::443"');
+
+  const localCertificateMount = '      - ./docker/nginx/certs:/etc/nginx/certs:ro';
+  if (!compose.includes(localCertificateMount)) {
+    throw new Error('The Nginx certificate mount changed; refusing to start an incomplete E2E stack.');
+  }
+
+  const portableCertificateMount = `      - type: bind\n        source: "${certificateDir.replace(/\\/g, '/')}"\n        target: /etc/nginx/certs\n        read_only: true`;
+  compose = compose.replace(localCertificateMount, portableCertificateMount);
   fs.writeFileSync(composePath, compose, 'utf8');
+}
+
+function createDisposableCertificate() {
+  fs.mkdirSync(certificateDir, { recursive: true });
+  const certificatePath = path.join(certificateDir, 'shapeup.local.crt');
+  const privateKeyPath = path.join(certificateDir, 'shapeup.local.key');
+  const localCertificateDir = path.join(projectRoot, 'docker', 'nginx', 'certs');
+  const localCertificatePath = path.join(localCertificateDir, 'shapeup.local.crt');
+  const localPrivateKeyPath = path.join(localCertificateDir, 'shapeup.local.key');
+
+  if (fs.existsSync(localCertificatePath) && fs.existsSync(localPrivateKeyPath)) {
+    fs.copyFileSync(localCertificatePath, certificatePath);
+    fs.copyFileSync(localPrivateKeyPath, privateKeyPath);
+    return;
+  }
+
+  const result = spawnSync('openssl', [
+    'req', '-x509', '-newkey', 'rsa:2048', '-nodes',
+    '-keyout', privateKeyPath,
+    '-out', certificatePath,
+    '-days', '1',
+    '-subj', '/CN=shapeup.local',
+    '-addext', 'subjectAltName=DNS:shapeup.local,DNS:localhost,IP:127.0.0.1',
+  ], {
+    cwd: projectRoot,
+    env: composeEnv,
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+  });
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  if (result.status !== 0) {
+    throw new Error('Could not create a disposable TLS certificate for the E2E stack.');
+  }
 }
 
 function createDisposableEnv() {
@@ -164,6 +210,7 @@ async function main() {
   let exitCode = 1;
 
   try {
+    createDisposableCertificate();
     createComposeFile();
     createDisposableEnv();
 
