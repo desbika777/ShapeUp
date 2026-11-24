@@ -124,6 +124,8 @@ async function waitForHealth(url) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
+  console.error('Recent backend and Nginx logs from the isolated stack:');
+  runCompose(['logs', '--tail=120', 'backend', 'nginx']);
   throw new Error('The isolated Shape Up stack did not become healthy within 120 seconds.');
 }
 
@@ -170,7 +172,7 @@ async function main() {
     }
 
     const httpsPort = getPublishedPort(443);
-    await waitForHealth(`https://localhost:${httpsPort}/health`);
+    await waitForHealth(`https://127.0.0.1:${httpsPort}/health`);
 
     if (runCompose(['run', '--rm', '--no-deps', 'migrate', 'npm', 'run', 'prisma:seed', '--workspace', 'backend']) !== 0) {
       throw new Error('Could not seed the disposable E2E database.');
@@ -182,7 +184,7 @@ async function main() {
     const playwrightEnv = {
       ...process.env,
       E2E_BASE_URL: baseUrl,
-      E2E_API_URL: `https://localhost:${httpsPort}/api`,
+      E2E_API_URL: `https://127.0.0.1:${httpsPort}/api`,
       E2E_HOST_ALIAS: 'shapeup.local',
       E2E_ADMIN_EMAIL: 'admin@shape.com.br',
       E2E_ADMIN_PASSWORD: 'Shape@123',
