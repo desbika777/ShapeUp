@@ -1,6 +1,6 @@
 # Ordem dos Docs Para a Banca - Shape Up
 
-> Para a rubrica atual, use primeiro `docs/execucao-final-rubrica-2026-11-23.md` e `docs/roadmap-rubrica.md`. O roteiro atualizado da defesa e `docs/roteiro-apresentacao-final.md`; os outros roteiros e checklists desta pasta podem refletir etapas anteriores.
+> Para a ultima rubrica recebida, use primeiro `docs/checklist-rubrica-atualizada.md`, `docs/execucao-final-rubrica-2026-11-23.md` e `docs/roadmap-rubrica.md`. O roteiro atualizado da defesa e `docs/roteiro-apresentacao-final.md`; `docs/checklist-rubrica-apresentacao.md` preserva uma rubrica anterior.
 
 ## Regra principal
 
@@ -20,7 +20,11 @@ Mostra:
 - demonstracao mobile;
 - fechamento pela rubrica.
 
-### 2. `docs/execucao-final-rubrica-2026-11-23.md`
+### 2. `docs/checklist-rubrica-atualizada.md`
+
+Use para rastrear os 12 criterios pontuados da folha atual, os links de evidencia e as pendencias de fechamento.
+
+### 3. `docs/execucao-final-rubrica-2026-11-23.md`
 
 Use para defender criterio por criterio da rubrica atualizada.
 
@@ -31,7 +35,7 @@ Mostra:
 
 Se o professor perguntar "onde esta tal criterio?", este e o melhor arquivo para abrir.
 
-### 3. `contextualizacao-problema.md`
+### 4. `contextualizacao-problema.md`
 
 Use para explicar o problema real.
 
@@ -42,7 +46,7 @@ Mostra:
 
 Nao precisa ler inteiro. Mostre rapidamente problema, publico-alvo e proposta.
 
-### 4. `objetivos-escopo.md`
+### 5. `objetivos-escopo.md`
 
 Use para explicar escopo e persona.
 
@@ -54,7 +58,7 @@ Mostra:
 
 Importante para justificar que aluno nao faz login nesta versao.
 
-### 5. `requisitos.md`
+### 6. `requisitos.md`
 
 Use para RFs e RNFs.
 
@@ -66,7 +70,7 @@ Mostra:
 
 Foque em autenticacao, gestores, planos, alunos, treinos, anexos e mobile.
 
-### 6. `modelagem-der.md`
+### 7. `modelagem-der.md`
 
 Use para DER e banco.
 
@@ -78,7 +82,7 @@ Mostra:
 
 Fala importante: o DER modela uma academia completa; o MVP implementa os fluxos principais.
 
-### 7. `diagramas-uml.md`
+### 8. `diagramas-uml.md`
 
 Use para os criterios de UML.
 
@@ -89,7 +93,7 @@ Mostra:
 
 Este arquivo e obrigatorio se a rubrica cobrar diagramas.
 
-### 8. `arquitetura-evidencias.md`
+### 9. `arquitetura-evidencias.md`
 
 Use para arquitetura e clean code.
 
@@ -103,7 +107,7 @@ Mostra:
 
 Depois de abrir esse arquivo, se pedirem codigo, va para `frontend`, `backend`, `shared` e `backend/prisma`.
 
-### 9. `validacao-usabilidade-seguranca.md`
+### 10. `validacao-usabilidade-seguranca.md`
 
 Use para testes, seguranca e validacao.
 
@@ -116,7 +120,7 @@ Mostra:
 
 Nao foque em frases de pendencia. Foque no que passou: lint, test, build, E2E, Expo e seguranca.
 
-### 10. `validacao-expo.md`
+### 11. `validacao-expo.md`
 
 Use se o professor perguntar do mobile.
 

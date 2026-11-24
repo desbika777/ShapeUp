@@ -35,11 +35,14 @@ curl.exe http://127.0.0.1/health
 
 ## Ultima Execucao Registrada
 
-Data: 10/09/2026, com complementos visuais em 14/09/2026, 15/09/2026 e validacao master/cliente em 16/09/2026.
+Registro historico iniciado em 10/09/2026, com complementos visuais em 14/09/2026, 15/09/2026 e validacao master/cliente em 16/09/2026. Revalidacoes finais adicionadas em 24/11/2026.
 
 | Comando | Resultado | Observacao |
 | --- | --- | --- |
 | `git diff --check` | Passou em 15/09/2026 | Sem espacos finais ou conflitos de diff; apenas avisos normais de CRLF no Windows |
+| GitHub Actions em push e PR | Passou em 24/11/2026 | Commit `0ea4002`; lint, 28 testes, E2E 6/6, mobile, build e Compose; links em `docs/checklist-rubrica-atualizada.md` |
+| `npm audit` | Passou em 24/11/2026 | 0 vulnerabilidades na auditoria geral da branch final |
+| Pagina inicial e `/health` locais | Passou em 24/11/2026 | Ambos responderam HTTP 200; a URL continua local, sem implantacao publica configurada |
 | `npm run lint` | Passou em 16/09/2026 | Shared, backend e frontend sem erro de TypeScript/ESLint |
 | `npm run lint:mobile` | Passou em 16/09/2026 | App Expo/React Native sem erro de TypeScript |
 | `npm run test` | Passou em 16/09/2026 | 17 testes de backend e 7 testes de frontend |

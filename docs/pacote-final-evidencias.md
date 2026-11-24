@@ -94,14 +94,14 @@ Observacao para a banca: aluno nao faz login nesta versao. O aluno e um cadastro
 | Arquivo | Finalidade |
 | --- | --- |
 | `docs/roadmap-rubrica.md` | Fonte oficial de status por item da rubrica |
-| `docs/checklist-rubrica-apresentacao.md` | Defesa objetiva de cada criterio da rubrica |
+| `docs/checklist-rubrica-atualizada.md` | Defesa dos 12 criterios pontuados na ultima folha recebida; a rubrica anterior esta em `docs/checklist-rubrica-apresentacao.md` |
 | `docs/checklist-qa-interface.md` | Guia da proxima auditoria visual e de codigo |
 | `docs/requisitos.md` | RFs/RNFs e status implementado/planejado |
 | `docs/modelagem-der.md` | DER e modelagem do banco |
 | `docs/diagramas-uml.md` | Casos de uso, atividades e sequencias |
 | `docs/arquitetura-evidencias.md` | Arquitetura e padronizacao |
 | `docs/auditoria-dependencias.md` | Evidencia de revisao de seguranca NPM |
-| `docs/roteiro-apresentacao-final.md` | Ordem de apresentacao atualizada para os nove criterios |
+| `docs/roteiro-apresentacao-final.md` | Roteiro para os tres componentes e 12 criterios (9,0 pontos no total) |
 
 ## Pendencias Controladas
 

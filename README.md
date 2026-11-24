@@ -12,6 +12,7 @@ Nesta versao, o Shape Up e um sistema administrativo para donos de academia. O a
 
 - `docs/roadmap-rubrica.md`: acompanhamento da entrega, com status, evidencias e proximas acoes.
 - `docs/rubrica-nova-5-arquitetura-backend.md`: nova trilha de arquitetura, Redis, eventos, observabilidade e CI/CD.
+- `docs/checklist-rubrica-atualizada.md`: evidencia e estado dos 12 criterios pontuados na ultima rubrica recebida.
 - `docs/checklist-rubrica-apresentacao.md`: defesa criterio por criterio da rubrica anterior e riscos conhecidos.
 - `docs/contextualizacao-problema.md`: problema, justificativa e evolucao do produto.
 - `docs/requisitos.md`: requisitos funcionais e nao funcionais.
@@ -23,7 +24,7 @@ Nesta versao, o Shape Up e um sistema administrativo para donos de academia. O a
 - `docs/backlog-jira-inicial.md`: backlog inicial para Jira.
 - `docs/execucao-final-rubrica-2026-11-23.md`: matriz de evidencia e pendencias da rubrica atualizada.
 - `docs/evidencias-redis-2026-11-23.md`: demonstracao atual de cache, invalidacao e Pub/Sub.
-- `docs/roteiro-apresentacao-final.md`: ordem sugerida da defesa com correspondencia aos 9 pontos.
+- `docs/roteiro-apresentacao-final.md`: ordem sugerida da defesa pelos 3 componentes e 12 criterios (9,0 pontos).
 - `CHANGELOG.md`: escopo da candidata 1.0.1, criterios de validacao e estado ainda nao publicado.
 - `docs/nomenclatura-ptbr.md`: padrao de portugues usado no projeto.
 
