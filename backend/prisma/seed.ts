@@ -14,15 +14,15 @@ import {
   StatusFormaPagamento,
   StatusPagamento,
   StatusPlano,
-  PrismaClient,
   StatusFuncionario,
   StatusAluno,
   NivelTreino,
   StatusTreino,
-} from '@prisma/client';
+} from '../src/generated/prisma/client.ts';
+import { createPrismaClient } from '../src/lib/create-prisma-client.ts';
 import bcrypt from 'bcrypt';
 
-const prisma = new PrismaClient();
+const prisma = createPrismaClient();
 
 async function main() {
   // Senha padrao das contas de demonstracao: Shape@123.

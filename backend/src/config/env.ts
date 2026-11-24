@@ -18,6 +18,10 @@ const envSchema = z.object({
   SMTP_PASS: z.string().optional(),
   MAIL_FROM: z.string().optional(),
   PASSWORD_RESET_URL: z.string().url().optional(),
+  REDIS_URL: z.string().url().optional(),
+  CACHE_NAMESPACE: z.string().min(1).default('shapeup'),
+  CACHE_TTL_SECONDS: z.coerce.number().int().positive().default(60),
+  REDIS_EVENT_CHANNEL: z.string().min(1).default('shapeup:eventos'),
 });
 
 export const env = envSchema.parse(process.env);

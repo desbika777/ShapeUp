@@ -6,13 +6,15 @@ Este documento organiza uma proposta inicial de backlog para ser cadastrada no J
 
 ## Fluxo Sugerido No Jira
 
-Status:
+Fluxo ampliado proposto no planejamento inicial:
 
 - A fazer;
 - Em andamento;
 - Em revisao;
 - Bloqueado;
 - Concluido.
+
+Fluxo que existe hoje no quadro de fechamento do Jira (`SU`): To Do, In Progress e Done. Os status adicionais acima continuam como proposta, nao como configuracao implantada.
 
 Tipos de item:
 
@@ -446,3 +448,46 @@ Criterios de aceite:
 ## Observacao
 
 Este backlog e inicial. Ao criar o quadro no Jira, os itens podem ser quebrados em tarefas menores conforme a dupla avancar no desenvolvimento.
+
+
+## Sprint de Fechamento da Rubrica - 23 a 25/11/2026
+
+A lista abaixo prioriza o fechamento da rubrica atual. Este backlog local prepara os itens para o Jira; ele nao substitui a demonstracao do quadro e do fluxo real da equipe.
+
+Versao declarada no package.json raiz: 1.0.0. A candidata Jira 1.0.1 existe como nao lancada, e o escopo esta registrado em `CHANGELOG.md`; a release so deve ser marcada como lancada depois de validacao remota e registro da tag no GitHub.
+
+| Prioridade | Story/Task | Versao alvo | Criterios de aceite |
+| --- | --- | --- | --- |
+| P0 | US-RUB-001 - Fechar evidencias de arquitetura e resiliencia | 1.0.1 | C4, Quality Scenarios, Context Map, Entity/Value Objects/Aggregate, ADR do banco, retry/timeout/fallback e circuit breaker com limiar de tres falhas e recuperacao em 10 segundos estao ligados ao codigo/documentos; metas de SLO continuam identificadas como nao medidas. |
+| P0 | US-RUB-002 - Automatizar validacao e preparar deploy | 1.0.1 | Workflow executa lint, testes, build, lint/compatibilidade do mobile e validacao do Compose; o deploy em main exige secrets documentados e fica explicitamente ignorado quando a configuracao estiver ausente. |
+| P0 | US-RUB-003 - Preparar resposta a incidente | 1.0.1 | Runbook cobre API/site, MySQL, Redis, logs, healthcheck, recuperacao sem apagar volumes e rollback simples. |
+| P0 | US-RUB-004 - Gerenciar trabalho no Jira | 1.0.1 | Issues de tipo Story/Task/Bug tem prioridade, responsavel, criterios de aceite e status real atualizado; o quadro demonstra o fluxo configurado (To Do, In Progress e Done). Os status adicionais do fluxo ampliado so contam como implantados depois de configurados no Jira. |
+| P1 | US-RUB-005 - Publicar release parcial e pacote de evidencia | 1.0.1 | `CHANGELOG.md` registra a candidata e o pacote de evidencia; tag Git correspondente e release publicada ficam pendentes de validacao remota e revisao da equipe. |
+
+### Definition of Done da Sprint
+
+- Criterios P0 estao implementados e ligados a evidencias verificaveis.
+- Nenhum criterio externo (Jira, execucao GitHub ou deploy) e marcado como concluido sem comprovacao real.
+- A versao Jira 1.0.1 ja foi criada como nao lancada. A tag GitHub e a publicacao continuam pendentes de validacao remota e revisao da equipe.
+
+## Registro do Jira - 23/11/2026
+
+Site: https://enzogamenezes.atlassian.net
+
+Espaco/projeto: Shape Up (`SU`). O pacote de fechamento foi criado e ligado ao Workstream `SU-1`:
+
+| Jira | Item | Tipo | Status |
+| --- | --- | --- | --- |
+| [SU-1](https://enzogamenezes.atlassian.net/browse/SU-1) | Fechamento da rubrica Shape Up - versao proposta 1.0.1 | Workstream | In Progress |
+| [SU-2](https://enzogamenezes.atlassian.net/browse/SU-2) | US-RUB-001 - evidencias de arquitetura e resiliencia | Task | Done |
+| [SU-3](https://enzogamenezes.atlassian.net/browse/SU-3) | US-RUB-002 - validacao CI/CD e deploy | Task | In Progress |
+| [SU-4](https://enzogamenezes.atlassian.net/browse/SU-4) | US-RUB-003 - runbook de incidentes | Task | Done |
+| [SU-5](https://enzogamenezes.atlassian.net/browse/SU-5) | US-RUB-004 - backlog e fluxo Jira | Task | Done |
+| [SU-6](https://enzogamenezes.atlassian.net/browse/SU-6) | US-RUB-005 - release parcial e pacote de evidencias | Task | In Progress |
+| [SU-7](https://enzogamenezes.atlassian.net/browse/SU-7) | US-RUB-JIRA-001 - acompanhar o fechamento da rubrica no quadro | Story | In Progress |
+| [SU-8](https://enzogamenezes.atlassian.net/browse/SU-8) | BUG-RUB-001 - tipos Story e Bug ausentes na configuracao inicial | Bug | Done |
+| [SU-9](https://enzogamenezes.atlassian.net/browse/SU-9) | US-RUB-006 - preparar apresentacao final alinhada a rubrica | Task | In Progress |
+
+Os nove itens possuem prioridade, responsavel e criterios de aceite. Tipos disponiveis no mesmo espaco: Workstream, Task, Sub-task, Story e Bug. O board real tem tres estados: To Do, In Progress e Done. Estado conferido em 23/11/2026: quatro Done (SU-2, SU-4, SU-5, SU-8) e cinco In Progress (SU-1, SU-3, SU-6, SU-7, SU-9); nao ha itens em To Do. A versao 1.0.1 segue nao lancada.
+
+A versao Jira `1.0.1` foi criada como nao lancada. Como o projeto nao expoe o campo `fixVersions` para as issues, os itens de fechamento estao identificados pelo label `release-1-0-1`; release/tag publicada continua pendente de revisao e entrega real.

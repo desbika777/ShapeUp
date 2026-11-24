@@ -6,7 +6,7 @@ Registrar a revisao de vulnerabilidades do projeto sem aplicar correcoes arrisca
 
 ## Data da Revisao
 
-10/09/2026, com atualizacoes complementares em 14/09/2026 e 15/09/2026 apos a refatoracao visual do frontend e a evolucao do app Expo.
+10/09/2026, com atualizacoes complementares em 14/09/2026, 15/09/2026, 08/10/2026 e 23/11/2026.
 
 ## Resultado Inicial
 
@@ -36,6 +36,33 @@ Antes das correcoes pontuais, `npm audit --json` reportou:
 | `npm audit fix --omit=dev` | Executado sem `--force` em 14/09/2026 e reexecutado em 15/09/2026 | Aplicou correcoes seguras do lockfile e atualizou blocos transitivos de Expo/Metro sem alterar linha major |
 | `react-native-safe-area-context` | Instalado com `expo install` | Substitui `SafeAreaView` depreciado do React Native no app Expo |
 | `expo` | Atualizado para `~57.0.23` | Alinha dependencias ao Expo SDK 57 conforme `expo install --check` de 15/09/2026 |
+| `npm audit fix --workspace backend --omit=dev` | Executado sem `--force` em 08/10/2026 | Removeu vulnerabilidades transitivas corrigiveis sem downgrade/major forcado, incluindo a critica apontada no backend |
+| `nodemailer` | Atualizado para `10.0.16` no backend | Corrige vulnerabilidades diretas restantes de Nodemailer; `lint` e testes do backend passaram apos a atualizacao |
+
+## Atualizacao Da Rubrica Nova 5
+
+Depois da integracao de Redis, cache-aside, eventos e observabilidade, foi rodada nova auditoria focada no backend:
+
+```powershell
+npm audit --workspace backend --omit=dev --json
+```
+
+Resultado em 08/10/2026:
+
+| Severidade | Quantidade |
+| --- | ---: |
+| Critica | 0 |
+| Alta | 4 |
+| Moderada | 0 |
+| Baixa | 0 |
+| Total | 4 |
+
+Leitura:
+
+- As vulnerabilidades corrigiveis sem `--force` foram tratadas.
+- A vulnerabilidade critica transitiva que apareceu na revisao da Rubrica Nova 5 nao permanece no audit de producao do backend.
+- Nodemailer foi atualizado para a linha 10.0.16 e validado com `npm run lint --workspace backend` e `npm run test --workspace backend`.
+- As 4 vulnerabilidades residuais estao no bloco Prisma/deepmerge-ts, cujo fix sugerido pelo npm envolve instalar `prisma@6.12.0`, alterando a linha validada do projeto.
 
 ## Resultado Depois Das Correcoes
 
@@ -57,19 +84,34 @@ Leitura por workspace:
 | Backend | `npm audit --workspace backend --omit=dev` | 4 vulnerabilidades altas associadas ao bloco Prisma/deepmerge-ts |
 | Mobile | `npm audit --workspace mobile --omit=dev` | 10 vulnerabilidades moderadas associadas ao bloco Expo/React Native/Metro |
 
-Observacao: o audit geral e o audit por workspace podem apresentar contagens diferentes por deduplicacao do npm. Na revisao atual, o total defendivel e 14 vulnerabilidades residuais: 4 altas associadas a Prisma/deepmerge-ts e 10 moderadas associadas a Expo/uuid.
+Observacao: o audit geral e o audit por workspace podem apresentar contagens diferentes por deduplicacao do npm. Os snapshots de 15/09/2026 (14 vulnerabilidades) e 23/11/2026 (8 vulnerabilidades) sao registros historicos; ambos foram supersedidos pela reauditoria final de 23/11/2026, registrada abaixo, com zero vulnerabilidades.
 
 ## Riscos Residuais Justificados
 
 | Bloco | Situacao | Decisao |
 | --- | --- | --- |
-| Prisma / `deepmerge-ts` | O audit aponta `prisma@6.19.3` via `@prisma/config` e sugere downgrade para `6.12.0` ou mudancas de linha. | Manter `6.19.3` para preservar compatibilidade com schema, migrations, Prisma Client e Docker. Reavaliar apos a entrega ou quando houver patch estavel sem downgrade. |
-| Expo / React Native / Metro | O projeto usa `expo@~57.0.23` e `react-native@0.86.3`, alinhados ao Expo SDK 57. O audit sugere caminho incompativel, incluindo downgrade de Expo para `46.0.21`. | Nao aplicar downgrade. Manter Expo SDK 57 porque foi a versao validada por `npm exec --workspace mobile -- expo install --check`. |
-| `uuid` via `xcode` do Expo | O pacote vem por `@expo/config-plugins`/`xcode`; a correcao sugerida pelo audit passa por trocar a linha do Expo. | Manter versao compativel com SDK 57 e registrar risco residual. |
+| Prisma / `deepmerge-ts` / `effect` | O snapshot anterior apontava vulnerabilidades altas no Prisma 6 e dependencias transitivas. | Atualizado para Prisma 7.10.1 com adapter MariaDB, config externa, client gerado no backend e migracao isolada validada. `deepmerge-ts` 8.0.2 e `effect` 3.22.1; sem alertas no audit atual. |
+| Nodemailer | O audit anterior apontava riscos diretos na linha 9/10.0.8. | Atualizado para `10.0.16` em 08/10/2026; risco direto removido no audit de producao do backend. |
+| Expo / `minimatch` via `@expo/fingerprint` | O snapshot anterior apontava vulnerabilidade moderada transitiva. | Mantido Expo SDK 57 e aplicado override compativel para `minimatch` 11.0.9; `expo install --check` passou e o audit atual nao reporta alertas. |
 
 ## Decisao Tecnica
 
-Nao executar `npm audit fix --force` antes da entrega final. O comando tentaria alterar versoes sensiveis de Expo, React Native e Prisma, com risco maior de quebrar a demonstracao do que de reduzir risco real do MVP.
+As correcoes foram feitas com atualizacao controlada de major do Prisma e um override transitivo de escopo restrito para Expo. Nao foi usado `npm audit fix --force`; a migracao foi validada por lint, testes, build e E2E em Compose isolado antes de publicar.
+
+## Reauditoria Final - 23/11/2026 (vigente)
+
+Resultado de `npm audit` apos a atualizacao controlada do Prisma e as correcoes transitivas:
+
+| Escopo | Resultado |
+| --- | --- |
+| Auditoria geral (`npm audit`) | 0 vulnerabilidades |
+| Backend | 0 vulnerabilidades; Prisma e `@prisma/client` 7.10.1 com `@prisma/adapter-mariadb` 7.10.1 |
+| Frontend | 0 vulnerabilidades |
+| Mobile | 0 vulnerabilidades; `minimatch` 11.0.9 via override sob `@expo/fingerprint` |
+
+Dependencias relevantes verificadas: `deepmerge-ts` 8.0.2 e `effect` 3.22.1. A verificacao `expo install --check` passou sem alterar o SDK 57. A migracao do Prisma foi exercitada no E2E com MySQL temporario; `npm run lint`, `npm run test` (28 testes), `npm run build`, `npm run lint:mobile` e `npm run e2e` (6/6) passaram. O build web emitiu apenas avisos nao fatais do Rollup sobre comentarios `@__PURE__` em Zod.
+
+Esta auditoria e um snapshot local do lockfile em 23/11/2026. O workflow remoto do GitHub ainda precisa executar apos o push para registrar a validacao na branch.
 
 ## Validacao Apos Correcoes
 
@@ -92,6 +134,7 @@ Depois das atualizacoes, os comandos abaixo passaram:
 npm audit --json
 npm audit fix --dry-run --json
 npm install nodemailer@9.1.1 --save-exact --workspace backend
+npm install --workspace backend nodemailer@10.0.16
 npm install vitest@4.1.11 --save-dev --workspace backend --workspace frontend
 npm update @humanfs/node esbuild js-yaml nanoid postcss-selector-parser qs
 npm uninstall recharts --workspace frontend

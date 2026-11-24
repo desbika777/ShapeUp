@@ -5,6 +5,8 @@ import type { AnexoAcademia, EntradaAnexo } from '@shape/shared';
 import { diretorioUploadImagens } from '../config/uploads.js';
 import { AppError } from '../core/app-error.js';
 import type { IRepositorioAnexo } from '../repositories/interfaces.js';
+import { padraoCacheDono, type IServicoCache, ServicoCacheNulo } from './cache-service.js';
+import { ServicoEventosNulo, type IServicoEventos } from './event-bus-service.js';
 
 const ASSINATURA_PNG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 
@@ -67,7 +69,11 @@ function publicarUrl(baseUrl: string, attachment: AnexoAcademia): AnexoAcademia 
 }
 
 export class ServicoImagem {
-  constructor(private readonly repository: IRepositorioAnexo) {}
+  constructor(
+    private readonly repository: IRepositorioAnexo,
+    private readonly cacheService: IServicoCache = new ServicoCacheNulo(),
+    private readonly eventBus: IServicoEventos = new ServicoEventosNulo(),
+  ) {}
 
   async listar(ownerId: string, baseUrl: string) {
     const attachments = await this.repository.list(ownerId);
@@ -100,6 +106,7 @@ export class ServicoImagem {
       relativePath,
     });
 
+    await this.registrarEscrita(ownerId, 'anexo.registrado', attachment.id);
     return publicarUrl(baseUrl, attachment);
   }
 
@@ -112,5 +119,13 @@ export class ServicoImagem {
 
     await this.repository.delete(ownerId, id);
     await unlink(path.join(diretorioUploadImagens, attachment.fileName)).catch(() => undefined);
+    await this.registrarEscrita(ownerId, 'anexo.removido', id);
+  }
+
+  private async registrarEscrita(ownerId: string, type: string, entityId: string) {
+    await Promise.all([
+      this.cacheService.deleteByPattern(padraoCacheDono(ownerId)),
+      this.eventBus.publish({ type, ownerId, actorId: ownerId, entityId }),
+    ]);
   }
 }

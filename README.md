@@ -11,7 +11,8 @@ Nesta versao, o Shape Up e um sistema administrativo para donos de academia. O a
 ## Documentacao Principal
 
 - `docs/roadmap-rubrica.md`: acompanhamento da entrega, com status, evidencias e proximas acoes.
-- `docs/mapa-rubrica.md`: mapa criterio por criterio da rubrica.
+- `docs/rubrica-nova-5-arquitetura-backend.md`: nova trilha de arquitetura, Redis, eventos, observabilidade e CI/CD.
+- `docs/checklist-rubrica-apresentacao.md`: defesa criterio por criterio da rubrica anterior e riscos conhecidos.
 - `docs/contextualizacao-problema.md`: problema, justificativa e evolucao do produto.
 - `docs/requisitos.md`: requisitos funcionais e nao funcionais.
 - `docs/modelagem-der.md`: DER com 27 tabelas em PT-BR.
@@ -20,14 +21,18 @@ Nesta versao, o Shape Up e um sistema administrativo para donos de academia. O a
 - `docs/validacao-usabilidade-seguranca.md`: testes, usabilidade, compatibilidade e seguranca.
 - `docs/cynefin-abordagem-gestao.md`: Cynefin e abordagem agil.
 - `docs/backlog-jira-inicial.md`: backlog inicial para Jira.
+- `docs/execucao-final-rubrica-2026-11-23.md`: matriz de evidencia e pendencias da rubrica atualizada.
+- `docs/evidencias-redis-2026-11-23.md`: demonstracao atual de cache, invalidacao e Pub/Sub.
+- `docs/roteiro-apresentacao-final.md`: ordem sugerida da defesa com correspondencia aos 9 pontos.
+- `CHANGELOG.md`: escopo da candidata 1.0.1, criterios de validacao e estado ainda nao publicado.
 - `docs/nomenclatura-ptbr.md`: padrao de portugues usado no projeto.
 
 ## Stack
 
-- Frontend: React, Vite, TypeScript, React Router, TanStack Query, React Hook Form, Zod, Tailwind CSS, Recharts
+- Frontend: React, Vite, TypeScript, React Router, TanStack Query, React Hook Form, Zod, Tailwind CSS
 - Mobile: Expo, React Native, TypeScript e Expo Go
 - Backend: Node.js, Express, TypeScript, Prisma, MySQL, JWT, bcrypt
-- Infra: Docker Compose, MySQL com volume persistente, Nginx como proxy reverso HTTPS
+- Infra: Docker Compose, MySQL com volume persistente, Redis, Nginx como proxy reverso HTTPS
 - Shared: tipos globais e validadores reutilizados por web, mobile e backend
 - Testes: Vitest, Testing Library, Supertest, Playwright
 
@@ -39,6 +44,7 @@ Nesta versao, o Shape Up e um sistema administrativo para donos de academia. O a
 - `shared`: tipos e validacoes compartilhadas
 - `docker/nginx`: proxy reverso, cabecalhos de seguranca e certificados locais
 - `docs`: evidencias da rubrica, diagramas, requisitos, DER, Cynefin, Jira e padroes
+- `docs/adrs`: decisoes arquiteturais registradas
 
 ## Setup com Docker, Nginx e HTTPS
 
@@ -56,8 +62,11 @@ Nesta versao, o Shape Up e um sistema administrativo para donos de academia. O a
    - `http://127.0.0.1` para teste manual sem certificado
    - `https://localhost`
    - `https://shapeup.local`
+   - `http://localhost/api/docs` para a documentacao Swagger da API
+   - `http://localhost/api/openapi.json` para o contrato OpenAPI em JSON
 
 Somente o Nginx publica portas externas (`80` e `443`). MySQL, backend e frontend ficam isolados na network interna do Compose.
+O Redis tambem fica isolado na network interna e e usado pela API para cache-aside com TTL e eventos Pub/Sub.
 
 > Ao usar a stack Docker/Nginx, nao abra `http://localhost:5173`. Esse endereco e apenas do Vite em desenvolvimento local. No Docker, a API passa por `/api` no Nginx; por isso o login deve ser testado em `http://127.0.0.1`, `https://localhost` ou `https://shapeup.local`.
 
@@ -79,14 +88,7 @@ Depois configure uma conexao MySQL no DBeaver:
 
 ## Seed
 
-Com a stack ativa, rode:
-
-- `docker compose run --rm migrate npm run prisma:seed --workspace backend`
-
-Credenciais criadas:
-
-- Master Shape Up: `admin@shape.com.br` / `Shape@123`
-- Cliente demo: `gestor@shapeup.com.br` / `Shape@123`
+Com a stack descartavel de desenvolvimento ativa, rode `docker compose run --rm migrate npm run prisma:seed --workspace backend` para preparar dados de demonstracao. As contas geradas pelo seed sao apenas para uso local; nao reutilize esses dados em servidor publico.
 
 ## Desenvolvimento local sem proxy
 
@@ -97,6 +99,11 @@ Credenciais criadas:
    - `npm run prisma:migrate --workspace backend`
    - `npm run dev:backend`
    - `npm run dev:frontend`
+
+Com o backend local ativo, a documentacao fica disponivel em:
+
+- `http://localhost:3333/api/docs`
+- `http://localhost:3333/api/openapi.json`
 
 ## Execucao mobile com Expo Go
 
@@ -135,11 +142,11 @@ No celular, abra o Expo Go e leia o QR Code exibido no terminal. O app mobile ta
 
 Para E2E via Docker/HTTPS:
 
-- `npm run e2e` detecta a stack Docker `shapeup-backend` em execucao e usa automaticamente o perfil Docker/HTTPS.
+- `npm run e2e` sobe uma stack Compose descartavel, com portas aleatorias e banco/Redis proprios, executa Playwright e remove os volumes temporarios ao final.
 - instale o Chromium do Playwright se ainda nao existir: `npm exec --workspace frontend playwright install chromium`
-- comando recomendado para o ambiente Docker/Nginx: `npm run e2e:docker`
-- com `shapeup.local` no hosts: `$env:E2E_BASE_URL="https://shapeup.local"; $env:E2E_API_URL="https://shapeup.local/api"; npm run e2e`
-- sem permissao de admin para editar hosts no Windows: `$env:E2E_BASE_URL="https://shapeup.local"; $env:E2E_API_URL="https://localhost/api"; $env:E2E_HOST_ALIAS="shapeup.local"; $env:NODE_TLS_REJECT_UNAUTHORIZED="0"; npm run e2e`
+- `npm run e2e:docker` e um alias para o mesmo runner isolado.
+- O `pre-push` usa esse runner e nao conecta ao banco principal. O script de limpeza avulso recusa bancos sem `e2e` ou `test` no nome.
+- Resultado atual: 6/6 testes Playwright passaram em Compose isolado em 23/11/2026; evidencia e logs em `docs/evidencias-redis-2026-11-23.md`.
 
 ## Qualidade e GitHub
 
@@ -147,10 +154,17 @@ Para E2E via Docker/HTTPS:
 - `commit-msg`: aceita mensagem curta simples ou no formato `tipo: resumo curto`
 - `pre-push`: executa `npm run e2e`, com deteccao automatica do perfil Docker/HTTPS quando a stack esta ativa
 - Fluxo de branches documentado em `docs/gitflow.md`
+- Workflow CI/CD com lint, testes, E2E em Compose isolado, build e verificacao do Docker Compose em `.github/workflows/ci-cd.yml`
+- Runbook de incidentes e rollback em `docs/runbook-incidentes.md`
+- Acompanhamento da rubrica atual e das fases finais em `docs/execucao-final-rubrica-2026-11-23.md`
 
 ## Cobertura funcional entregue
 
 - autenticacao com JWT, opcao "Lembrar meu acesso" e persistencia em `localStorage` ou `sessionStorage`
+- documentacao OpenAPI/Swagger em `/api/docs` cobrindo autenticacao, usuarios, planos, alunos, treinos, painel e imagens
+- Redis cache-aside com TTL para painel e listagens principais
+- eventos de dominio via Redis Pub/Sub para escritas de planos, alunos, treinos e anexos
+- logs estruturados de requisicoes, cache, Redis, circuit breaker e eventos
 - rotas visiveis em PT-BR: `/entrar`, `/cadastro`, `/painel`, `/planos`, `/alunos`, `/treinos`
 - endpoints da API em PT-BR: `/api/autenticacao/entrar`, `/api/planos`, `/api/alunos`, `/api/treinos`
 - login, consulta e edicao da conta autenticada

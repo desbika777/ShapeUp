@@ -1,5 +1,7 @@
 # Guia de Comandos do Dia a Dia
 
+> Atualizacao: `npm run e2e` agora executa em Compose isolado e remove apenas seus volumes temporarios. As contas do seed sao somente para desenvolvimento local.
+
 ## Ideia Central
 
 Este guia resume os comandos mais importantes para abrir, testar, apresentar e versionar o Shape Up sem precisar procurar em varios arquivos.
@@ -98,11 +100,6 @@ git push
 
 Tambem funciona usar prefixo tecnico quando fizer sentido, por exemplo `docs: ajustar roteiro final` ou `fix: corrigir login mobile`. Evite commits no meio de uma correcao incompleta.
 
-## Credenciais Locais de Demonstracao
+## Contas Locais de Demonstracao
 
-Gestor administrador:
-
-```text
-admin@shape.com.br
-Shape@123
-```
+O seed prepara contas e dados padrao apenas no ambiente local descartavel. Nao reutilize essas contas em servidor publico; configure credenciais proprias antes de qualquer deploy.

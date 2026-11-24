@@ -20,6 +20,8 @@ import { ServicoPlano } from './services/plan-service.js';
 import { ServicoEmailSmtp } from './services/smtp-mail-service.js';
 import { ServicoAluno } from './services/student-service.js';
 import { ServicoTreino } from './services/workout-service.js';
+import { criarServicoCache, type IServicoCache } from './services/cache-service.js';
+import { criarServicoEventos, type IServicoEventos } from './services/event-bus-service.js';
 
 export type DependenciasRepositorios = {
   userRepository: IRepositorioUsuario;
@@ -28,6 +30,8 @@ export type DependenciasRepositorios = {
   workoutRepository: IRepositorioTreino;
   attachmentRepository: IRepositorioAnexo;
   mailService: IServicoEmail;
+  cacheService: IServicoCache;
+  eventBus: IServicoEventos;
 };
 
 export function createControllers(overrides?: Partial<DependenciasRepositorios>) {
@@ -38,13 +42,15 @@ export function createControllers(overrides?: Partial<DependenciasRepositorios>)
   const workoutRepository = overrides?.workoutRepository ?? new RepositorioPrismaTreino();
   const attachmentRepository = overrides?.attachmentRepository ?? new RepositorioPrismaAnexo();
   const mailService = overrides?.mailService ?? new ServicoEmailSmtp();
+  const cacheService = overrides?.cacheService ?? criarServicoCache();
+  const eventBus = overrides?.eventBus ?? criarServicoEventos();
 
   const authService = new ServicoAutenticacao(userRepository, mailService);
-  const planService = new ServicoPlano(planRepository, studentRepository);
-  const studentService = new ServicoAluno(studentRepository, planRepository);
-  const workoutService = new ServicoTreino(workoutRepository, studentRepository);
-  const dashboardService = new ServicoPainel(studentRepository, planRepository, workoutRepository);
-  const imageService = new ServicoImagem(attachmentRepository);
+  const planService = new ServicoPlano(planRepository, studentRepository, cacheService, eventBus);
+  const studentService = new ServicoAluno(studentRepository, planRepository, cacheService, eventBus);
+  const workoutService = new ServicoTreino(workoutRepository, studentRepository, cacheService, eventBus);
+  const dashboardService = new ServicoPainel(studentRepository, planRepository, workoutRepository, cacheService);
+  const imageService = new ServicoImagem(attachmentRepository, cacheService, eventBus);
 
   // Controladores recebem servicos prontos e ficam responsaveis apenas pelo fluxo HTTP.
   return {

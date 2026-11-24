@@ -1,6 +1,7 @@
 node_modules
 frontend/dist
 backend/dist
+backend/src/generated/prisma
 shared/dist
 backend/node_modules
 frontend/node_modules
@@ -18,6 +19,7 @@ tmp/
 tmp-screenshots/
 *.log
 *.tsbuildinfo
+.compose-e2e-*.yml
 backend/uploads/*
 !backend/uploads/.gitkeep
 !backend/uploads/imagens/

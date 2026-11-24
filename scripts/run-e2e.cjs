@@ -1,21 +1,9 @@
 const { spawnSync } = require('node:child_process');
+const path = require('node:path');
 
-function dockerBackendEstaRodando() {
-  const result = spawnSync('docker', ['ps', '--filter', 'name=shapeup-backend', '--filter', 'status=running', '--format', '{{.Names}}'], {
-    shell: process.platform === 'win32',
-    encoding: 'utf8',
-  });
-
-  return result.status === 0 && result.stdout.includes('shapeup-backend');
-}
-
-const command = dockerBackendEstaRodando()
-  ? ['run', 'e2e:docker']
-  : ['run', 'test:e2e', '--workspace', 'frontend'];
-
-const result = spawnSync('npm', command, {
+const result = spawnSync(process.execPath, [path.join(__dirname, 'run-e2e-isolated.cjs')], {
+  cwd: path.resolve(__dirname, '..'),
   env: process.env,
-  shell: process.platform === 'win32',
   stdio: 'inherit',
 });
 

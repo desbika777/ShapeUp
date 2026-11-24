@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '../src/lib/create-prisma-client.ts';
 import { config } from 'dotenv';
 import { readdir, unlink } from 'node:fs/promises';
 
@@ -8,7 +8,20 @@ if (process.env.DATABASE_URL?.includes('@localhost:')) {
   process.env.DATABASE_URL = process.env.DATABASE_URL.replace('@localhost:', '@127.0.0.1:');
 }
 
-const prisma = new PrismaClient();
+const prisma = createPrismaClient();
+
+function assertDisposableDatabase() {
+  const databaseUrl = process.env.DATABASE_URL;
+
+  if (!databaseUrl) {
+    throw new Error('E2E cleanup aborted: DATABASE_URL is missing.');
+  }
+
+  const databaseName = decodeURIComponent(new URL(databaseUrl).pathname.replace(/^\//, '')).toLowerCase();
+  if (!/(?:^|[_-])(e2e|test)(?:$|[_-])/.test(databaseName)) {
+    throw new Error('E2E cleanup aborted: database name must include "e2e" or "test". Use a disposable database.');
+  }
+}
 
 async function limparUploadsE2E() {
   const uploadDir = new URL('../uploads/imagens/', import.meta.url);
@@ -28,6 +41,8 @@ async function limparUploadsE2E() {
 }
 
 async function main() {
+  assertDisposableDatabase();
+
   const testUsers = await prisma.usuario.findMany({
     where: { email: { endsWith: '@shape.test' } },
     select: { id: true },

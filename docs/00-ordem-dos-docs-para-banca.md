@@ -1,12 +1,14 @@
 # Ordem dos Docs Para a Banca - Shape Up
 
+> Para a rubrica atual, use primeiro `docs/execucao-final-rubrica-2026-11-23.md` e `docs/roadmap-rubrica.md`. O roteiro atualizado da defesa e `docs/roteiro-apresentacao-final.md`; os outros roteiros e checklists desta pasta podem refletir etapas anteriores.
+
 ## Regra principal
 
 Nao precisa abrir todos os arquivos da pasta `docs`. A pasta tem documentos de entrega, apoio, historico e preparacao interna. Na apresentacao, mostre os arquivos que provam a rubrica e deixe os demais apenas como reserva caso o professor pergunte.
 
 ## Ordem recomendada para abrir
 
-### 1. `roteiro-final-apresentacao.md`
+### 1. `docs/roteiro-apresentacao-final.md`
 
 Use como guia inicial da fala.
 
@@ -18,9 +20,9 @@ Mostra:
 - demonstracao mobile;
 - fechamento pela rubrica.
 
-### 2. `checklist-rubrica-apresentacao.md`
+### 2. `docs/execucao-final-rubrica-2026-11-23.md`
 
-Use para defender criterio por criterio.
+Use para defender criterio por criterio da rubrica atualizada.
 
 Mostra:
 - o que a banca pode perguntar;

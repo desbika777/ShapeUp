@@ -1,5 +1,7 @@
 # Pacote Final de Evidencias - Shape Up
 
+> Atualizacao de 23/11/2026: para status atual, use `docs/execucao-final-rubrica-2026-11-23.md`; para a fala, `docs/roteiro-apresentacao-final.md`; para a candidata 1.0.1, `CHANGELOG.md`. Este pacote contem um roteiro operacional anterior e nao substitui essas fontes.
+
 ## Objetivo
 
 Centralizar o que precisa ser aberto, testado, mostrado e fotografado no dia da apresentacao. O foco e deixar o site, o Expo Go, os testes e a documentacao prontos para consulta rapida.
@@ -8,17 +10,20 @@ Centralizar o que precisa ser aberto, testado, mostrado e fotografado no dia da 
 
 | Area | Status | Evidencia |
 | --- | --- | --- |
-| Branch GitHub | Sincronizada com o remoto | `feature/documentacao-rubrica` |
-| Alinhamento da rubrica | Concluido em base documental | `docs/roadmap-rubrica.md` e `docs/checklist-rubrica-apresentacao.md` |
+| Branch GitHub | Alteracoes locais ainda sem commit/push | `feature/documentacao-rubrica`; execucao remota do CI pendente |
+| Alinhamento da rubrica | Matriz revisada, CI remoto pendente | `docs/execucao-final-rubrica-2026-11-23.md` |
 | Upload Multer | Concluido | Tela `/imagens`, endpoint `POST /api/imagens`, validacoes e E2E |
 | Refatoracao final | Concluida | `shared`, helper HTTP, app Expo e validadores reutilizados |
-| Auditoria NPM | Revisada e atualizada | `docs/auditoria-dependencias.md`; 14 vulnerabilidades residuais sem criticas/baixas |
-| Roteiro final | Concluido | `docs/roteiro-final-apresentacao.md` |
+| Auditoria NPM | Passou: 0 vulnerabilidades | `docs/auditoria-dependencias.md`; Prisma 7.10.1 + adapter MariaDB e Expo SDK 57 validado |
+| Roteiro final | Concluido | `docs/roteiro-apresentacao-final.md` |
 | Guia operacional | Concluido | `docs/guia-comandos-dia-a-dia.md` orienta web, Expo, testes e commit/push |
-| QA visual do site | Terceira rodada parcial controlada | Layout, autenticacao, painel, listagens, upload, gestores, perfil, formularios internos e responsividade mobile revisados; falta coleta final dos prints oficiais |
+| E2E da interface | Concluido localmente em ambiente isolado | Playwright 6/6; autenticacao, CRUD de planos/alunos/treinos e anexos; logs Redis/PubSub em `docs/evidencias-redis-2026-11-23.md` |
+| Ensaio visual da banca | Pendente | Abrir o ambiente de demonstracao e registrar capturas finais sem usar dados de producao |
 | Expo Go fisico | Validado em base tecnica | Projeto abriu no celular em 14/09/2026; app Expo foi ampliado com abas e CRUDs de planos, alunos e treinos; script LAN criado em 15/09/2026; falta print final quando houver mesma rede |
 
 ## Comandos Para Preparar o Ambiente
+
+O comando `npm run e2e` usa uma stack isolada e descartavel. Ele nao depende do banco persistente da demonstracao.
 
 ```powershell
 docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml -f docker-compose.expo.yml --env-file .env up -d --build
@@ -35,9 +40,9 @@ docker compose -f docker-compose.yml -f docker-compose.dbeaver.yml -f docker-com
 
 ## Acesso Para Demonstracao
 
-| Perfil | E-mail | Senha | Uso na demonstracao |
-| --- | --- | --- | --- |
-| Gestor administrador | `admin@shape.com.br` | `Shape@123` | Gerenciar planos, alunos, treinos, imagens, painel e acessos de gestores |
+| Perfil | Preparacao | Uso na demonstracao |
+| --- | --- | --- |
+| Gestor administrador | Seed local descartavel; criar/rotacionar credenciais antes de qualquer deploy | Gerenciar planos, alunos, treinos, imagens e painel |
 
 Observacao para a banca: aluno nao faz login nesta versao. O aluno e um cadastro da academia, e o portal/app do aluno fica como evolucao futura.
 
@@ -81,7 +86,7 @@ Observacao para a banca: aluno nao faz login nesta versao. O aluno e um cadastro
 | Tela `/imagens` com upload realizado | R-12, R-13 |
 | Erro ao enviar arquivo invalido | R-05, R-13 |
 | Tela de gestores com acesso administrativo unico | R-14 |
-| Terminal com `npm run e2e` passando | R-05 |
+| Relatorio E2E 6/6 e logs Redis de stack isolada | Rubrica atual: CRUD, cache e Pub/Sub |
 | Roadmap oficial aberto | R-08 e rastreabilidade geral |
 
 ## Arquivos Para Abrir Na Apresentacao
@@ -96,7 +101,7 @@ Observacao para a banca: aluno nao faz login nesta versao. O aluno e um cadastro
 | `docs/diagramas-uml.md` | Casos de uso, atividades e sequencias |
 | `docs/arquitetura-evidencias.md` | Arquitetura e padronizacao |
 | `docs/auditoria-dependencias.md` | Evidencia de revisao de seguranca NPM |
-| `docs/roteiro-final-apresentacao.md` | Ordem de apresentacao |
+| `docs/roteiro-apresentacao-final.md` | Ordem de apresentacao atualizada para os nove criterios |
 
 ## Pendencias Controladas
 
@@ -121,12 +126,14 @@ Antes da apresentacao:
 
 ## Ultima Validacao Tecnica
 
-Em 15/09/2026, depois da auditoria NPM, da evolucao do Expo e da terceira rodada visual do site, passaram:
+Em 23/11/2026, passaram:
 
 - `npm run lint`;
 - `npm run test`;
 - `npm run build`;
 - `npm run lint:mobile`;
-- `npm run e2e`;
+- Playwright E2E 6/6 em stack Docker/MySQL/Redis descartavel isolada;
 - `npm exec --workspace mobile -- expo install --check`;
 - `npm exec --workspace mobile -- expo export --platform ios --output-dir ..\tmp\expo-export-mobile`.
+
+O workflow GitHub ainda precisa de uma execucao real apos publicar a branch; a candidata Jira 1.0.1 continua nao lancada.

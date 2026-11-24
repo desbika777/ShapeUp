@@ -1,5 +1,7 @@
 # Roteiro Final de Apresentacao - Shape Up
 
+> Este e um roteiro anterior. Use `docs/roteiro-apresentacao-final.md` para a rubrica atualizada; nao use as credenciais seed listadas nas notas antigas desta versao.
+
 ## Objetivo
 
 Este roteiro organiza a apresentacao final do Shape Up. A ordem segue problema, produto, arquitetura, requisitos, validacao tecnica e demonstracao.
@@ -30,9 +32,9 @@ Este roteiro organiza a apresentacao final do Shape Up. A ordem segue problema, 
 ## Demonstracao Web
 
 1. Abrir `http://127.0.0.1` para teste manual sem erro de certificado, ou `https://localhost` se o certificado local estiver confiavel.
-2. Entrar com `admin@shape.com.br` e senha `Shape@123` para mostrar a conta master Shape Up.
+2. Entrar com uma conta de demonstracao criada em ambiente local descartavel para mostrar a conta master Shape Up.
 3. Abrir `/usuarios` como tela de Clientes e explicar que o master cria uma conta por academia vendida.
-4. Entrar com `gestor@shapeup.com.br` e senha `Shape@123` para mostrar a conta cliente.
+4. Entrar com uma conta cliente criada em ambiente local descartavel para demonstrar os limites de acesso.
 5. Mostrar o painel de desempenho da academia.
 6. Mostrar CRUD de planos: listar, criar ou editar.
 7. Mostrar CRUD de alunos vinculado a plano.

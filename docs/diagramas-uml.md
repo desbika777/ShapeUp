@@ -24,7 +24,6 @@ flowchart LR
     gestor --> perfil
 ```
 
-Leitura para apresentacao:
 O gestor e o ator principal do MVP. Ele acessa a plataforma, acompanha indicadores e executa os CRUDs principais integrados com API e banco.
 
 ## Caso de Uso 2 - Operacao Completa da Academia

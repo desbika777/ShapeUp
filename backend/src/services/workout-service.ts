@@ -2,11 +2,15 @@
 import type { EntradaTreino, NivelTreino } from '@shape/shared';
 import { AppError } from '../core/app-error.js';
 import type { IRepositorioAluno, IRepositorioTreino } from '../repositories/interfaces.js';
+import { chaveCache, padraoCacheDono, type IServicoCache, ServicoCacheNulo } from './cache-service.js';
+import { ServicoEventosNulo, type IServicoEventos } from './event-bus-service.js';
 
 export class ServicoTreino {
   constructor(
     private readonly workoutRepository: IRepositorioTreino,
     private readonly studentRepository: IRepositorioAluno,
+    private readonly cacheService: IServicoCache = new ServicoCacheNulo(),
+    private readonly eventBus: IServicoEventos = new ServicoEventosNulo(),
   ) {}
 
   // Lista treinos usando filtros de busca, nivel e aluno.
@@ -17,13 +21,25 @@ export class ServicoTreino {
     skip: number,
     filters?: { search?: string; level?: NivelTreino; studentId?: string },
   ) {
-    return this.workoutRepository.list({ ownerId, page, pageSize, skip, ...filters });
+    return this.cacheService.remember(
+      chaveCache(ownerId, 'treinos:listagem', {
+        page,
+        pageSize,
+        skip,
+        search: filters?.search ?? '',
+        level: filters?.level ?? '',
+        studentId: filters?.studentId ?? '',
+      }),
+      () => this.workoutRepository.list({ ownerId, page, pageSize, skip, ...filters }),
+    );
   }
 
   // Cria treino somente se o aluno informado existir.
   async create(ownerId: string, input: EntradaTreino) {
     await this.validate(ownerId, input);
-    return this.workoutRepository.create(ownerId, input);
+    const workout = await this.workoutRepository.create(ownerId, input);
+    await this.registrarEscrita(ownerId, 'treino.criado', workout.id);
+    return workout;
   }
 
   // Busca treino do usuario logado.
@@ -35,13 +51,16 @@ export class ServicoTreino {
   async update(ownerId: string, id: string, input: EntradaTreino) {
     await this.ensureExists(ownerId, id);
     await this.validate(ownerId, input);
-    return this.workoutRepository.update(ownerId, id, input);
+    const workout = await this.workoutRepository.update(ownerId, id, input);
+    await this.registrarEscrita(ownerId, 'treino.atualizado', workout.id);
+    return workout;
   }
 
   // Exclui treino depois de confirmar existencia.
   async delete(ownerId: string, id: string) {
     await this.ensureExists(ownerId, id);
     await this.workoutRepository.delete(ownerId, id);
+    await this.registrarEscrita(ownerId, 'treino.removido', id);
   }
 
   // Evita que um usuario acesse treino de outro dono.
@@ -63,5 +82,12 @@ export class ServicoTreino {
     if (new Date(input.endDate) < new Date(input.startDate)) {
       throw new AppError(400, 'A data final nao pode ser anterior a data inicial.');
     }
+  }
+
+  private async registrarEscrita(ownerId: string, type: string, entityId: string) {
+    await Promise.all([
+      this.cacheService.deleteByPattern(padraoCacheDono(ownerId)),
+      this.eventBus.publish({ type, ownerId, actorId: ownerId, entityId }),
+    ]);
   }
 }

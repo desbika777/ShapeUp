@@ -3,11 +3,15 @@ import type { EntradaAluno, StatusAluno } from '@shape/shared';
 import { AppError } from '../core/app-error.js';
 import type { IRepositorioPlano, IRepositorioAluno } from '../repositories/interfaces.js';
 import { isValidCpf, isValidEmail, normalizeCpf, normalizeEmail } from '../utils/validators.js';
+import { chaveCache, padraoCacheDono, type IServicoCache, ServicoCacheNulo } from './cache-service.js';
+import { ServicoEventosNulo, type IServicoEventos } from './event-bus-service.js';
 
 export class ServicoAluno {
   constructor(
     private readonly studentRepository: IRepositorioAluno,
     private readonly planRepository: IRepositorioPlano,
+    private readonly cacheService: IServicoCache = new ServicoCacheNulo(),
+    private readonly eventBus: IServicoEventos = new ServicoEventosNulo(),
   ) {}
 
   // Lista alunos do gestor com filtros combinados.
@@ -18,13 +22,25 @@ export class ServicoAluno {
     skip: number,
     filters?: { search?: string; status?: StatusAluno; planId?: string },
   ) {
-    return this.studentRepository.list({ ownerId, page, pageSize, skip, ...filters });
+    return this.cacheService.remember(
+      chaveCache(ownerId, 'alunos:listagem', {
+        page,
+        pageSize,
+        skip,
+        search: filters?.search ?? '',
+        status: filters?.status ?? '',
+        planId: filters?.planId ?? '',
+      }),
+      () => this.studentRepository.list({ ownerId, page, pageSize, skip, ...filters }),
+    );
   }
 
   // Cadastra aluno apos normalizar CPF/e-mail e confirmar plano valido.
   async create(ownerId: string, input: EntradaAluno) {
     await this.validate(ownerId, input);
-    return this.studentRepository.create(ownerId, { ...input, email: normalizeEmail(input.email), cpf: normalizeCpf(input.cpf) });
+    const student = await this.studentRepository.create(ownerId, { ...input, email: normalizeEmail(input.email), cpf: normalizeCpf(input.cpf) });
+    await this.registrarEscrita(ownerId, 'aluno.criado', student.id);
+    return student;
   }
 
   // Busca aluno respeitando o dono da conta.
@@ -36,13 +52,16 @@ export class ServicoAluno {
   async update(ownerId: string, id: string, input: EntradaAluno) {
     await this.ensureExists(ownerId, id);
     await this.validate(ownerId, input, id);
-    return this.studentRepository.update(ownerId, id, { ...input, email: normalizeEmail(input.email), cpf: normalizeCpf(input.cpf) });
+    const student = await this.studentRepository.update(ownerId, id, { ...input, email: normalizeEmail(input.email), cpf: normalizeCpf(input.cpf) });
+    await this.registrarEscrita(ownerId, 'aluno.atualizado', student.id);
+    return student;
   }
 
   // Remove aluno depois de confirmar que ele existe para o usuario.
   async delete(ownerId: string, id: string) {
     await this.ensureExists(ownerId, id);
     await this.studentRepository.delete(ownerId, id);
+    await this.registrarEscrita(ownerId, 'aluno.removido', id);
   }
 
   // Centraliza a verificacao de existencia e propriedade do aluno.
@@ -83,5 +102,12 @@ export class ServicoAluno {
     if (cpfOwner && cpfOwner.id !== currentId) {
       throw new AppError(409, 'Ja existe um aluno com este CPF.');
     }
+  }
+
+  private async registrarEscrita(ownerId: string, type: string, entityId: string) {
+    await Promise.all([
+      this.cacheService.deleteByPattern(padraoCacheDono(ownerId)),
+      this.eventBus.publish({ type, ownerId, actorId: ownerId, entityId }),
+    ]);
   }
 }

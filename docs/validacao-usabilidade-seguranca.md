@@ -54,7 +54,7 @@ Data: 10/09/2026, com complementos visuais em 14/09/2026, 15/09/2026 e validacao
 | Docker/Nginx/HTTP local | Passou | `http://127.0.0.1/health`, `http://127.0.0.1/entrar` e login admin foram validados para teste manual sem bloqueio de certificado |
 | Capturas Playwright da interface | Passou em 14/09/2026 | Login, painel, listagens, upload e painel mobile capturados sem warnings de console |
 | Capturas dos formularios internos | Passou em 15/09/2026 | Planos, alunos, treinos e perfil revisados em desktop/mobile apos padronizacao visual |
-| Auditoria NPM | Revisada | Dependencias diretas corrigidas e riscos residuais documentados em `docs/auditoria-dependencias.md` |
+| Auditoria NPM | Passou em 23/11/2026 | `npm audit`: 0 vulnerabilidades; migracao Prisma 7 validada em E2E isolado; detalhes em `docs/auditoria-dependencias.md` |
 | Expo Go em celular fisico | Passou em 14/09/2026 | App abriu no celular apos login no Expo Go e no Expo CLI; falta apenas print final das abas operacionais |
 
 ## Usabilidade
@@ -114,14 +114,14 @@ Historicamente tambem foi executado `npm audit fix` sem `--force` para corrigir 
 - `esbuild` para `0.28.1` via override.
 
 Observacao:
-Na revisao de 10/09/2026, `nodemailer` e `vitest` foram atualizados e overrides minimos foram aplicados para dependencias transitivas com patch seguro. Na revisao de 14/09/2026, `recharts` foi removido do frontend e `npm audit fix --omit=dev` foi executado sem `--force`. Na revisao de 15/09/2026, o Expo foi alinhado ao SDK 57 e o audit ficou com 14 vulnerabilidades residuais, sem vulnerabilidades criticas ou baixas. Os riscos restantes ficam concentrados em Prisma e Expo/React Native/Metro e estao justificados em `docs/auditoria-dependencias.md`.
+Na revisao de 10/09/2026, `nodemailer` e `vitest` foram atualizados e overrides minimos foram aplicados para dependencias transitivas com patch seguro. Na revisao de 14/09/2026, `recharts` foi removido do frontend e `npm audit fix --omit=dev` foi executado sem `--force`. Na revisao de 15/09/2026, o Expo foi alinhado ao SDK 57 e o audit historico ficou com 14 vulnerabilidades. Em 23/11/2026, Prisma foi migrado para 7.10.1 com adapter MariaDB e a dependencia Expo `minimatch` recebeu override compativel; a reauditoria final ficou com zero vulnerabilidades. O E2E isolado validou migracao e fluxo do app; detalhes em `docs/auditoria-dependencias.md`.
 
 ## Riscos e Melhorias Futuras
 
 | Risco | Plano de melhoria |
 | --- | --- |
 | Inconsistencias visuais percebidas no site antes da apresentacao | Revisar prints finais e corrigir apenas regressao visivel antes do commit |
-| Alertas residuais de dependencia informados pelo npm | Manter `docs/auditoria-dependencias.md` como justificativa e nao executar `npm audit fix --force` antes da entrega |
+| Regressao futura de dependencia | Reexecutar `npm audit` e validacoes do workflow ao atualizar o lockfile; nao usar `npm audit fix --force` sem revisar o diff e validar a major |
 | App Expo ainda precisa de prints finais | Abrir no Expo Go, testar as abas pela rede local e anexar prints ao roteiro final |
 | Escopo de acesso deve ser demonstrado na apresentacao | Explicar que o master cria clientes, o cliente administra a propria academia e login de aluno e evolucao futura |
 | Upload de imagens foi implementado, mas precisa aparecer na demonstracao | Demonstrar tela `/imagens` e uma tentativa de arquivo invalido |

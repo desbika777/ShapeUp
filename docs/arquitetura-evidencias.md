@@ -48,6 +48,14 @@ flowchart TD
 | Cliente API | `frontend/src/lib/api.ts` | Comunicacao HTTP padronizada |
 | Cliente API mobile | `mobile/src/lib/api.ts` | Comunicacao HTTP do Expo com tratamento padronizado de erros |
 | Backend | `backend/src` | API, regras e persistencia |
+| Documentacao API | `backend/src/docs/openapi.ts` | Contrato OpenAPI exibido pelo Swagger em `/api/docs` |
+| Cache Redis | `backend/src/services/cache-service.ts` | Cache-aside com TTL e invalidacao por dono da academia |
+| Eventos Redis | `backend/src/services/event-bus-service.ts` | Publicacao e consumo de eventos via Pub/Sub |
+| Circuit breaker Redis | `backend/src/lib/redis-circuit-breaker.ts` | Abre apos tres falhas, pausa 10 segundos e executa uma sondagem de recuperacao |
+| Observabilidade | `backend/src/middlewares/request-observability-middleware.ts` | Logs estruturados com request id, status e duracao |
+| ADRs | `docs/adrs` | Decisoes sobre monolito modular, Redis e MySQL/Prisma |
+| CI/CD | `.github/workflows/ci-cd.yml` | Lint, testes, build, Compose e deploy remoto condicional |
+| Runbook | `docs/runbook-incidentes.md` | Triagem, recuperacao de servicos e rollback simples |
 | Controllers | `backend/src/controllers` | Entrada HTTP e validacao inicial |
 | Services | `backend/src/services` | Regras de negocio |
 | Repositories | `backend/src/repositories` | Acesso ao banco |
@@ -85,6 +93,25 @@ flowchart TD
 | Indicadores | `GET /api/painel/indicadores` |
 | Imagens | `POST /api/imagens` |
 | Arquivos publicos | `/uploads/imagens/:arquivo` |
+| Swagger | `GET /api/docs` |
+| OpenAPI JSON | `GET /api/openapi.json` |
+
+## Contrato OpenAPI e Swagger
+
+A API publica um contrato OpenAPI para documentar os principais endpoints do sistema e facilitar testes manuais durante a banca.
+
+Rotas de documentacao:
+
+- `GET /api/docs`: interface Swagger com grupos de autenticacao, usuarios, planos, alunos, treinos, painel e imagens;
+- `GET /api/openapi.json`: contrato OpenAPI em JSON para inspecao ou importacao em ferramentas externas.
+
+O Swagger registra:
+
+- autenticacao JWT por Bearer Token;
+- payloads de entrada dos formularios principais;
+- respostas paginadas;
+- erros padronizados de validacao, autorizacao, recurso nao encontrado e conflito;
+- upload multipart de anexos operacionais.
 
 ## CRUD Integrado Demonstravel
 
@@ -113,6 +140,10 @@ Para a rubrica, basta um CRUD completo, mas o Shape Up entrega mais de um fluxo 
 - seed para demonstracao;
 - testes unitarios e E2E;
 - upload multipart com Multer;
+- documentacao OpenAPI/Swagger integrada ao backend;
+- Redis para cache distribuido e eventos Pub/Sub;
+- logs estruturados de requisicao, cache, Redis e eventos;
+- invalidacao de cache em operacoes de escrita;
 - validacao de extensao, MIME type, assinatura real e tamanho maximo para imagens;
 - geracao de nome unico para evitar colisao de arquivos;
 - helper HTTP reutilizado para parametros de rota no backend.

@@ -1,4 +1,4 @@
 // Cliente Prisma compartilhado pelos repositorios.
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from './create-prisma-client.js';
 
-export const prisma = new PrismaClient();
+export const prisma = createPrismaClient();

@@ -19,6 +19,21 @@ services:
     networks:
       - shapeup_internal
 
+  redis:
+    image: redis:7.4-alpine
+    container_name: shapeup-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - shapeup_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - shapeup_internal
+
   migrate:
     build:
       context: .
@@ -49,6 +64,10 @@ services:
       DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}
       FRONTEND_URL: https://${APP_HOST}
       PASSWORD_RESET_URL: https://${APP_HOST}/redefinir-senha
+      REDIS_URL: redis://redis:6379
+      CACHE_NAMESPACE: shapeup
+      CACHE_TTL_SECONDS: 60
+      REDIS_EVENT_CHANNEL: shapeup:eventos
       SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PORT: ${SMTP_PORT:-}
       SMTP_SECURE: ${SMTP_SECURE:-false}
@@ -58,6 +77,8 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+      redis:
+        condition: service_healthy
     volumes:
       - shapeup_uploads_data:/app/backend/uploads
     networks:
@@ -96,6 +117,7 @@ services:
 volumes:
   shapeup_mysql_data:
   shapeup_uploads_data:
+  shapeup_redis_data:
 
 networks:
   shapeup_public:

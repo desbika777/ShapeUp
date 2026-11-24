@@ -7,17 +7,35 @@ Este documento e o Artefato de Acompanhamento Oficial do projeto Shape Up. A par
 ## Regras de Uso
 
 - Atualizar este arquivo a cada entrega relevante.
-- Registrar evidencias reais, como arquivos, rotas, testes, commits, prints ou itens do Jira.
+- Registrar evidencias reais, como arquivos, rotas, testes, logs estruturados, commits ou itens do Jira.
 - Nao marcar um criterio como concluido apenas porque esta documentado; ele precisa ter evidencia verificavel.
 - Manter os status em quatro niveis: Concluido, Parcial, Pendente ou Nao verificavel.
 - Antes da entrega final, todos os criterios com nota devem estar Concluido ou justificados.
 
 ## Ultima Revisao
 
-Data: 15/09/2026.
+Data: 23/11/2026.
 
 Validacoes recentes:
 
+- Revisao da rubrica atualizada em 23/11/2026; arquivo de acompanhamento criado em `docs/execucao-final-rubrica-2026-11-23.md`.
+- Em 23/11/2026, `npm run lint`, `npm run test` (28 testes: 21 backend e 7 frontend), `npm run build`, `docker compose config --quiet`, parse do workflow YAML e `git diff --check` passaram; o diff exibiu apenas avisos de conversao LF/CRLF do Windows.
+- Workflow CI/CD criado em `.github/workflows/ci-cd.yml`; a validacao roda em pushes e pull requests e inclui Chromium + E2E no Compose isolado. O deploy em `main` depende de secrets e servidor remoto.
+- Em 23/11/2026, a suite Playwright E2E passou 6/6 em Compose descartavel e isolado. A edicao de plano pela interface/API registrou miss/set TTL 60 s, invalidacao e `plano.atualizado` publicado/consumido; ver `docs/evidencias-redis-2026-11-23.md`.
+- Reauditoria de dependencias em 23/11/2026: `npm audit` reportou zero vulnerabilidades apos Prisma 7.10.1 + adapter MariaDB e override restrito de `minimatch`; lint, 28 testes, build, lint mobile, Expo SDK check e E2E 6/6 passaram.
+- O comando `npm run e2e` agora usa banco, Redis, rede e volumes proprios, portas aleatorias e remocao delimitada ao projeto temporario. A trava de limpeza rejeitou um `DATABASE_URL` apontando para `shapeup` antes de conectar; a stack principal continuou ativa.
+- A stack principal continuou intacta e respondeu `200` em `/`, `/health`, `/api/docs/` e `/api/openapi.json`; MySQL e Redis saudaveis depois da remocao dos volumes E2E.
+
+- Rubrica Nova 5 integrada em 08/10/2026 com foco em arquitetura, Redis, eventos, Docker/Nginx e observabilidade.
+- Redis cache-aside validado via Nginx: login seed, duas chamadas em `GET /api/painel/indicadores` e logs `cache_miss`, `cache_set` e `cache_hit` com TTL de 60 segundos.
+- Redis Pub/Sub validado via API: `POST /api/planos` retornou `201`, `DELETE /api/planos/{id}` retornou `204`, e os logs registraram `evento_publicado`, `evento_consumido` e `cache_invalidation`.
+- Docker Compose validado com MySQL, Redis, backend, frontend e Nginx ativos; `shapeup-redis` ficou `healthy` e `/health` retornou `{"status":"ok"}` via Nginx.
+- `npm run lint --workspace backend`, `npm run build --workspace backend`, `npm run test --workspace backend`, `npm run build` e `docker compose config`: passaram em 08/10/2026.
+- OpenAPI/Swagger integrado em 29/09/2026: `/api/docs` retornou `200`, `/api/openapi.json` retornou o contrato `Shape Up API 1.1.0`, e os assets `swagger-ui.css`, `swagger-ui-bundle.js` e `swagger-ui-init.js` retornaram `200` via Nginx.
+- `npm run lint --workspace backend`: passou em 29/09/2026 apos integracao do Swagger.
+- `npm run build --workspace backend`: passou em 29/09/2026 apos integracao do Swagger.
+- `npm run test --workspace backend`: passou em 29/09/2026 com 18 testes aprovados.
+- Docker Compose do `ShapeUpNew`: backend, MySQL, frontend e Nginx recriados/validados em 29/09/2026; `/health` retornou `{"status":"ok"}` via Nginx.
 - `RubricaNova.pdf`: revisada novamente em 14/09/2026 para confirmar os criterios avaliados; as tres linhas finais NSA continuam sem descricao objetiva no texto extraido.
 - Branch GitHub: `feature/documentacao-rubrica` sincronizada com `origin/feature/documentacao-rubrica` no commit `385095c` antes desta revisao documental.
 - Rodada visual/UX de 14/09/2026: autenticacao, layout principal, painel, listagens, upload, gestores e mobile receberam polimento de interface.
@@ -84,7 +102,7 @@ Validacoes recentes:
 | P1 | Limpeza final de codigo apos auditoria visual | R-02, R-04, R-05 | Parcial controlado | `recharts` removido, rotas carregadas com lazy loading, componentes base padronizados, tabelas responsivas, formularios com layout compartilhado e Expo dividido em componentes/abas | Executar validacoes finais e revisar diff antes do commit |
 | P1 | Evidencias de responsividade/Expo Go | R-05 | Parcial | Acesso em celular fisico validado; script LAN criado; `expo export` validado; falta print final do login, painel e abas operacionais quando houver mesma rede |
 | P1 | Ampliar experiencia do app Expo | R-02, R-03, R-04, R-05 | Concluido em base tecnica | App mobile possui login, painel, abas de planos/alunos/treinos, leitura de dados e CRUD administrativo consumindo a API com JWT | Validar visualmente no Expo Go e registrar prints para a apresentacao |
-| P2 | Roteiro final de apresentacao | R-03, R-06, R-07, R-09, R-10, R-11, R-14, R-15 | Concluido | `docs/roteiro-final-apresentacao.md` cobre problema, produto, arquitetura, rubrica, GitHub e demonstracao |
+| P2 | Roteiro final de apresentacao | Criterios da rubrica atualizada | Concluido | `docs/roteiro-apresentacao-final.md` traz roteiro de 10 a 11 minutos com sequencia de demonstracao, evidencia e limites que devem ser apresentados com precisao |
 | P2 | Pacote final de evidencias | R-01 a R-15 | Concluido em base documental | `docs/pacote-final-evidencias.md` organiza comandos, credenciais, prints e roteiro de teste no site; branch sincronizada ate `385095c` |
 | P2 | Checklist de defesa da rubrica | R-01 a R-18 | Concluido em base documental | `docs/checklist-rubrica-apresentacao.md` traduz cada criterio em evidencia, fala de defesa, risco e acao |
 | P2 | Conferir criterios NSA | R-16, R-17, R-18 | Nao verificavel | Professor confirma significado ou a equipe registra impossibilidade de verificacao |
@@ -123,12 +141,70 @@ Em 08/09/2026, a refatoracao final de qualidade foi concluida em base tecnica:
 12. Em 14/09/2026, o Expo foi ampliado com abas e CRUD administrativo de planos, alunos e treinos.
 13. Em 14/09/2026, `expo export --platform ios` gerou bundle com sucesso.
 
-## Proxima Entrega Recomendada
+## Entrega Concluida - OpenAPI e Swagger
 
-Auditoria visual, UX e limpeza fina do codigo:
+Em 29/09/2026, a documentacao da API foi integrada ao backend oficial do `ShapeUpNew`:
 
-1. Rodar a bateria final de validacoes automatizadas.
-2. Revisar o diff completo para garantir que nao entrou codigo morto ou arquivo temporario.
-3. Coletar prints finais oficiais do site em `http://127.0.0.1`.
-4. Validar visualmente as abas novas no Expo Go assim que computador e celular estiverem na mesma rede.
-5. Fazer commit e push dos ajustes finais quando a revisao estiver aprovada.
+1. Dependencias `swagger-ui-express` e `@types/swagger-ui-express` adicionadas ao workspace `backend`.
+2. Contrato OpenAPI criado em `backend/src/docs/openapi.ts`.
+3. Swagger disponibilizado em `GET /api/docs`.
+4. JSON OpenAPI disponibilizado em `GET /api/openapi.json`.
+5. Contrato cobre autenticacao, usuarios, planos, alunos, treinos, painel e imagens.
+6. Autenticacao JWT registrada como Bearer Token no Swagger.
+7. Nginx ajustado para permitir a interface do Swagger via `/api/docs`.
+8. Backend validado com `lint`, `build` e testes automatizados.
+9. Stack Docker/Nginx validada com retorno `200` para Swagger, OpenAPI JSON e assets da interface.
+
+## Proximas Entregas
+
+- [x] Registrar no Jira as stories/tasks, prioridades, responsavel, criterios e transicoes reais.
+- [x] Validar a stack atual e os fluxos de UI/API/Redis em E2E isolado; guardar logs sem tocar no banco principal.
+- [ ] Publicar a branch revisada e registrar uma execucao real de GitHub Actions.
+- [ ] Ensaiar a demonstracao com conta/dados descartaveis; nao usar dados de producao.
+- [ ] Criar tag e publicar release 1.0.1 somente depois do CI remoto e revisao da equipe.
+- [ ] Configurar deploy por SSH somente se houver servidor da equipe e secrets correspondentes.
+
+## Rubrica Nova 5 - Arquitetura E Back-end Avancado
+
+| Area | Criterio | Status | Evidencia |
+| --- | --- | --- | --- |
+| Arquitetura de Software | Documentacao arquitetural com C4, ADRs e Quality Scenarios | Documentado; metricas pendentes | `docs/rubrica-nova-5-arquitetura-backend.md`, `docs/adrs/` |
+| Arquitetura de Software | Estilos arquiteturais e DDD | Documentado | Context Map, Bounded Contexts e modelo tatico em `docs/rubrica-nova-5-arquitetura-backend.md` |
+| Arquitetura de Software | Integracao, APIs e dados | Implementado | Swagger/OpenAPI em `/api/docs`, ADR-0003 de MySQL/Prisma, Nginx |
+| Arquitetura de Software | Qualidade, resiliencia e observabilidade | Implementado; medicao pendente | Logs estruturados, SLOs/SLIs, retry, timeout, circuit breaker Redis, fallback e invalidacao |
+| Arquitetura de Software | Entrega continua | Parcial | Workflow `.github/workflows/ci-cd.yml`, runbook; deploy requer secrets/servidor |
+| Back-end Avancado | Redis cache-aside com TTL e invalidacao | Implementado | `backend/src/services/cache-service.ts`, services de painel/listagens |
+| Back-end Avancado | Redis Pub/Sub para eventos | Implementado | `backend/src/services/event-bus-service.ts` |
+| Back-end Avancado | Docker Compose + Nginx | Revalidado em 23/11/2026 | `docker compose config` passou; stack ativa e /health, Swagger e OpenAPI responderam 200 via Nginx |
+| Back-end Avancado | Boas praticas e observabilidade | Revalidado em 23/11/2026 | Lint, build e 28 testes passaram; logs de cache/eventos encontrados na stack |
+
+
+## Revisao da Ultima Rubrica - 23/11/2026
+
+A rubrica recebida como RubricaDeFatoAtt.pdf foi revisada integralmente. O trabalho continua no ShapeUpNew e as alteracoes preexistentes do working tree foram preservadas.
+
+### Checklist de fases
+
+- [x] Fase 0: confirmar projeto, branch, working tree e fonte da rubrica.
+- [x] Fase 1: mapear todos os criterios e lacunas.
+- [x] Fase 2: acrescentar Quality Scenarios, modelo DDD explicito, ADR MySQL, resiliencia, workflow e runbook.
+- [x] Fase 3: lint, 28 testes, build, lint mobile, checagem Expo, parse YAML/Compose, bash -n, health/OpenAPI e suite E2E 6/6 em Compose isolado passaram em 23/11/2026; resultados em docs/execucao-final-rubrica-2026-11-23.md.
+- [ ] Fase 4: Jira e evidencias E2E reais concluidos; falta executar o workflow remoto depois de publicar a branch.
+- [x] Fase 5: revisar os criterios e preparar a demonstracao; matriz atualizada e roteiro de 10 a 11 minutos em `docs/roteiro-apresentacao-final.md`.
+
+A matriz detalhada e os resultados por criterio ficam em docs/execucao-final-rubrica-2026-11-23.md.
+
+### Criterios Tech Forge
+
+| Criterio | Status | Evidencia / pendencia |
+| --- | --- | --- |
+| Gestao do trabalho via Jira | Concluido para demonstracao | Projeto SU real com Workstream, Task, Story e Bug; nove itens com prioridade, responsavel, criterios e status conferidos em 23/11/2026. A versao 1.0.1 existe como nao lancada |
+| Cynefin e escolha da abordagem | Documentado | cynefin-abordagem-gestao.md classifica Shape Up como Complexo e justifica Scrum adaptado/Kanban |
+| Ciclo de vida, backlog e versoes | Parcial | Backlog, Stories, criterios e candidata Jira 1.0.1 estao registrados; `CHANGELOG.md` descreve a candidata. Tag/release real no GitHub depende da validacao remota e revisao final |
+
+### Entrega continua e incidentes
+
+- Workflow: .github/workflows/ci-cd.yml executa lint, testes, E2E em Compose isolado, build e validacao de Compose em pushes e pull requests; deploy em `main` so ocorre com secrets e servidor configurados.
+- Deploy por SSH: condicional a secrets e servidor de demonstracao; sem configuracao, etapa aparece como ignorada.
+- Estrategia de rollback e triagem: docs/runbook-incidentes.md.
+- Estado desta revisao: artefatos locais e stack demonstravel validados; execucao GitHub e deploy remoto ainda nao evidenciados.
