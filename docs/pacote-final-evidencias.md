@@ -1,6 +1,6 @@
 # Pacote Final de Evidencias - Shape Up
 
-> Atualizacao de 23/11/2026: para status atual, use `docs/execucao-final-rubrica-2026-11-23.md`; para a fala, `docs/roteiro-apresentacao-final.md`; para a candidata 1.0.1, `CHANGELOG.md`. Este pacote contem um roteiro operacional anterior e nao substitui essas fontes.
+> Atualizacao de 24/11/2026: para status atual, use `docs/execucao-final-rubrica-2026-11-23.md`; para a fala, `docs/roteiro-apresentacao-final.md`; para a candidata 1.0.1, `CHANGELOG.md`. Este pacote contem um roteiro operacional anterior e nao substitui essas fontes.
 
 ## Objetivo
 
@@ -10,8 +10,8 @@ Centralizar o que precisa ser aberto, testado, mostrado e fotografado no dia da 
 
 | Area | Status | Evidencia |
 | --- | --- | --- |
-| Branch GitHub | Alteracoes locais ainda sem commit/push | `feature/documentacao-rubrica`; execucao remota do CI pendente |
-| Alinhamento da rubrica | Matriz revisada, CI remoto pendente | `docs/execucao-final-rubrica-2026-11-23.md` |
+| Branch GitHub | Sincronizada; commit `c39bf91` validado nos eventos de push e PR | `feature/documentacao-rubrica`; [push](https://github.com/desbika777/ShapeUp/actions/runs/45458354039) · [PR](https://github.com/desbika777/ShapeUp/actions/runs/45458374598) |
+| Alinhamento da rubrica | Matriz revisada; CI remoto passou | `docs/execucao-final-rubrica-2026-11-23.md` |
 | Upload Multer | Concluido | Tela `/imagens`, endpoint `POST /api/imagens`, validacoes e E2E |
 | Refatoracao final | Concluida | `shared`, helper HTTP, app Expo e validadores reutilizados |
 | Auditoria NPM | Passou: 0 vulnerabilidades | `docs/auditoria-dependencias.md`; Prisma 7.10.1 + adapter MariaDB e Expo SDK 57 validado |
@@ -136,4 +136,4 @@ Em 23/11/2026, passaram:
 - `npm exec --workspace mobile -- expo install --check`;
 - `npm exec --workspace mobile -- expo export --platform ios --output-dir ..\tmp\expo-export-mobile`.
 
-O workflow GitHub ainda precisa de uma execucao real apos publicar a branch; a candidata Jira 1.0.1 continua nao lancada.
+O workflow GitHub passou para o commit `c39bf91` em 24/11/2026; a candidata Jira 1.0.1 continua nao lancada.

@@ -25,7 +25,7 @@ Mudancas relevantes do Shape Up, organizadas por versao. Uma versao so e conside
 
 - Em 23/11/2026: lint, 28 testes, build, lint mobile, `expo install --check`, configuracao Compose, verificacoes HTTP locais e `npm run e2e` (6/6) passaram. A suite E2E usa uma stack Compose descartavel com portas aleatorias; a limpeza remove seus volumes e a trava rejeita banco principal.
 - Redis foi exercitado em stack descartavel isolada: a edicao de plano pela interface gerou `plano.atualizado`, invalidacao de cache e evento publicado/consumido; TTL observado de 60 s. O teste com repository fake continua como evidencia complementar.
-- A execucao remota do GitHub Actions, a tag Git e o deploy publico ainda nao foram realizados.
+- GitHub Actions passou em 24/11/2026 no commit `c39bf91`, nos eventos de push e PR; tag Git e deploy publico continuam pendentes.
 - Auditoria atual: 0 vulnerabilidades em `npm audit`; Prisma 7.10.1 validado com adapter MariaDB; detalhe e escopo em `docs/auditoria-dependencias.md`.
 
 ### Estado da versao

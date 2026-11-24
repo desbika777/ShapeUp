@@ -14,7 +14,7 @@ Este documento e o Artefato de Acompanhamento Oficial do projeto Shape Up. A par
 
 ## Ultima Revisao
 
-Data: 23/11/2026.
+Data: 24/11/2026.
 
 Validacoes recentes:
 
@@ -25,6 +25,7 @@ Validacoes recentes:
 - Reauditoria de dependencias em 23/11/2026: `npm audit` reportou zero vulnerabilidades apos Prisma 7.10.1 + adapter MariaDB e override restrito de `minimatch`; lint, 28 testes, build, lint mobile, Expo SDK check e E2E 6/6 passaram.
 - O comando `npm run e2e` agora usa banco, Redis, rede e volumes proprios, portas aleatorias e remocao delimitada ao projeto temporario. A trava de limpeza rejeitou um `DATABASE_URL` apontando para `shapeup` antes de conectar; a stack principal continuou ativa.
 - A stack principal continuou intacta e respondeu `200` em `/`, `/health`, `/api/docs/` e `/api/openapi.json`; MySQL e Redis saudaveis depois da remocao dos volumes E2E.
+- Em 24/11/2026, GitHub Actions passou no push e no PR para `c39bf91`: lint, 28 testes, Chromium/E2E isolado (6/6), mobile, build e Compose; links registrados no pacote final.
 
 - Rubrica Nova 5 integrada em 08/10/2026 com foco em arquitetura, Redis, eventos, Docker/Nginx e observabilidade.
 - Redis cache-aside validado via Nginx: login seed, duas chamadas em `GET /api/painel/indicadores` e logs `cache_miss`, `cache_set` e `cache_hit` com TTL de 60 segundos.
@@ -37,7 +38,7 @@ Validacoes recentes:
 - `npm run test --workspace backend`: passou em 29/09/2026 com 18 testes aprovados.
 - Docker Compose do `ShapeUpNew`: backend, MySQL, frontend e Nginx recriados/validados em 29/09/2026; `/health` retornou `{"status":"ok"}` via Nginx.
 - `RubricaNova.pdf`: revisada novamente em 14/09/2026 para confirmar os criterios avaliados; as tres linhas finais NSA continuam sem descricao objetiva no texto extraido.
-- Branch GitHub: `feature/documentacao-rubrica` sincronizada com `origin/feature/documentacao-rubrica` no commit `385095c` antes desta revisao documental.
+- Branch GitHub: `feature/documentacao-rubrica` sincronizada com `origin/feature/documentacao-rubrica`; commit `c39bf91` teve CI aprovado no push e no PR em 24/11/2026.
 - Rodada visual/UX de 14/09/2026: autenticacao, layout principal, painel, listagens, upload, gestores e mobile receberam polimento de interface.
 - App Expo ampliado em 14/09/2026: deixou de ser apenas painel demonstrativo e passou a ter navegacao por abas com consulta e CRUD administrativo de planos, alunos e treinos.
 - `npm exec --workspace mobile -- expo export --platform ios --output-dir ..\tmp\expo-export-mobile`: passou em 15/09/2026; Metro gerou bundle iOS a partir de `mobile/index.ts`.
@@ -159,7 +160,7 @@ Em 29/09/2026, a documentacao da API foi integrada ao backend oficial do `ShapeU
 
 - [x] Registrar no Jira as stories/tasks, prioridades, responsavel, criterios e transicoes reais.
 - [x] Validar a stack atual e os fluxos de UI/API/Redis em E2E isolado; guardar logs sem tocar no banco principal.
-- [ ] Publicar a branch revisada e registrar uma execucao real de GitHub Actions.
+- [x] Publicar a branch revisada e registrar uma execucao real de GitHub Actions (push e PR aprovados em `c39bf91`, 24/11/2026).
 - [ ] Ensaiar a demonstracao com conta/dados descartaveis; nao usar dados de producao.
 - [ ] Criar tag e publicar release 1.0.1 somente depois do CI remoto e revisao da equipe.
 - [ ] Configurar deploy por SSH somente se houver servidor da equipe e secrets correspondentes.
@@ -172,7 +173,7 @@ Em 29/09/2026, a documentacao da API foi integrada ao backend oficial do `ShapeU
 | Arquitetura de Software | Estilos arquiteturais e DDD | Documentado | Context Map, Bounded Contexts e modelo tatico em `docs/rubrica-nova-5-arquitetura-backend.md` |
 | Arquitetura de Software | Integracao, APIs e dados | Implementado | Swagger/OpenAPI em `/api/docs`, ADR-0003 de MySQL/Prisma, Nginx |
 | Arquitetura de Software | Qualidade, resiliencia e observabilidade | Implementado; medicao pendente | Logs estruturados, SLOs/SLIs, retry, timeout, circuit breaker Redis, fallback e invalidacao |
-| Arquitetura de Software | Entrega continua | Parcial | Workflow `.github/workflows/ci-cd.yml`, runbook; deploy requer secrets/servidor |
+| Arquitetura de Software | Entrega continua | CI validado; deploy parcial/condicional | Workflow `.github/workflows/ci-cd.yml` passou no push e PR; runbook existe; deploy requer secrets/servidor |
 | Back-end Avancado | Redis cache-aside com TTL e invalidacao | Implementado | `backend/src/services/cache-service.ts`, services de painel/listagens |
 | Back-end Avancado | Redis Pub/Sub para eventos | Implementado | `backend/src/services/event-bus-service.ts` |
 | Back-end Avancado | Docker Compose + Nginx | Revalidado em 23/11/2026 | `docker compose config` passou; stack ativa e /health, Swagger e OpenAPI responderam 200 via Nginx |
@@ -189,7 +190,7 @@ A rubrica recebida como RubricaDeFatoAtt.pdf foi revisada integralmente. O traba
 - [x] Fase 1: mapear todos os criterios e lacunas.
 - [x] Fase 2: acrescentar Quality Scenarios, modelo DDD explicito, ADR MySQL, resiliencia, workflow e runbook.
 - [x] Fase 3: lint, 28 testes, build, lint mobile, checagem Expo, parse YAML/Compose, bash -n, health/OpenAPI e suite E2E 6/6 em Compose isolado passaram em 23/11/2026; resultados em docs/execucao-final-rubrica-2026-11-23.md.
-- [ ] Fase 4: Jira e evidencias E2E reais concluidos; falta executar o workflow remoto depois de publicar a branch.
+- [ ] Fase 4: Jira, E2E real e workflow remoto concluidos; falta o ensaio final da demonstracao e a revisao da equipe antes de tag/release.
 - [x] Fase 5: revisar os criterios e preparar a demonstracao; matriz atualizada e roteiro de 10 a 11 minutos em `docs/roteiro-apresentacao-final.md`.
 
 A matriz detalhada e os resultados por criterio ficam em docs/execucao-final-rubrica-2026-11-23.md.
@@ -207,4 +208,4 @@ A matriz detalhada e os resultados por criterio ficam em docs/execucao-final-rub
 - Workflow: .github/workflows/ci-cd.yml executa lint, testes, E2E em Compose isolado, build e validacao de Compose em pushes e pull requests; deploy em `main` so ocorre com secrets e servidor configurados.
 - Deploy por SSH: condicional a secrets e servidor de demonstracao; sem configuracao, etapa aparece como ignorada.
 - Estrategia de rollback e triagem: docs/runbook-incidentes.md.
-- Estado desta revisao: artefatos locais e stack demonstravel validados; execucao GitHub e deploy remoto ainda nao evidenciados.
+- Estado desta revisao: CI remoto aprovado em `c39bf91`; deploy remoto nao executado porque depende de servidor e secrets, e tag/release aguardam revisao final da equipe.
