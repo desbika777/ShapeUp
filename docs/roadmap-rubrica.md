@@ -29,7 +29,7 @@ Validacoes recentes:
 - Reauditoria de dependencias em 23/11/2026: `npm audit` reportou zero vulnerabilidades apos Prisma 7.10.1 + adapter MariaDB e override restrito de `minimatch`; lint, 28 testes, build, lint mobile, Expo SDK check e E2E 6/6 passaram.
 - O comando `npm run e2e` agora usa banco, Redis, rede e volumes proprios, portas aleatorias e remocao delimitada ao projeto temporario. A trava de limpeza rejeitou um `DATABASE_URL` apontando para `shapeup` antes de conectar; a stack principal continuou ativa.
 - A stack principal continuou intacta e respondeu `200` em `/`, `/health`, `/api/docs/` e `/api/openapi.json`; MySQL e Redis saudaveis depois da remocao dos volumes E2E.
-- Em 24/11/2026, GitHub Actions passou no push e no PR para o commit atual `3d91bc5`: lint, 28 testes, Chromium/E2E isolado (6/6), mobile, build e Compose; links em `docs/checklist-rubrica-atualizada.md`.
+- Em 24/11/2026, GitHub Actions passou no push e no PR para o pacote final `9923d6d`: lint, 28 testes, Chromium/E2E isolado (6/6), mobile, build e Compose; links em `docs/checklist-rubrica-atualizada.md`.
 - `npm audit` foi repetido em 24/11/2026 na branch final e continuou em 0 vulnerabilidades.
 
 - Rubrica Nova 5 integrada em 08/10/2026 com foco em arquitetura, Redis, eventos, Docker/Nginx e observabilidade.
@@ -43,7 +43,7 @@ Validacoes recentes:
 - `npm run test --workspace backend`: passou em 29/09/2026 com 18 testes aprovados.
 - Docker Compose do `ShapeUpNew`: backend, MySQL, frontend e Nginx recriados/validados em 29/09/2026; `/health` retornou `{"status":"ok"}` via Nginx.
 - `RubricaNova.pdf`: revisada novamente em 14/09/2026 para confirmar os criterios avaliados; as tres linhas finais NSA continuam sem descricao objetiva no texto extraido.
-- Branch GitHub: `feature/documentacao-rubrica` sincronizada com `origin/feature/documentacao-rubrica`; commit `3d91bc5` teve CI aprovado no push e no PR em 24/11/2026.
+- Branch GitHub: `feature/documentacao-rubrica` sincronizada com `origin/feature/documentacao-rubrica`; pacote final `9923d6d` teve CI aprovado no push e no PR em 24/11/2026.
 - Rodada visual/UX de 14/09/2026: autenticacao, layout principal, painel, listagens, upload, gestores e mobile receberam polimento de interface.
 - App Expo ampliado em 14/09/2026: deixou de ser apenas painel demonstrativo e passou a ter navegacao por abas com consulta e CRUD administrativo de planos, alunos e treinos.
 - `npm exec --workspace mobile -- expo export --platform ios --output-dir ..\tmp\expo-export-mobile`: passou em 15/09/2026; Metro gerou bundle iOS a partir de `mobile/index.ts`.
@@ -165,7 +165,7 @@ Em 29/09/2026, a documentacao da API foi integrada ao backend oficial do `ShapeU
 
 - [x] Registrar no Jira as stories/tasks, prioridades, responsavel, criterios e transicoes reais.
 - [x] Validar a stack atual e os fluxos de UI/API/Redis em E2E isolado; guardar logs sem tocar no banco principal.
-- [x] Publicar a branch revisada e registrar uma execucao real de GitHub Actions (push e PR aprovados em `3d91bc5`, 24/11/2026).
+- [x] Publicar a branch revisada e registrar uma execucao real de GitHub Actions (push e PR aprovados em `9923d6d`, 24/11/2026).
 - [ ] Ensaiar a demonstracao com conta/dados descartaveis; nao usar dados de producao.
 - [ ] Criar tag e publicar release 1.0.1 somente depois do CI remoto e revisao da equipe.
 - [ ] Configurar deploy por SSH somente se houver servidor da equipe e secrets correspondentes.

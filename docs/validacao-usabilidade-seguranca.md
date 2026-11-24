@@ -40,7 +40,7 @@ Registro historico iniciado em 10/09/2026, com complementos visuais em 14/09/202
 | Comando | Resultado | Observacao |
 | --- | --- | --- |
 | `git diff --check` | Passou em 15/09/2026 | Sem espacos finais ou conflitos de diff; apenas avisos normais de CRLF no Windows |
-| GitHub Actions em push e PR | Passou em 24/11/2026 | Commit atual `3d91bc5`; lint, 28 testes, E2E 6/6, mobile, build e Compose; links em `docs/checklist-rubrica-atualizada.md` |
+| GitHub Actions em push e PR | Passou em 24/11/2026 | Commit `9923d6d`; lint, 28 testes, E2E 6/6, mobile, build e Compose; links em `docs/checklist-rubrica-atualizada.md` |
 | `npm audit` | Passou em 24/11/2026 | 0 vulnerabilidades na auditoria geral da branch final |
 | Pagina inicial e `/health` locais | Passou em 24/11/2026 | Ambos responderam HTTP 200; a URL continua local, sem implantacao publica configurada |
 | `npm run lint` | Passou em 16/09/2026 | Shared, backend e frontend sem erro de TypeScript/ESLint |
