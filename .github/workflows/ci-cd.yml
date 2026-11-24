@@ -50,7 +50,15 @@ jobs:
         run: npm run test
 
       - name: Install Playwright Chromium
-        run: npm exec --workspace frontend -- playwright install --with-deps chromium
+        run: |
+          for attempt in 1 2 3; do
+            npx playwright install chromium --with-deps && exit 0
+            if [ "$attempt" -lt 3 ]; then
+              echo "Playwright browser setup failed; retrying in $((attempt * 10))s."
+              sleep "$((attempt * 10))"
+            fi
+          done
+          exit 1
 
       - name: End-to-end tests in an isolated Compose stack
         run: npm run e2e
