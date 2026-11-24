@@ -15,7 +15,7 @@ concurrency:
 jobs:
   validate:
     name: Lint, test, build and compose
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       NODE_ENV: test
       JWT_SECRET: shapeup-ci-secret-with-more-than-twelve-characters
