@@ -33,8 +33,8 @@ A folha avalia tres componentes de 3,0 pontos cada. Sao 12 criterios pontuados, 
 
 ## Verificacao remota atual
 
-- Branch: `feature/documentacao-rubrica`, commit `0ea4002`.
-- CI do push e do PR passou nesse commit: [push](https://github.com/desbika777/ShapeUp/actions/runs/45460097900) e [PR](https://github.com/desbika777/ShapeUp/actions/runs/45460111950).
+- Commit de codigo funcional validado: `0ea4002`; pacote documental sincronizado em `fa83480`.
+- CI de push e PR passou no commit documental `fa83480`: [push](https://github.com/desbika777/ShapeUp/actions/runs/45466756090) e [PR](https://github.com/desbika777/ShapeUp/actions/runs/45466770199).
 - O workflow validou lint, 28 testes, E2E Playwright 6/6, verificacao mobile, build e Docker Compose. O deploy foi ignorado porque ocorre apenas em `main` e depende de secrets/servidor.
 - O pre-push local repetiu os 6 E2E e removeu apenas a stack descartavel.
 - `npm audit` foi executado novamente em 24/11/2026 e reportou zero vulnerabilidades; isso nao foi executado pelo workflow remoto.
