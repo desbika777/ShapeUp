@@ -27,9 +27,9 @@ A folha avalia tres componentes de 3,0 pontos cada. Sao 12 criterios pontuados, 
 
 | Campo | Valor ou pendencia |
 | --- | --- |
-| Nome completo | Confirmar os nomes exatos que devem aparecer; a folha tem dois campos de nome |
+| Nome completo | Nomes confirmados em conversa; inserir apenas na cópia da folha que será entregue. Os nomes não são publicados neste repositório |
 | Link do GitHub | `https://github.com/desbika777/ShapeUp/tree/feature/documentacao-rubrica` |
-| Link do site | Ainda sem URL publica identificada. `http://127.0.0.1` e apenas local e nao serve como link externo para a banca |
+| Link do site | A equipe informou que não tem hospedagem. `http://127.0.0.1` é apenas local e não serve como link externo para a banca |
 
 ## Verificacao remota atual
 
@@ -46,7 +46,7 @@ A rubrica tem tres linhas identificadas somente como NSA, sem descricao, peso ou
 
 ## Condicoes restantes para fechar 100%
 
-1. Confirmar os nomes completos e se a banca aceita demonstracao local ou exige URL publica. Se exigir URL publica, a equipe precisa indicar/autorizar um provedor e disponibilizar acesso de implantacao.
+1. Inserir os nomes confirmados na cópia da folha e confirmar se a banca aceita demonstração local ou exige URL pública. Se exigir URL pública, a equipe precisa escolher/autorizar um provedor e disponibilizar acesso de implantação.
 2. Revisar o PR #1 em equipe e decidir se a versao candidata `1.0.1` deve receber tag e release.
 3. Confirmar com o professor o significado das tres linhas NSA.
 
