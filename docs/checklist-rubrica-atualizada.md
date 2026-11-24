@@ -33,8 +33,8 @@ A folha avalia tres componentes de 3,0 pontos cada. Sao 12 criterios pontuados, 
 
 ## Verificacao remota atual
 
-- Commit de codigo funcional validado: `0ea4002`; pacote documental sincronizado em `fa83480`.
-- CI de push e PR passou no commit documental `fa83480`: [push](https://github.com/desbika777/ShapeUp/actions/runs/45466756090) e [PR](https://github.com/desbika777/ShapeUp/actions/runs/45466770199).
+- Commit funcional `0ea4002` e revisoes documentais intermediarias foram validados em execucoes anteriores.
+- CI mais recente da branch passou no commit `3d91bc5`: [push](https://github.com/desbika777/ShapeUp/actions/runs/45468843707) e [PR](https://github.com/desbika777/ShapeUp/actions/runs/45468859357). Ambos executaram lint, 28 testes, E2E Playwright 6/6, verificacao mobile, build e Docker Compose.
 - O workflow validou lint, 28 testes, E2E Playwright 6/6, verificacao mobile, build e Docker Compose. O deploy foi ignorado porque ocorre apenas em `main` e depende de secrets/servidor.
 - O pre-push local repetiu os 6 E2E e removeu apenas a stack descartavel.
 - `npm audit` foi executado novamente em 24/11/2026 e reportou zero vulnerabilidades; isso nao foi executado pelo workflow remoto.
