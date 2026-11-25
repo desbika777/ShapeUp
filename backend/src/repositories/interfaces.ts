@@ -79,6 +79,7 @@ export interface IRepositorioAnexo {
   list(ownerId: string): Promise<AnexoAcademia[]>;
   create(ownerId: string, input: EntradaAnexo & Omit<AnexoAcademia, 'id' | 'category' | 'description' | 'url' | 'uploadedAt' | 'createdAt' | 'updatedAt'>): Promise<AnexoAcademia>;
   findById(ownerId: string, id: string): Promise<AnexoAcademia | null>;
+  findByFileName(ownerId: string, fileName: string): Promise<AnexoAcademia | null>;
   delete(ownerId: string, id: string): Promise<void>;
 }
 

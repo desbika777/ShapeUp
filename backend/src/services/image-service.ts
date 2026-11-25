@@ -1,5 +1,5 @@
 // Servico de anexos: valida o arquivo salvo pelo Multer e monta metadados publicos.
-import { open, unlink } from 'node:fs/promises';
+import { open, stat, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import type { AnexoAcademia, EntradaAnexo } from '@shape/shared';
 import { diretorioUploadImagens } from '../config/uploads.js';
@@ -62,9 +62,11 @@ function montarUrl(baseUrl: string, relativePath: string) {
 }
 
 function publicarUrl(baseUrl: string, attachment: AnexoAcademia): AnexoAcademia {
+  const relativePath = `/api/imagens/arquivo/${encodeURIComponent(attachment.fileName)}`;
   return {
     ...attachment,
-    url: montarUrl(baseUrl, attachment.relativePath),
+    relativePath,
+    url: montarUrl(baseUrl, relativePath),
   };
 }
 
@@ -80,6 +82,32 @@ export class ServicoImagem {
     return attachments.map((attachment) => publicarUrl(baseUrl, attachment));
   }
 
+  async obterArquivo(ownerId: string, fileName: string) {
+    if (!fileName || path.basename(fileName) !== fileName) {
+      throw new AppError(404, 'Anexo nao encontrado.');
+    }
+
+    const attachment = await this.repository.findByFileName(ownerId, fileName);
+    if (!attachment) {
+      throw new AppError(404, 'Anexo nao encontrado.');
+    }
+
+    const diretorioSeguro = path.resolve(diretorioUploadImagens);
+    const caminhoArquivo = path.resolve(diretorioSeguro, attachment.fileName);
+    if (!caminhoArquivo.startsWith(`${diretorioSeguro}${path.sep}`)) {
+      throw new AppError(404, 'Anexo nao encontrado.');
+    }
+
+    try {
+      const detalhes = await stat(caminhoArquivo);
+      if (!detalhes.isFile()) throw new Error('Not a file');
+    } catch {
+      throw new AppError(404, 'Arquivo do anexo nao encontrado.');
+    }
+
+    return { caminhoArquivo, mimeType: attachment.mimeType };
+  }
+
   async registrarUpload(ownerId: string, file: Express.Multer.File | undefined, baseUrl: string, input: EntradaAnexo): Promise<AnexoAcademia> {
     if (!file) {
       throw new AppError(400, 'Envie um anexo no campo imagem.');
@@ -93,7 +121,7 @@ export class ServicoImagem {
     }
 
     const extension = path.extname(file.filename).toLowerCase();
-    const relativePath = `/uploads/imagens/${file.filename}`;
+    const relativePath = `/api/imagens/arquivo/${encodeURIComponent(file.filename)}`;
 
     const attachment = await this.repository.create(ownerId, {
       category: input.category,

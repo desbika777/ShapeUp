@@ -53,3 +53,24 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}, tok
 
   return response.json() as Promise<T>;
 }
+
+export async function apiRequestBlob(url: string, token?: string): Promise<Blob> {
+  const headers = new Headers();
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+
+  let response: Response;
+  try {
+    response = await fetch(url, { headers });
+  } catch {
+    throw new ErroApi('Falha de conexao com a API.');
+  }
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      window.dispatchEvent(new CustomEvent('shape:unauthorized'));
+    }
+    throw new ErroApi('Nao foi possivel abrir o anexo.', undefined, response.status);
+  }
+
+  return response.blob();
+}

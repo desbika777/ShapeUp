@@ -154,6 +154,10 @@ class RepositorioMemoriaAnexo implements IRepositorioAnexo {
     return this.attachments.find((attachment) => attachment.ownerId === ownerId && attachment.id === id) ?? null;
   }
 
+  async findByFileName(ownerId: string, fileName: string) {
+    return this.attachments.find((attachment) => attachment.ownerId === ownerId && attachment.fileName === fileName) ?? null;
+  }
+
   async delete(ownerId: string, id: string) {
     this.attachments = this.attachments.filter((attachment) => attachment.ownerId !== ownerId || attachment.id !== id);
   }
@@ -547,8 +551,8 @@ describe('Shape Up API', () => {
       expect(response.body.description).toBe('Avaliacao fisica inicial do aluno.');
       expect(response.body.originalName).toBe('Logo Shape Up.png');
       expect(response.body.fileName).toMatch(/logo-shape-up\.png$/);
-      expect(response.body.relativePath).toContain('/uploads/imagens/');
-      expect(response.body.url).toContain('/uploads/imagens/');
+      expect(response.body.relativePath).toContain('/api/imagens/arquivo/');
+      expect(response.body.url).toContain('/api/imagens/arquivo/');
       expect(response.body.mimeType).toBe('image/png');
       expect(response.body.size).toBe(PNG_1X1_TRANSPARENTE.length);
       expect(existsSync(path.join(process.cwd(), 'uploads', 'imagens', response.body.fileName))).toBe(true);
@@ -557,7 +561,7 @@ describe('Shape Up API', () => {
       expect(list.status).toBe(200);
       expect(list.body).toHaveLength(1);
       expect(list.body[0].id).toBe(response.body.id);
-      expect(list.body[0].url).toContain('/uploads/imagens/');
+      expect(list.body[0].url).toContain('/api/imagens/arquivo/');
     } finally {
       removerImagemTeste(response.body.fileName);
     }
@@ -580,7 +584,7 @@ describe('Shape Up API', () => {
       expect(response.body.fileName).toMatch(/contrato-shape-up\.pdf$/);
       expect(response.body.mimeType).toBe('application/pdf');
       expect(response.body.extension).toBe('.pdf');
-      expect(response.body.url).toContain('/uploads/imagens/');
+      expect(response.body.url).toContain('/api/imagens/arquivo/');
       expect(existsSync(path.join(process.cwd(), 'uploads', 'imagens', response.body.fileName))).toBe(true);
     } finally {
       removerImagemTeste(response.body.fileName);

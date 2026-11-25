@@ -60,6 +60,7 @@ export function createRouter(controllers: ControladoresAplicacao) {
 
   // Anexos operacionais enviados com Multer: protegidos e vinculados ao dono logado.
   router.get('/imagens', middlewareAutenticacao, exigirPerfil(['MASTER', 'ADMIN']), controllers.imageController.list);
+  router.get('/imagens/arquivo/:fileName', middlewareAutenticacao, exigirPerfil(['MASTER', 'ADMIN']), controllers.imageController.download);
   router.post('/imagens', middlewareAutenticacao, exigirPerfil(['MASTER', 'ADMIN']), uploadImagemUnica, controllers.imageController.upload);
   router.delete('/imagens/:id', middlewareAutenticacao, exigirPerfil(['MASTER', 'ADMIN']), controllers.imageController.delete);
 

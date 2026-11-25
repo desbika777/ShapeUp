@@ -66,6 +66,11 @@ export class RepositorioPrismaAnexo implements IRepositorioAnexo {
     return attachment ? mapearAnexo(attachment) : null;
   }
 
+  async findByFileName(ownerId: string, fileName: string) {
+    const attachment = await prisma.anexoAcademia.findFirst({ where: { fileName, ownerId } });
+    return attachment ? mapearAnexo(attachment) : null;
+  }
+
   async delete(ownerId: string, id: string) {
     await prisma.anexoAcademia.deleteMany({ where: { id, ownerId } });
   }

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Activity, AlertCircle, CheckCircle2, ClipboardList, ExternalLink, FileCheck2, FileImage, Paperclip, ReceiptText, Search, ShieldCheck, Trash2, Upload, Wrench } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { AnexoAcademia, CategoriaAnexo } from '@shape/shared';
 import {
   CATEGORIAS_ANEXO,
@@ -13,7 +13,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { PageHeader } from '@/components/ui/page-header';
 import { useToast } from '@/components/ui/toast';
 import { useAuth } from '@/hooks/use-auth';
-import { apiRequest } from '@/lib/api';
+import { apiRequest, apiRequestBlob } from '@/lib/api';
 import { cn } from '@/lib/cn';
 
 function formatarBytes(bytes: number) {
@@ -111,6 +111,8 @@ const filtrosCategoria: Array<{ value: CategoriaAnexo | 'TODOS'; label: string }
   ...CATEGORIAS_ANEXO.map((item) => ({ value: item, label: categoriaLabels[item] })),
 ];
 
+const anexosVazios: AnexoAcademia[] = [];
+
 export function ImagensPage() {
   const { token } = useAuth();
   const { toast } = useToast();
@@ -130,10 +132,45 @@ export function ImagensPage() {
     { label: 'Organizacao', value: 'Historico separado por categoria' },
   ];
 
-  const { data: anexos = [], isLoading: isLoadingAttachments } = useQuery({
+  const { data: anexos = anexosVazios, isLoading: isLoadingAttachments } = useQuery({
     queryKey: ['anexos-academia'],
     queryFn: () => apiRequest<AnexoAcademia[]>('/imagens', { method: 'GET' }, token ?? undefined),
   });
+
+  const [estadoUrlsArquivos, setEstadoUrlsArquivos] = useState<{ chave: string; urls: Record<string, string> }>({ chave: '', urls: {} });
+  const chaveArquivos = `${token ?? ''}|${anexos.map((attachment) => attachment.id).join(',')}`;
+  const urlsArquivos = estadoUrlsArquivos.chave === chaveArquivos ? estadoUrlsArquivos.urls : {};
+
+  useEffect(() => {
+    let active = true;
+    const urlsCriadas: string[] = [];
+
+    async function carregarArquivos() {
+      if (!token) return;
+      await Promise.all(anexos.map(async (attachment) => {
+        try {
+          const blob = await apiRequestBlob(attachment.url, token);
+          const url = URL.createObjectURL(blob);
+          urlsCriadas.push(url);
+          if (active) {
+            setEstadoUrlsArquivos((current) => ({
+              chave: chaveArquivos,
+              urls: { ...(current.chave === chaveArquivos ? current.urls : {}), [attachment.id]: url },
+            }));
+          }
+          else URL.revokeObjectURL(url);
+        } catch {
+          // A interface segue utilizavel; o link do arquivo so aparece quando autorizado e carregado.
+        }
+      }));
+    }
+
+    void carregarArquivos();
+    return () => {
+      active = false;
+      urlsCriadas.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [anexos, chaveArquivos, token]);
 
   const anexosVisiveis = useMemo(() => {
     const termo = normalizarBusca(searchTerm.trim());
@@ -530,7 +567,7 @@ export function ImagensPage() {
                 <article key={attachment.id} className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
                   <div className="relative aspect-video overflow-hidden bg-white">
                     {isImage ? (
-                      <img src={attachment.url} alt={attachment.originalName} className="h-full w-full object-contain p-3" />
+                      <img src={urlsArquivos[attachment.id]} alt={attachment.originalName} className="h-full w-full object-contain p-3" />
                     ) : isPdf ? (
                       <div className="flex h-full w-full items-center justify-center bg-white p-4" aria-label={`Miniatura PDF de ${attachment.originalName}`}>
                         <div className="relative flex h-full w-[58%] min-w-[140px] max-w-[210px] flex-col rounded-md border border-slate-200 bg-white p-4 shadow-sm">
@@ -549,9 +586,11 @@ export function ImagensPage() {
                         <span className="text-sm font-semibold text-slateblue">Arquivo anexado</span>
                       </div>
                     )}
-                    <a href={attachment.url} target="_blank" rel="noreferrer" className="absolute inset-0" aria-label={`Abrir ${attachment.originalName}`}>
-                      <span className="sr-only">Abrir {attachment.originalName}</span>
-                    </a>
+                    {urlsArquivos[attachment.id] ? (
+                      <a href={urlsArquivos[attachment.id]} target="_blank" rel="noreferrer" className="absolute inset-0" aria-label={`Abrir ${attachment.originalName}`}>
+                        <span className="sr-only">Abrir {attachment.originalName}</span>
+                      </a>
+                    ) : null}
                   </div>
                   <div className="space-y-4 p-4">
                     <div>
@@ -573,7 +612,7 @@ export function ImagensPage() {
                       </div>
                     </dl>
                     <div className="flex flex-col gap-2 sm:flex-row">
-                      <a href={attachment.url} target="_blank" rel="noreferrer" className="inline-flex flex-1 items-center justify-center gap-2 rounded-md border border-teal/20 bg-white px-3 py-2.5 text-sm font-semibold text-teal transition hover:bg-teal/5">
+                      <a href={urlsArquivos[attachment.id]} target="_blank" rel="noreferrer" aria-disabled={!urlsArquivos[attachment.id]} className="inline-flex flex-1 items-center justify-center gap-2 rounded-md border border-teal/20 bg-white px-3 py-2.5 text-sm font-semibold text-teal transition hover:bg-teal/5 aria-disabled:cursor-wait aria-disabled:opacity-60">
                         <ExternalLink size={16} />
                         Abrir
                       </a>

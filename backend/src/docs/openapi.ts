@@ -647,6 +647,34 @@ export const openApiDocument = {
         },
       },
     },
+    '/imagens/arquivo/{fileName}': {
+      get: {
+        tags: ['Imagens'],
+        summary: 'Abre um anexo operacional do usuario autenticado',
+        security: [{ bearerAuth: [] }],
+        parameters: [{
+          name: 'fileName',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: 'Nome interno retornado pela listagem de anexos.',
+        }],
+        responses: {
+          '200': {
+            description: 'Conteudo do anexo',
+            content: {
+              'image/png': { schema: { type: 'string', format: 'binary' } },
+              'image/jpeg': { schema: { type: 'string', format: 'binary' } },
+              'image/webp': { schema: { type: 'string', format: 'binary' } },
+              'application/pdf': { schema: { type: 'string', format: 'binary' } },
+            },
+          },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '403': { $ref: '#/components/responses/ForbiddenError' },
+          '404': { $ref: '#/components/responses/NotFoundError' },
+        },
+      },
+    },
     '/imagens/{id}': {
       delete: {
         tags: ['Imagens'],
@@ -967,8 +995,8 @@ export const openApiDocument = {
           mimeType: { type: 'string', example: 'application/pdf' },
           size: { type: 'integer', example: 102400 },
           extension: { type: 'string', example: '.pdf' },
-          relativePath: { type: 'string', example: '/uploads/1699999999999-contrato.pdf' },
-          url: { type: 'string', example: 'http://localhost:3333/uploads/1699999999999-contrato.pdf' },
+          relativePath: { type: 'string', example: '/api/imagens/arquivo/1699999999999-contrato.pdf' },
+          url: { type: 'string', example: 'http://localhost:3333/api/imagens/arquivo/1699999999999-contrato.pdf' },
           createdAt: { type: 'string', format: 'date-time' },
           updatedAt: { type: 'string', format: 'date-time' },
         },

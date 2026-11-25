@@ -6,7 +6,7 @@ import { ZodError } from 'zod';
 import { createControllers, type DependenciasRepositorios } from './container.js';
 import { AppError } from './core/app-error.js';
 import { env } from './config/env.js';
-import { diretorioUploads, garantirDiretoriosUpload } from './config/uploads.js';
+import { garantirDiretoriosUpload } from './config/uploads.js';
 import { openApiDocument } from './docs/openapi.js';
 import { errorHandler } from './middlewares/error-handler.js';
 import { middlewareObservabilidade } from './middlewares/request-observability-middleware.js';
@@ -24,8 +24,6 @@ export function createApp(overrides?: Partial<DependenciasRepositorios>) {
   app.use(cors({ origin: env.FRONTEND_URL }));
   app.use(express.json());
   app.use(middlewareObservabilidade);
-  app.use('/uploads', express.static(diretorioUploads));
-
   // Rota simples para conferir se a API esta ativa.
   app.get('/health', (_request, response) => response.status(200).json({ status: 'ok' }));
   app.get('/api/openapi.json', (_request, response) => response.status(200).json(openApiDocument));

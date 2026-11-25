@@ -20,6 +20,16 @@ export class ControladorImagem {
     return response.status(200).json(result);
   };
 
+  download = async (request: RequisicaoAutenticada, response: Response) => {
+    const file = await this.service.obterArquivo(request.userId ?? '', obterParametroRota(request, 'fileName'));
+    response.setHeader('Content-Type', file.mimeType);
+    response.setHeader('Content-Disposition', 'inline');
+    response.setHeader('Cache-Control', 'private, no-store');
+    response.setHeader('X-Content-Type-Options', 'nosniff');
+    response.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
+    return response.sendFile(file.caminhoArquivo);
+  };
+
   upload = async (request: RequisicaoAutenticada, response: Response) => {
     const payload = attachmentSchema.parse(request.body);
     const result = await this.service.registrarUpload(request.userId ?? '', request.file, baseUrlPublica(request), payload);
