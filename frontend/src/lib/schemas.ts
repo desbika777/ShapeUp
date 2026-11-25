@@ -1,26 +1,11 @@
+// Validacoes dos formularios do frontend usando Zod.
+import { EMAIL_REGEX, isStrongPassword, isValidCpf } from '@shape/shared';
 import { z } from 'zod';
+import { parseDateInput } from './format';
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function isValidCpf(cpf: string) {
-  const normalized = cpf.replace(/\D/g, '');
-  if (normalized.length !== 11 || /^([0-9])\1+$/.test(normalized)) return false;
-  let sum = 0;
-  for (let index = 0; index < 9; index += 1) sum += Number(normalized[index]) * (10 - index);
-  let remainder = (sum * 10) % 11;
-  remainder = remainder === 10 ? 0 : remainder;
-  if (remainder !== Number(normalized[9])) return false;
-  sum = 0;
-  for (let index = 0; index < 10; index += 1) sum += Number(normalized[index]) * (11 - index);
-  remainder = (sum * 10) % 11;
-  remainder = remainder === 10 ? 0 : remainder;
-  return remainder === Number(normalized[10]);
-}
-
-const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
-
+// Login exige e-mail valido e senha preenchida.
 export const loginSchema = z.object({
-  email: z.string().regex(emailRegex, 'Informe um e-mail valido.'),
+  email: z.string().regex(EMAIL_REGEX, 'Informe um e-mail valido.'),
   password: z.string().min(1, 'Informe sua senha.'),
 });
 
@@ -28,11 +13,12 @@ export const loginFormSchema = loginSchema.extend({
   rememberAccess: z.boolean(),
 });
 
-export const registerSchema = z
+// Base de validacao para criacao interna de clientes.
+export const managerAccessSchema = z
   .object({
     name: z.string().min(3, 'Informe um nome com ao menos 3 caracteres.'),
-    email: z.string().regex(emailRegex, 'Informe um e-mail valido.'),
-    password: z.string().regex(strongPassword, 'Use uma senha forte com 8+ caracteres, maiuscula, minuscula, numero e simbolo.'),
+    email: z.string().regex(EMAIL_REGEX, 'Informe um e-mail valido.'),
+    password: z.string().refine(isStrongPassword, 'Use a senha provisoria gerada ou gere outra senha.'),
     confirmPassword: z.string().min(8, 'Confirme a senha.'),
     cpf: z.string().refine(isValidCpf, 'Informe um CPF valido.'),
   })
@@ -41,14 +27,21 @@ export const registerSchema = z
     message: 'A confirmacao da senha nao confere.',
   });
 
-export const forgotPasswordSchema = z.object({
-  email: z.string().regex(emailRegex, 'Informe um e-mail valido.'),
+// Criacao interna sempre gera a conta do dono da academia.
+export const createUserSchema = managerAccessSchema.extend({
+  perfil: z.enum(['ADMIN', 'MASTER']),
 });
 
+// Recuperacao de senha pede somente o e-mail cadastrado.
+export const forgotPasswordSchema = z.object({
+  email: z.string().regex(EMAIL_REGEX, 'Informe um e-mail valido.'),
+});
+
+// Redefinicao usa token do link e nova senha forte.
 export const resetPasswordSchema = z
   .object({
     token: z.string().min(1, 'O link de redefinicao e invalido ou expirou.'),
-    password: z.string().regex(strongPassword, 'Use uma senha forte com 8+ caracteres, maiuscula, minuscula, numero e simbolo.'),
+    password: z.string().refine(isStrongPassword, 'Use uma senha forte com 8+ caracteres, maiuscula, minuscula, numero e simbolo.'),
     confirmPassword: z.string().min(8, 'Confirme a senha.'),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -56,6 +49,7 @@ export const resetPasswordSchema = z
     message: 'A confirmacao da senha nao confere.',
   });
 
+// Perfil permite alterar senha apenas quando os campos de senha sao preenchidos corretamente.
 export const updateUserSchema = z
   .object({
     name: z.string().min(3, 'Informe um nome com ao menos 3 caracteres.'),
@@ -85,7 +79,7 @@ export const updateUserSchema = z
         path: ['password'],
         message: 'Informe a nova senha.',
       });
-    } else if (!strongPassword.test(data.password)) {
+    } else if (!isStrongPassword(data.password)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['password'],
@@ -108,34 +102,41 @@ export const updateUserSchema = z
     }
   });
 
+// Plano comercial precisa de nome, descricao, valor, duracao e status.
 export const planSchema = z.object({
   name: z.string().min(2, 'Informe o nome do plano.'),
   description: z.string().min(10, 'A descricao precisa ter pelo menos 10 caracteres.'),
   price: z.number().positive('Informe um valor valido.'),
   durationMonths: z.number().int().positive('Informe a duracao em meses.'),
-  status: z.enum(['ACTIVE', 'INACTIVE']),
+  status: z.enum(['ATIVO', 'INATIVO']),
 });
 
+// Aluno precisa de dados pessoais, objetivo e plano vinculado.
 export const studentSchema = z.object({
   name: z.string().min(3, 'Informe o nome do aluno.'),
-  email: z.string().regex(emailRegex, 'Informe um e-mail valido.'),
+  email: z.string().regex(EMAIL_REGEX, 'Informe um e-mail valido.'),
   cpf: z.string().refine(isValidCpf, 'Informe um CPF valido.'),
   phone: z.string().min(8, 'Informe um telefone valido.'),
   birthDate: z.string().min(1, 'Informe a data de nascimento.'),
   goal: z.string().min(5, 'Informe o objetivo do aluno.'),
-  status: z.enum(['ACTIVE', 'INACTIVE']),
+  status: z.enum(['ATIVO', 'INATIVO']),
   planId: z.string().min(1, 'Selecione um plano.'),
 });
 
+// Treino precisa de aluno, periodo valido, objetivo e nivel.
 export const workoutSchema = z.object({
   studentId: z.string().min(1, 'Selecione um aluno.'),
   title: z.string().min(3, 'Informe o titulo do treino.'),
   objective: z.string().min(5, 'Informe o objetivo do treino.'),
-  level: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED']),
+  level: z.enum(['INICIANTE', 'INTERMEDIARIO', 'AVANCADO']),
   notes: z.string().min(5, 'Descreva observacoes importantes.'),
-  startDate: z.string().min(1, 'Informe a data inicial.'),
-  endDate: z.string().min(1, 'Informe a data final.'),
-}).refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
+  startDate: z.string().min(1, 'Informe a data inicial.').refine((value) => Boolean(parseDateInput(value)), 'Informe a data inicial no formato dd/mm/aaaa.'),
+  endDate: z.string().min(1, 'Informe a data final.').refine((value) => Boolean(parseDateInput(value)), 'Informe a data final no formato dd/mm/aaaa.'),
+}).refine((data) => {
+  const start = parseDateInput(data.startDate);
+  const end = parseDateInput(data.endDate);
+  return Boolean(start && end && end >= start);
+}, {
   path: ['endDate'],
   message: 'A data final deve ser igual ou posterior a data inicial.',
 });

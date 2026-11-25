@@ -1,6 +1,6 @@
 {
-  "name": "@shapeup/shared",
-  "version": "1.0.0",
+  "name": "@shape/shared",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "main": "dist/index.js",

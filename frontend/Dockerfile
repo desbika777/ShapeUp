@@ -9,8 +9,9 @@ COPY package.json package-lock.json ./
 COPY backend/package.json backend/package.json
 COPY frontend/package.json frontend/package.json
 COPY shared/package.json shared/package.json
+COPY mobile/package.json mobile/package.json
 
-RUN npm ci
+RUN npm ci --include-workspace-root --workspace frontend --workspace shared
 
 COPY shared shared
 COPY frontend frontend

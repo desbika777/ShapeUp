@@ -1,3 +1,4 @@
+// Componente de paginacao reutilizado nas listagens do sistema.
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
@@ -12,6 +13,7 @@ type PaginationProps = {
 };
 
 function buildWindow(page: number, totalPages: number) {
+  // Para poucas paginas, mostra todas; para muitas, usa reticencias.
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, index) => index + 1) as Array<number | 'ellipsis'>;
   }
@@ -34,10 +36,11 @@ function buildWindow(page: number, totalPages: number) {
 
 export function Pagination({ page, totalPages, onChange, totalItems, pageSize, onPageSizeChange, isFetching }: PaginationProps) {
   const pages = buildWindow(page, totalPages);
+  // O seletor de tamanho so aparece quando a tela fornece callback.
   const showPageSize = Boolean(pageSize && onPageSizeChange);
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm md:flex-row md:items-center md:justify-between">
       <button className="flex items-center gap-2 text-sm text-slate-600 disabled:opacity-40" onClick={() => onChange(page - 1)} disabled={page <= 1}>
         <ChevronLeft size={16} /> Anterior
       </button>
@@ -51,7 +54,7 @@ export function Pagination({ page, totalPages, onChange, totalItems, pageSize, o
             <button
               key={item}
               onClick={() => onChange(item)}
-              className={cn('h-9 w-9 rounded-full text-sm font-semibold', item === page ? 'bg-teal text-white' : 'bg-slate-100 text-slateblue')}
+              className={cn('h-9 w-9 rounded-md text-sm font-semibold', item === page ? 'bg-teal text-white' : 'bg-slate-100 text-slateblue')}
             >
               {item}
             </button>
@@ -60,17 +63,19 @@ export function Pagination({ page, totalPages, onChange, totalItems, pageSize, o
       </div>
       <div className="flex items-center justify-between gap-3 md:justify-end">
         {typeof totalItems === 'number' ? (
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
-            Pagina {page} de {totalPages}{isFetching ? ' (atualizando...)' : ''} | Total {totalItems}
+          <p className="text-xs uppercase tracking-[0.12em] text-slate-500">
+            <span className="hidden sm:inline">Pagina {page} de {totalPages}{isFetching ? ' (atualizando...)' : ''} | Total {totalItems}</span>
+            <span className="sm:hidden">{page}/{totalPages} | Total {totalItems}{isFetching ? '...' : ''}</span>
           </p>
         ) : (
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
-            Pagina {page} de {totalPages}{isFetching ? ' (atualizando...)' : ''}
+          <p className="text-xs uppercase tracking-[0.12em] text-slate-500">
+            <span className="hidden sm:inline">Pagina {page} de {totalPages}{isFetching ? ' (atualizando...)' : ''}</span>
+            <span className="sm:hidden">{page}/{totalPages}{isFetching ? '...' : ''}</span>
           </p>
         )}
         {showPageSize ? (
           <select
-            className="h-9 rounded-full border border-slate-200 bg-white px-3 text-sm text-slateblue"
+            className="h-9 rounded-md border border-slate-200 bg-white px-3 text-sm text-slateblue"
             value={pageSize}
             onChange={(event) => onPageSizeChange?.(Number(event.target.value))}
           >

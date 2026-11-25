@@ -1,3 +1,4 @@
+// Sistema simples de notificacoes visuais para sucesso, erro e informacao.
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 import { X } from 'lucide-react';
@@ -19,6 +20,7 @@ type ToastContextValue = {
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
 function toastTone(variant: ToastVariant) {
+  // Define cores de acordo com a importancia da mensagem.
   switch (variant) {
     case 'success':
       return 'border-emerald-200 bg-emerald-50 text-emerald-900';
@@ -35,6 +37,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
   const timeouts = useRef(new Map<string, number>());
 
   const remove = useCallback((id: string) => {
+    // Ao remover manualmente, tambem limpamos o timeout pendente.
     const timeout = timeouts.current.get(id);
     if (timeout) {
       window.clearTimeout(timeout);
@@ -45,6 +48,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
   }, []);
 
   const toast = useCallback((input: { title?: string; message: string; variant?: ToastVariant }) => {
+    // Mantem no maximo tres notificacoes para nao cobrir a tela.
     const id = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
     const variant = input.variant ?? 'info';
 

@@ -1,0 +1,7 @@
+services:
+  backend:
+    ports:
+      - "0.0.0.0:3333:3333"
+    networks:
+      - shapeup_internal
+      - shapeup_public

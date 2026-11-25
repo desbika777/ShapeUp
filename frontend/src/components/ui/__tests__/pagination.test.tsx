@@ -1,3 +1,4 @@
+// Teste do componente de paginacao usado nos CRUDs.
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -19,4 +20,3 @@ describe('Pagination', () => {
     expect(onChange).toHaveBeenCalledWith(20);
   });
 });
-

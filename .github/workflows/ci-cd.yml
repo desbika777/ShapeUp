@@ -1,0 +1,117 @@
+name: Shape Up CI/CD
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shapeup-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lint, test, build and compose
+    runs-on: ubuntu-24.04
+    env:
+      NODE_ENV: test
+      JWT_SECRET: shapeup-ci-secret-with-more-than-twelve-characters
+      DATABASE_URL: mysql://shapeup:shapeup-ci@127.0.0.1:3306/shapeup
+      FRONTEND_URL: http://localhost:5173
+      APP_HOST: localhost
+      MYSQL_DATABASE: shapeup
+      MYSQL_USER: shapeup
+      MYSQL_PASSWORD: shapeup-ci
+      MYSQL_ROOT_PASSWORD: shapeup-ci-root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npm run prisma:generate --workspace backend
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test
+
+      - name: Install Playwright Chromium
+        run: |
+          for attempt in 1 2 3; do
+            npx playwright install chromium --with-deps && exit 0
+            if [ "$attempt" -lt 3 ]; then
+              echo "Playwright browser setup failed; retrying in $((attempt * 10))s."
+              sleep "$((attempt * 10))"
+            fi
+          done
+          exit 1
+
+      - name: End-to-end tests in an isolated Compose stack
+        run: npm run e2e
+
+      - name: Lint and verify mobile dependencies
+        run: |
+          npm run lint:mobile
+          npm exec --workspace mobile -- expo install --check
+
+      - name: Build
+        run: npm run build
+
+      - name: Validate Docker Compose configuration
+        run: docker compose config --quiet
+
+  deploy:
+    name: Deploy main over SSH
+    needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+      DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+      DEPLOY_SHA: ${{ github.sha }}
+    steps:
+      - name: Explain skipped deployment when target is not configured
+        if: ${{ env.DEPLOY_HOST == '' || env.DEPLOY_USER == '' || env.DEPLOY_KEY == '' || env.DEPLOY_KNOWN_HOSTS == '' || env.DEPLOY_PATH == '' }}
+        run: echo "Deploy skipped. Configure DEPLOY_HOST, DEPLOY_USER, DEPLOY_KEY, DEPLOY_KNOWN_HOSTS and DEPLOY_PATH."
+
+      - name: Deploy the validated main branch
+        if: ${{ env.DEPLOY_HOST != '' && env.DEPLOY_USER != '' && env.DEPLOY_KEY != '' && env.DEPLOY_KNOWN_HOSTS != '' && env.DEPLOY_PATH != '' }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          case "$DEPLOY_PATH" in
+            /*) ;;
+            *) echo "DEPLOY_PATH must be an absolute path on the server."; exit 1 ;;
+          esac
+          if [[ ! "$DEPLOY_SHA" =~ ^[0-9a-f]{40}$ ]]; then echo "DEPLOY_SHA must be a full Git commit SHA."; exit 1; fi
+          case "$DEPLOY_PATH" in
+            *[!A-Za-z0-9_./-]*) echo "DEPLOY_PATH may only contain letters, numbers, slash, dot, underscore and hyphen."; exit 1 ;;
+          esac
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s' "$DEPLOY_KEY" > "$RUNNER_TEMP/shapeup_deploy_key"
+          chmod 600 "$RUNNER_TEMP/shapeup_deploy_key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+          ssh -i "$RUNNER_TEMP/shapeup_deploy_key" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            "$DEPLOY_USER@$DEPLOY_HOST" \
+            "cd $DEPLOY_PATH && git fetch origin main && git switch --detach $DEPLOY_SHA && docker compose up -d --build && docker compose ps"

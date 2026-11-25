@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const backendDir = path.resolve(__dirname, '..');
 const rootDir = path.resolve(backendDir, '..');
 const schemaPath = path.join(rootDir, 'backend', 'prisma', 'schema.prisma');
+const configPath = path.join(rootDir, 'backend', 'prisma.config.ts');
 
 const prismaExecutable = process.platform === 'win32' ? 'prisma.cmd' : 'prisma';
 const prismaBinCandidates = [
@@ -24,9 +25,14 @@ if (!fs.existsSync(schemaPath)) {
   process.exit(1);
 }
 
+if (!fs.existsSync(configPath)) {
+  console.error(`Configuracao do Prisma nao encontrada em ${configPath}.`);
+  process.exit(1);
+}
+
 const result = spawnSync(
   prismaBin,
-  ['generate', '--schema', schemaPath],
+  ['generate', '--schema', schemaPath, '--config', configPath],
   {
     cwd: rootDir,
     stdio: 'inherit',
@@ -34,6 +40,7 @@ const result = spawnSync(
     env: (() => {
       const childEnv = { ...process.env };
       delete childEnv.PRISMA_GENERATE_NO_ENGINE;
+      childEnv.DATABASE_URL ??= 'mysql://shapeup:shapeup@127.0.0.1:3306/shapeup';
       return childEnv;
     })(),
   },

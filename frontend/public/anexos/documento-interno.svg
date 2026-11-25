@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-labelledby="title desc">
+  <title id="title">Documento interno</title>
+  <desc id="desc">Ilustracao de documento interno anexado pela academia.</desc>
+  <rect width="640" height="400" fill="#eef2ff"/>
+  <rect x="126" y="52" width="388" height="296" rx="20" fill="#ffffff" stroke="#c7d2fe" stroke-width="4"/>
+  <rect x="176" y="96" width="180" height="18" rx="9" fill="#1e3a8a"/>
+  <rect x="176" y="136" width="288" height="12" rx="6" fill="#94a3b8"/>
+  <rect x="176" y="166" width="246" height="12" rx="6" fill="#cbd5e1"/>
+  <rect x="176" y="210" width="288" height="74" rx="14" fill="#f8fafc" stroke="#dbe3ef" stroke-width="3"/>
+  <rect x="202" y="234" width="44" height="26" rx="6" fill="#2563eb"/>
+  <rect x="268" y="230" width="148" height="12" rx="6" fill="#64748b"/>
+  <rect x="268" y="254" width="98" height="12" rx="6" fill="#cbd5e1"/>
+  <rect x="176" y="310" width="122" height="12" rx="6" fill="#0f766e"/>
+</svg>

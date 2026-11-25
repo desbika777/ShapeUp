@@ -1,22 +1,30 @@
-import type { DashboardMetrics } from '@shapeup/shared';
-import type { IPlanRepository, IStudentRepository, IWorkoutRepository } from '../repositories/interfaces.js';
+// Servico do dashboard: consolida dados de diferentes modulos para os graficos.
+import type { IndicadoresPainel } from '@shape/shared';
+import type { IRepositorioPlano, IRepositorioAluno, IRepositorioTreino } from '../repositories/interfaces.js';
+import { chaveCache, type IServicoCache, ServicoCacheNulo } from './cache-service.js';
 
-export class DashboardService {
+export class ServicoPainel {
   constructor(
-    private readonly studentRepository: IStudentRepository,
-    private readonly planRepository: IPlanRepository,
-    private readonly workoutRepository: IWorkoutRepository,
+    private readonly studentRepository: IRepositorioAluno,
+    private readonly planRepository: IRepositorioPlano,
+    private readonly workoutRepository: IRepositorioTreino,
+    private readonly cacheService: IServicoCache = new ServicoCacheNulo(),
   ) {}
 
-  async getMetrics(ownerId: string): Promise<DashboardMetrics> {
+  // Executa consultas em paralelo para montar a visao executiva rapidamente.
+  async getMetrics(ownerId: string): Promise<IndicadoresPainel> {
+    return this.cacheService.remember(chaveCache(ownerId, 'painel:indicadores'), () => this.calcularMetricas(ownerId));
+  }
+
+  private async calcularMetricas(ownerId: string): Promise<IndicadoresPainel> {
     const [students, activePlans, workouts, newStudentsThisMonth, studentsByPlan, workoutsByLevel, recentStudents] = await Promise.all([
-      this.studentRepository.countAll(ownerId),
-      this.planRepository.countActive(ownerId),
-      this.workoutRepository.countAll(ownerId),
-      this.studentRepository.countNewInCurrentMonth(ownerId),
-      this.planRepository.countStudentsByPlan(ownerId),
-      this.workoutRepository.countByLevel(ownerId),
-      this.studentRepository.findRecent(ownerId, 5),
+      this.studentRepository.contarTodos(ownerId),
+      this.planRepository.contarAtivos(ownerId),
+      this.workoutRepository.contarTodos(ownerId),
+      this.studentRepository.contarNovosNoMesAtual(ownerId),
+      this.planRepository.contarAlunosPorPlano(ownerId),
+      this.workoutRepository.contarPorNivel(ownerId),
+      this.studentRepository.buscarRecentes(ownerId, 5),
     ]);
 
     return {
