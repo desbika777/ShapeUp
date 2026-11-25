@@ -36,13 +36,13 @@ Onze dos doze criterios estao integralmente apoiados por evidencia verificavel: 
 ## Verificacao remota atual
 
 - Commit funcional `0ea4002` e revisoes documentais intermediarias foram validados em execucoes anteriores.
-- CI de push e PR passou no commit candidato `d5501c0`: [push](https://github.com/desbika777/ShapeUp/actions/runs/45520211716) e [PR](https://github.com/desbika777/ShapeUp/actions/runs/45520220583). Ambos executaram lint, 28 testes, E2E Playwright 6/6, verificacao mobile, build e Docker Compose.
+- CI de push e PR passou no commit de fechamento documental `557d28b`: [push](https://github.com/desbika777/ShapeUp/actions/runs/45522315940) e [PR](https://github.com/desbika777/ShapeUp/actions/runs/45522322036). Ambos executaram lint, 28 testes, E2E Playwright 6/6, verificacao mobile, build e Docker Compose; a candidata de codigo `d5501c0` tambem passou nos workflows anteriores.
 - O workflow validou lint, 28 testes, E2E Playwright 6/6, verificacao mobile, build e Docker Compose. O deploy foi ignorado porque ocorre apenas em `main` e depende de secrets/servidor.
 - No pre-push local de 23/11, o E2E repetiu os 6 testes e removeu apenas a stack descartavel; em 24/11, a nova tentativa foi interrompida antes do E2E por `ECONNRESET` durante `npm ci`.
 - `npm audit` foi executado novamente em 24/11/2026 e reportou zero vulnerabilidades; isso nao foi executado pelo workflow remoto.
 - O PR #1 esta aberto e ainda sem revisoes. A candidata `1.0.1` passou no CI, mas ainda nao tem tag nem release GitHub; apresentar como versao preparada/candidata.
 - A issue Jira `SU-6` continua `In Progress`; o projeto Jira tem a versao `1.0.1` cadastrada com `released=false`. As issues usam o label `release-1-0-1` porque o campo `fixVersions` nao esta exposto para este projeto.
-- A tentativa local do pre-push em 24/11 foi interrompida por `ECONNRESET` durante `npm ci`, antes da fase E2E. O CI remoto do commit `d5501c0` executou e aprovou o E2E (6/6), alem das outras etapas; nao confundir a falha local de rede com falha de codigo.
+- A tentativa local do pre-push em 24/11 foi interrompida por `ECONNRESET` durante `npm ci`, antes da fase E2E. O CI remoto de `d5501c0` e `557d28b` executou e aprovou o E2E (6/6), alem das outras etapas; nao confundir a falha local de rede com falha de codigo.
 
 ## Linhas NSA
 
