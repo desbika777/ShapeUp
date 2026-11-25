@@ -195,7 +195,7 @@ A rubrica recebida como RubricaDeFatoAtt.pdf foi revisada integralmente. O traba
 - [x] Fase 1: mapear todos os criterios e lacunas.
 - [x] Fase 2: acrescentar Quality Scenarios, modelo DDD explicito, ADR MySQL, resiliencia, workflow e runbook.
 - [x] Fase 3: lint, 28 testes, build, lint mobile, checagem Expo, parse YAML/Compose, bash -n, health/OpenAPI e suite E2E 6/6 em Compose isolado passaram em 23/11/2026; resultados em docs/execucao-final-rubrica-2026-11-23.md.
-- [x] Fase 4: Jira, E2E real, workflow remoto e demo local registrados. A URL publica, revisao da equipe e tag/release continuam pendentes para o fechamento da submissao.
+- [x] Fase 4: Jira, E2E real, workflow remoto e demo local registrados. O professor ja viu o site em uma banca anterior, entao nova hospedagem nao e necessaria para a demonstracao. Permanecem pendentes a revisao da equipe e a decisao sobre tag/release; recuperar a URL anterior se a folha exigir o link literal.
 - [x] Fase 5: revisar os criterios e preparar a demonstracao; matriz atualizada e roteiro de 10 a 11 minutos em `docs/roteiro-apresentacao-final.md`.
 
 A matriz detalhada e os resultados por criterio ficam em docs/execucao-final-rubrica-2026-11-23.md.

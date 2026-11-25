@@ -27,6 +27,20 @@ Apresentar o produto que existe hoje e apontar uma evidencia verificavel para ca
 | Back-end Avancado | 3,0 | Partes 6, 7 e 8 |
 | Tech Forge | 3,0 | Partes 2, 3 e 9 |
 
+## O que aparece no site e o que mostrar como evidencia tecnica
+
+| Evidencia | O professor ve no site? | O que demonstrar |
+| --- | --- | --- |
+| Gestao de planos, alunos, treinos e anexos | Sim | Entrar com conta de demonstracao e fazer um fluxo curto de consulta/edicao com dados descartaveis |
+| Cache Redis, TTL e invalidacao | Nao diretamente | Atualizar um plano e mostrar os logs `cache_miss`, `cache_set`, `cache_hit` e `cache_invalidation` no terminal; a tela continua sendo a mesma |
+| Redis Pub/Sub | Nao diretamente | Mostrar `evento_publicado` e `evento_consumido` para `plano.atualizado` nos logs registrados |
+| API OpenAPI/Swagger | Em uma pagina tecnica do sistema | Abrir `/api/docs/` e `/api/openapi.json`; explicar que sao documentacao e contrato da API |
+| Docker Compose, Nginx e healthcheck | Nao como funcionalidade administrativa | Mostrar `docker compose ps`, a configuracao do proxy e `/health` respondendo `ok` |
+| CI/CD, testes e auditoria | Nao | Abrir as execucoes verdes do GitHub Actions; citar `npm audit` com zero vulnerabilidades |
+| Arquitetura, DDD, ADRs, Cynefin e backlog | Nao | Apontar os diagramas/documentos e abrir o quadro Shape Up no Jira |
+
+As mudancas de Redis, arquitetura, seguranca, testes e infraestrutura trabalham por tras do produto. Elas nao criam necessariamente novos botoes ou telas: a demonstracao combina o fluxo visivel do site com logs, Swagger, Jira, documentos e GitHub Actions.
+
 ### Evidencias a citar dentro dos grupos
 
 - **Arquitetura (3,0):** C4, ADRs e Quality Scenarios (0,5); estilos e DDD (1,0); OpenAPI e decisao de banco (0,5); SLO/SLI, resiliencia e observabilidade (0,5); pipeline, estrategia e runbook (0,5).
@@ -40,8 +54,8 @@ Apresentar o produto que existe hoje e apontar uma evidencia verificavel para ca
 - Na API, preferir conta e dados descartaveis de demonstracao. Editar um plano de teste e observar a invalidacao Redis nos logs.
 - A suite E2E autenticada passou (6/6) em Compose isolado e comprovou CRUD e invalidacao Pub/Sub na edicao de plano. Para a fala, usar somente dados descartaveis e mostrar os logs ja registrados; nao apontar para dados de producao.
 - Se nao houver tempo para alterar dados na hora, usar a evidencia isolada de Redis documentada e explicar que ela usa repositorio fake para nao gravar no banco.
-- Nao apresentar SLOs como medidos, tag como publicada ou URL local como site publico. O workflow GitHub passou no commit `9923d6d`; deploy publico ainda depende de servidor e secrets. Auditoria de dependencias em `auditoria-dependencias.md`.
-- Repositorio configurado no Git: `https://github.com/desbika777/ShapeUp.git`. O site atualmente validado e local; substituir `http://localhost` por uma URL publica se a equipe fizer hospedagem.
+- Nao apresentar SLOs como medidos ou tag como publicada. O workflow GitHub passou no commit `9923d6d`; auditoria de dependencias em `auditoria-dependencias.md`.
+- Repositorio configurado no Git: `https://github.com/desbika777/ShapeUp.git`. O aluno informou que o professor ja viu o site em uma banca anterior; nao e necessario criar hospedagem nova para repetir a demonstracao. Recuperar a URL ja usada se a folha exigir um link literal. `localhost` continua sendo somente local.
 
 ## Checklist antes da banca
 

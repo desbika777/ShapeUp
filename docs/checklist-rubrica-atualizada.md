@@ -6,6 +6,8 @@ Fonte: `RubricaDeFatoAtt.pdf`, revisada em 24/11/2026.
 
 A folha avalia tres componentes de 3,0 pontos cada. Sao 12 criterios pontuados, que somam 9,0 pontos, mais tres linhas NSA sem descricao. As marcacoes de 100% e as notas maximas impressas no PDF sao apenas exemplos da rubrica, conforme confirmado pelo aluno; nao representam a avaliacao do Shape Up.
 
+Evidencia ponderada atualmente completa: 8,0 de 9,0 pontos (89%), com 11 de 12 criterios integralmente evidenciados. O professor ja viu o site em uma banca anterior, conforme informado pela equipe; isso remove a necessidade de uma nova hospedagem para a demonstracao, mas nao altera a pontuacao dos 12 criterios.
+
 ## Criterios pontuados e evidencias
 
 | ID | Componente | Peso | Evidencia verificavel | Estado de fechamento |
@@ -29,7 +31,7 @@ A folha avalia tres componentes de 3,0 pontos cada. Sao 12 criterios pontuados, 
 | --- | --- |
 | Nome completo | Nomes confirmados em conversa; inserir apenas na cópia da folha que será entregue. Os nomes não são publicados neste repositório |
 | Link do GitHub | `https://github.com/desbika777/ShapeUp/tree/feature/documentacao-rubrica` |
-| Link do site | A equipe informou que não tem hospedagem. `http://127.0.0.1` é apenas local e não serve como link externo para a banca |
+| Link do site | O professor ja viu o site em uma banca anterior; nao e preciso criar nova hospedagem para a demonstracao. Se a folha exigir URL literal, recuperar o mesmo link usado naquela apresentacao. `http://127.0.0.1` e local e nao substitui um link publico |
 
 ## Verificacao remota atual
 
@@ -46,7 +48,7 @@ A rubrica tem tres linhas identificadas somente como NSA, sem descricao, peso ou
 
 ## Condicoes restantes para fechar 100%
 
-1. Inserir os nomes confirmados na cópia da folha e confirmar se a banca aceita demonstração local ou exige URL pública. Se exigir URL pública, a equipe precisa escolher/autorizar um provedor e disponibilizar acesso de implantação.
+1. Inserir os nomes confirmados na copia da folha. Como o professor ja viu o site na banca anterior, usar a mesma URL previamente apresentada caso o campo exija um endereco literal; nao e necessario contratar hospedagem nova para repetir a demonstracao.
 2. Revisar o PR #1 em equipe e decidir se a versao candidata `1.0.1` deve receber tag e release.
 3. Confirmar com o professor o significado das tres linhas NSA.
 

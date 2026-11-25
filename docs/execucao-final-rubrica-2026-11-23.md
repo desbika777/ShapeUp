@@ -17,7 +17,7 @@ Fonte avaliada: RubricaDeFatoAtt.pdf, recebida em 23/11/2026.
   - [x] Validacoes locais de web/backend/mobile aprovadas.
   - [x] `npm run e2e` executa 6/6 em stack Compose isolada, com MySQL/Redis/volumes descartaveis e portas aleatorias; recursos removidos ao final. A limpeza de E2E recusa bancos que nao sejam de teste.
   - [x] GitHub Actions passou no commit funcional `0ea4002` e novamente no pacote final em `9923d6d`; lint, 28 testes, E2E 6/6, mobile, build e Compose passaram. [CI push](https://github.com/desbika777/ShapeUp/actions/runs/45470720553) · [CI PR](https://github.com/desbika777/ShapeUp/actions/runs/45470736338).
-  - [x] Demo local registrada em `http://127.0.0.1`; pagina inicial e `/health` responderam 200 em 24/11. Ainda nao ha URL publica.
+  - [x] Demo local registrada em `http://127.0.0.1`; pagina inicial e `/health` responderam 200 em 24/11. O aluno informou que o professor ja viu o site em uma banca anterior; nao e necessario criar hospedagem nova para repetir a demonstracao. A URL literal anterior nao consta nesta copia do repositorio.
 - [x] Fase 5 - Mapear os 12 criterios pontuados (9,0 pontos em tres componentes), separar as tres linhas NSA sem descricao e preparar o roteiro em `roteiro-apresentacao-final.md` e `checklist-rubrica-atualizada.md`.
 
 Cada fase so deve ser marcada como concluida depois de sua evidencia estar registrada abaixo ou em arquivo apontado.
@@ -50,7 +50,7 @@ Cada fase so deve ser marcada como concluida depois de sua evidencia estar regis
 - Workflow GitHub Actions aprovado em 24/11/2026 para o pacote final `9923d6d`: [push](https://github.com/desbika777/ShapeUp/actions/runs/45470720553) e [PR](https://github.com/desbika777/ShapeUp/actions/runs/45470736338). Deploy publico continua condicionado a servidor e secrets.
 - Evidencia de deploy ou, se nao houver servidor configurado, registro claro da limitacao e demonstracao da estrategia de rollback.
 - Demonstracao via Nginx dos fluxos de cache, eventos e OpenAPI; a verificacao atual de `/`, `/health`, Swagger e OpenAPI passou.
-- Repositorio remoto configurado: `https://github.com/desbika777/ShapeUp.git`. Site validado nesta maquina: `http://localhost`; preencher URL publica se houver hospedagem externa.
+- Repositorio remoto configurado: `https://github.com/desbika777/ShapeUp.git`. Site validado nesta maquina em `http://localhost`; o professor ja viu o produto em banca anterior. Recuperar a URL apresentada antes apenas se a folha exigir o link literal.
 
 ## Atualizacao da fase 3
 
