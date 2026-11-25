@@ -24,6 +24,7 @@ Mudancas relevantes do Shape Up, organizadas por versao. Uma versao so e conside
 ### Validacao da candidata
 
 - Em 23/11/2026: lint, 28 testes, build, lint mobile, `expo install --check`, configuracao Compose, verificacoes HTTP locais e `npm run e2e` (6/6) passaram. A suite E2E usa uma stack Compose descartavel com portas aleatorias; a limpeza remove seus volumes e a trava rejeita banco principal.
+- Em 24/11/2026: raiz, todos os workspaces, dependencias internas de `@shape/shared` e Expo Mobile foram alinhados a `1.0.1`; `npm run test` (28 testes), `npm run build`, `npm run lint:mobile`, `expo install --check`, `docker compose config --quiet` e `npm audit` (0 vulnerabilidades) passaram localmente. A validacao remota do commit candidato ainda sera registrada antes de publicar a versao.
 - Redis foi exercitado em stack descartavel isolada: a edicao de plano pela interface gerou `plano.atualizado`, invalidacao de cache e evento publicado/consumido; TTL observado de 60 s. O teste com repository fake continua como evidencia complementar.
 - GitHub Actions passou em 24/11/2026 no commit `c39bf91`, nos eventos de push e PR; tag Git e deploy publico continuam pendentes.
 - Auditoria atual: 0 vulnerabilidades em `npm audit`; Prisma 7.10.1 validado com adapter MariaDB; detalhe e escopo em `docs/auditoria-dependencias.md`.
@@ -31,5 +32,6 @@ Mudancas relevantes do Shape Up, organizadas por versao. Uma versao so e conside
 ### Estado da versao
 
 - Versao Jira `1.0.1`: criada como nao lancada.
-- `package.json` continua em `1.0.0`, que e a versao publicada/declarada antes desta candidata.
+- Manifests do workspace e Expo Mobile alinhados em `1.0.1` nesta branch candidata.
+- A tag e a release GitHub ainda nao foram criadas; a candidata nao deve ser apresentada como publicada antes da revisao final.
 - Nao existe tag ou release GitHub publicada para `1.0.1`.

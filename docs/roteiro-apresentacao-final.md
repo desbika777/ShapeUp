@@ -16,7 +16,7 @@ Apresentar o produto que existe hoje e apontar uma evidencia verificavel para ca
 | 6. Qualidade e resiliencia | 0:55 | Explicar metas SLO/SLI como metas ainda nao medidas, logs estruturados, retry/timeout/fallback e circuit breaker Redis. | Documento de arquitetura, codigo e testes |
 | 7. Cache Redis e eventos | 1:15 | Mostrar miss, set com TTL, hit, invalidacao depois de update e evento publicado/consumido. | `evidencias-redis-2026-11-23.md` e logs |
 | 8. Docker, Nginx, CI/CD e incidentes | 1:15 | Mostrar servicos Compose, Nginx como proxy, healthcheck e runbook. Abrir os workflows verdes da branch `feature/documentacao-rubrica`; explicar que o deploy remoto depende de secrets e servidor. | `docker-compose.yml`, workflow, [CI push](https://github.com/desbika777/ShapeUp/actions/runs/45470720553), [CI PR](https://github.com/desbika777/ShapeUp/actions/runs/45470736338) e runbook |
-| 9. Ciclo de vida e versoes | 0:50 | Explicar backlog priorizado, user stories com criterios de aceite e entrega incremental. A versao Jira 1.0.1 existe, mas continua nao lancada. | Jira SU e `backlog-jira-inicial.md` |
+| 9. Ciclo de vida e versoes | 0:50 | Explicar backlog priorizado, user stories com criterios de aceite e entrega incremental. A candidata 1.0.1 esta alinhada nos manifests, no Jira e no changelog; a release GitHub continua aguardando revisao final. | Jira SU, manifests e `CHANGELOG.md` |
 | 10. Demonstracao e fechamento | 1:00 | Abrir o sistema em `http://localhost`, percorrer um fluxo curto e concluir retomando o valor do produto e os proximos passos. | Stack local atual |
 
 ## Correspondencia com os 12 criterios e 9,0 pontos

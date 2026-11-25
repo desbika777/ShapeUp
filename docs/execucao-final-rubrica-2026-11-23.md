@@ -37,7 +37,7 @@ Cada fase so deve ser marcada como concluida depois de sua evidencia estar regis
 | Back-end Avancado | Organizacao, logs e tratamento de erros | Revalidado por lint, testes e build em 23/11/2026 | Controllers, services, repositories, schemas, logger e middleware; 28 testes aprovados |
 | Tech Forge | Uso real do Jira para issues e fluxo | Concluido para demonstracao do backlog e do fluxo real | Site conectado; projeto SU no espaco Shape Up. O projeto tem Workstream, Task, Sub-task, Story e Bug. SU-1 a SU-9 demonstram tipos, prioridades, responsaveis, criterios de aceite e transicoes reais; estado conferido em 23/11: 4 Done e 5 In Progress. O board usa tres estados: To Do, In Progress e Done. |
 | Tech Forge | Cynefin e escolha da abordagem | Concluido em documentacao | docs/cynefin-abordagem-gestao.md classifica o projeto como Complexo e escolhe abordagem agil |
-| Tech Forge | Ciclo de vida, backlog, criterios de aceite e versoes | Parcial | Backlog priorizado e criterios estao em SU-1 a SU-9; candidata Jira 1.0.1 esta nao lancada e seu escopo esta em `CHANGELOG.md`. O projeto nao expoe `fixVersions`, entao os itens usam label `release-1-0-1`; a tag/publicacao real segue pendente |
+| Tech Forge | Ciclo de vida, backlog, criterios de aceite e versoes | Parcial em fechamento | Backlog priorizado e criterios estao em SU-1 a SU-9; manifests raiz/workspaces/Expo e candidata Jira estao em 1.0.1, com escopo em `CHANGELOG.md`. O projeto nao expoe `fixVersions`, entao os itens usam label `release-1-0-1`; tag/publicacao ainda pendem da revisao final |
 
 ## Evidencias externas a coletar
 

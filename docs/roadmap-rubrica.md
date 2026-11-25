@@ -206,7 +206,7 @@ A matriz detalhada e os resultados por criterio ficam em docs/execucao-final-rub
 | --- | --- | --- |
 | Gestao do trabalho via Jira | Concluido para demonstracao | Projeto SU real com Workstream, Task, Story e Bug; nove itens com prioridade, responsavel, criterios e status conferidos em 23/11/2026. A versao 1.0.1 existe como nao lancada |
 | Cynefin e escolha da abordagem | Documentado | cynefin-abordagem-gestao.md classifica Shape Up como Complexo e justifica Scrum adaptado/Kanban |
-| Ciclo de vida, backlog e versoes | Parcial | Backlog, Stories, criterios e candidata Jira 1.0.1 estao registrados; `CHANGELOG.md` descreve a candidata. Tag/release real no GitHub depende da validacao remota e revisao final |
+| Ciclo de vida, backlog e versoes | Parcial em fechamento | Backlog, Stories, criterios e versao candidata 1.0.1 estao alinhados no Jira, manifests e `CHANGELOG.md`. Tag/release real no GitHub depende da validacao remota e revisao final |
 
 ### Entrega continua e incidentes
 

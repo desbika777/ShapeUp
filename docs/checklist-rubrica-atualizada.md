@@ -23,7 +23,7 @@ Evidencia ponderada atualmente completa: 8,0 de 9,0 pontos (89%), com 11 de 12 c
 | BE-4 | Back-end Avancado | 0,5 | Modulos, DTOs, services, controllers, logs e tratamento de erros; 28 testes unitarios | Concluido; lint, testes e build passaram no CI remoto |
 | TF-1 | Tech Forge | 1,0 | Projeto Jira SU com Workstream, Task, Story e Bug; responsaveis, criterios e status reais; issues `SU-1` a `SU-9` | Concluido para demonstracao; `SU-6` registra o CI atual e continua In Progress ate revisao/tag |
 | TF-2 | Tech Forge | 1,0 | `docs/cynefin-abordagem-gestao.md`: classificacao Complexa e escolha agil com Scrum adaptado/Kanban | Concluido em documentacao |
-| TF-3 | Tech Forge | 1,0 | Backlog Jira priorizado, Stories e criterios de aceite; candidata Jira `1.0.1` e `CHANGELOG.md` | Parcial: versionamento candidato esta preparado; tag/release e revisao da equipe ainda nao ocorreram |
+| TF-3 | Tech Forge | 1,0 | Backlog Jira priorizado, Stories com criterios de aceite; Jira `1.0.1`, manifests dos workspaces/Expo e `CHANGELOG.md` | Parcial: versao candidata agora esta implementada nos manifests; tag/release ainda dependem de revisao final da equipe |
 
 ## Campos de identificacao da folha
 

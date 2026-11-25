@@ -454,7 +454,7 @@ Este backlog e inicial. Ao criar o quadro no Jira, os itens podem ser quebrados 
 
 A lista abaixo prioriza o fechamento da rubrica atual. Este backlog local prepara os itens para o Jira; ele nao substitui a demonstracao do quadro e do fluxo real da equipe.
 
-Versao declarada no package.json raiz: 1.0.0. A candidata Jira 1.0.1 existe como nao lancada, e o escopo esta registrado em `CHANGELOG.md`; a release so deve ser marcada como lancada depois de validacao remota e registro da tag no GitHub.
+Versao declarada nos manifests da candidata: 1.0.1 (raiz, workspaces e Expo Mobile). A versao Jira 1.0.1 existe como nao lancada, e o escopo esta registrado em `CHANGELOG.md`; a release so deve ser marcada como lancada depois de validacao remota, revisao da equipe e registro da tag no GitHub.
 
 | Prioridade | Story/Task | Versao alvo | Criterios de aceite |
 | --- | --- | --- | --- |

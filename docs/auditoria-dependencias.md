@@ -111,7 +111,7 @@ Resultado de `npm audit` apos a atualizacao controlada do Prisma e as correcoes 
 
 Dependencias relevantes verificadas: `deepmerge-ts` 8.0.2 e `effect` 3.22.1. A verificacao `expo install --check` passou sem alterar o SDK 57. A migracao do Prisma foi exercitada no E2E com MySQL temporario; `npm run lint`, `npm run test` (28 testes), `npm run build`, `npm run lint:mobile` e `npm run e2e` (6/6) passaram. O build web emitiu apenas avisos nao fatais do Rollup sobre comentarios `@__PURE__` em Zod.
 
-Em 24/11/2026, `npm audit` foi executado novamente na branch final e reportou zero vulnerabilidades. O lockfile nao havia sido alterado desde a revisao anterior. Os workflows de push e PR passaram no commit funcional `0ea4002` e novamente no pacote final `9923d6d`, validando lint, testes, E2E isolado, mobile, build e Compose; o workflow nao substitui a auditoria de dependencias.
+Em 24/11/2026, `npm audit` foi executado novamente apos alinhar os manifests ao candidato `1.0.1` e reportou zero vulnerabilidades. O `package-lock.json` mudou apenas nos metadados de versao dos workspaces e nos links para `@shape/shared`; nenhuma dependencia externa foi atualizada nesta etapa. Os workflows de push e PR passaram no commit funcional `0ea4002` e no pacote documental `9923d6d`; o workflow nao substitui a auditoria de dependencias.
 
 ## Validacao Apos Correcoes
 
