@@ -29,7 +29,7 @@ Onze dos doze criterios estao integralmente apoiados por evidencia verificavel: 
 
 | Campo | Valor ou pendencia |
 | --- | --- |
-| Nome completo | Preencher na copia entregue: Enzo Gabriel Menezes e Pedro Henrique Rodrigues da Costa. Os nomes nao sao publicados neste repositorio |
+| Nome completo | Nomes confirmados em conversa; preencher somente na copia da folha entregue ao professor. Nao registrar os nomes completos neste repositorio |
 | Link do GitHub | `https://github.com/desbika777/ShapeUp/tree/feature/documentacao-rubrica` |
 | Link do site | Campo ainda sem URL confirmada. O professor ja viu o site em banca anterior, mas, se a folha exigir um endereco literal, recuperar o mesmo link usado naquela apresentacao. `http://127.0.0.1` e local e nao substitui um link publico |
 
