@@ -24,9 +24,9 @@ Mudancas relevantes do Shape Up, organizadas por versao. Uma versao so e conside
 ### Validacao da candidata
 
 - Em 23/11/2026: lint, 28 testes, build, lint mobile, `expo install --check`, configuracao Compose, verificacoes HTTP locais e `npm run e2e` (6/6) passaram. A suite E2E usa uma stack Compose descartavel com portas aleatorias; a limpeza remove seus volumes e a trava rejeita banco principal.
-- Em 24/11/2026: raiz, todos os workspaces, dependencias internas de `@shape/shared` e Expo Mobile foram alinhados a `1.0.1`; `npm run test` (28 testes), `npm run build`, `npm run lint:mobile`, `expo install --check`, `docker compose config --quiet` e `npm audit` (0 vulnerabilidades) passaram localmente. A validacao remota do commit candidato ainda sera registrada antes de publicar a versao.
+- Em 24/11/2026: raiz, todos os workspaces, dependencias internas de `@shape/shared` e Expo Mobile foram alinhados a `1.0.1`; `npm run test` (28 testes), `npm run build`, `npm run lint:mobile`, `expo install --check`, `docker compose config --quiet` e `npm audit` (0 vulnerabilidades) passaram localmente. A validacao remota da candidata passou nos workflows de push e PR descritos abaixo.
 - Redis foi exercitado em stack descartavel isolada: a edicao de plano pela interface gerou `plano.atualizado`, invalidacao de cache e evento publicado/consumido; TTL observado de 60 s. O teste com repository fake continua como evidencia complementar.
-- GitHub Actions passou em 24/11/2026 no commit `c39bf91`, nos eventos de push e PR; tag Git e deploy publico continuam pendentes.
+- GitHub Actions passou em 24/11/2026 no commit candidato `d5501c0`, nos eventos de push e PR: [push](https://github.com/desbika777/ShapeUp/actions/runs/45520211716) e [PR](https://github.com/desbika777/ShapeUp/actions/runs/45520220583). A tag/release GitHub continua pendente de revisao final; deploy publico depende de servidor/secrets.
 - Auditoria atual: 0 vulnerabilidades em `npm audit`; Prisma 7.10.1 validado com adapter MariaDB; detalhe e escopo em `docs/auditoria-dependencias.md`.
 
 ### Estado da versao

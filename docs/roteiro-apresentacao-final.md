@@ -15,8 +15,8 @@ Apresentar o produto que existe hoje e apontar uma evidencia verificavel para ca
 | 5. API e dados | 0:45 | Abrir Swagger/OpenAPI, destacar endpoints e justificar MySQL/Prisma. | `/api/docs/`, `/api/openapi.json`, ADR-0003 |
 | 6. Qualidade e resiliencia | 0:55 | Explicar metas SLO/SLI como metas ainda nao medidas, logs estruturados, retry/timeout/fallback e circuit breaker Redis. | Documento de arquitetura, codigo e testes |
 | 7. Cache Redis e eventos | 1:15 | Mostrar miss, set com TTL, hit, invalidacao depois de update e evento publicado/consumido. | `evidencias-redis-2026-11-23.md` e logs |
-| 8. Docker, Nginx, CI/CD e incidentes | 1:15 | Mostrar servicos Compose, Nginx como proxy, healthcheck e runbook. Abrir os workflows verdes da branch `feature/documentacao-rubrica`; explicar que o deploy remoto depende de secrets e servidor. | `docker-compose.yml`, workflow, [CI push](https://github.com/desbika777/ShapeUp/actions/runs/45470720553), [CI PR](https://github.com/desbika777/ShapeUp/actions/runs/45470736338) e runbook |
-| 9. Ciclo de vida e versoes | 0:50 | Explicar backlog priorizado, user stories com criterios de aceite e entrega incremental. A candidata 1.0.1 esta alinhada nos manifests, no Jira e no changelog; a release GitHub continua aguardando revisao final. | Jira SU, manifests e `CHANGELOG.md` |
+| 8. Docker, Nginx, CI/CD e incidentes | 1:15 | Mostrar servicos Compose, Nginx como proxy, healthcheck e runbook. Abrir os workflows verdes da branch `feature/documentacao-rubrica`; explicar que o deploy remoto depende de secrets e servidor. | `docker-compose.yml`, workflow, [CI push](https://github.com/desbika777/ShapeUp/actions/runs/45520211716), [CI PR](https://github.com/desbika777/ShapeUp/actions/runs/45520220583) e runbook |
+| 9. Ciclo de vida e versoes | 0:50 | Explicar backlog priorizado, user stories com criterios de aceite e entrega incremental. Mostrar a candidata 1.0.1 alinhada nos manifests, Jira e changelog. Informar que o criterio de lancamento parcial permanece pendente de tag/release formal e revisao da equipe. | Jira SU, manifests, `CHANGELOG.md` e PR #1 |
 | 10. Demonstracao e fechamento | 1:00 | Abrir o sistema em `http://localhost`, percorrer um fluxo curto e concluir retomando o valor do produto e os proximos passos. | Stack local atual |
 
 ## Correspondencia com os 12 criterios e 9,0 pontos
@@ -54,7 +54,7 @@ As mudancas de Redis, arquitetura, seguranca, testes e infraestrutura trabalham 
 - Na API, preferir conta e dados descartaveis de demonstracao. Editar um plano de teste e observar a invalidacao Redis nos logs.
 - A suite E2E autenticada passou (6/6) em Compose isolado e comprovou CRUD e invalidacao Pub/Sub na edicao de plano. Para a fala, usar somente dados descartaveis e mostrar os logs ja registrados; nao apontar para dados de producao.
 - Se nao houver tempo para alterar dados na hora, usar a evidencia isolada de Redis documentada e explicar que ela usa repositorio fake para nao gravar no banco.
-- Nao apresentar SLOs como medidos ou tag como publicada. O workflow GitHub passou no commit `9923d6d`; auditoria de dependencias em `auditoria-dependencias.md`.
+- Nao apresentar SLOs como medidos ou tag como publicada. O workflow GitHub passou no commit candidato `d5501c0`; auditoria de dependencias em `auditoria-dependencias.md`. Na rubrica atual, ciclo de vida/versionamento fica parcial ate revisao e lancamento formal de `1.0.1`.
 - Repositorio configurado no Git: `https://github.com/desbika777/ShapeUp.git`. O aluno informou que o professor ja viu o site em uma banca anterior; nao e necessario criar hospedagem nova para repetir a demonstracao. Recuperar a URL ja usada se a folha exigir um link literal. `localhost` continua sendo somente local.
 
 ## Checklist antes da banca

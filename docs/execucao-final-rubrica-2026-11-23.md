@@ -16,7 +16,7 @@ Fonte avaliada: RubricaDeFatoAtt.pdf, recebida em 23/11/2026.
   - [x] Stack Compose reconstruida do codigo/lockfile atual; health, Swagger e OpenAPI respondem 200.
   - [x] Validacoes locais de web/backend/mobile aprovadas.
   - [x] `npm run e2e` executa 6/6 em stack Compose isolada, com MySQL/Redis/volumes descartaveis e portas aleatorias; recursos removidos ao final. A limpeza de E2E recusa bancos que nao sejam de teste.
-  - [x] GitHub Actions passou no commit funcional `0ea4002` e novamente no pacote final em `9923d6d`; lint, 28 testes, E2E 6/6, mobile, build e Compose passaram. [CI push](https://github.com/desbika777/ShapeUp/actions/runs/45470720553) · [CI PR](https://github.com/desbika777/ShapeUp/actions/runs/45470736338).
+  - [x] GitHub Actions passou no commit candidato `d5501c0`, em push e PR; lint, 28 testes, E2E 6/6, mobile, build e Compose passaram. [CI push](https://github.com/desbika777/ShapeUp/actions/runs/45520211716) · [CI PR](https://github.com/desbika777/ShapeUp/actions/runs/45520220583).
   - [x] Demo local registrada em `http://127.0.0.1`; pagina inicial e `/health` responderam 200 em 24/11. O aluno informou que o professor ja viu o site em uma banca anterior; nao e necessario criar hospedagem nova para repetir a demonstracao. A URL literal anterior nao consta nesta copia do repositorio.
 - [x] Fase 5 - Mapear os 12 criterios pontuados (9,0 pontos em tres componentes), separar as tres linhas NSA sem descricao e preparar o roteiro em `roteiro-apresentacao-final.md` e `checklist-rubrica-atualizada.md`.
 
@@ -30,14 +30,14 @@ Cada fase so deve ser marcada como concluida depois de sua evidencia estar regis
 | Arquitetura | Estilos e DDD | Concluido em documentacao | Context Map e lista de Entity, Value Objects e Aggregate em rubrica-nova-5-arquitetura-backend.md |
 | Arquitetura | OpenAPI e justificativa do banco | Concluido em documentacao | OpenAPI em backend/src/docs/openapi.ts; ADR-0003 justifica MySQL e Prisma |
 | Arquitetura | SLOs/SLIs, resiliencia e observabilidade | Implementado e documentado; metricas ainda nao medidas | Retry, timeout, circuit breaker Redis, fallback e logs no documento arquitetural |
-| Arquitetura | Pipeline CI/CD, deploy e runbook | CI remoto validado; deploy remoto condicional | GitHub Actions passou no push e PR do pacote final `9923d6d`, incluindo lint, 28 testes, E2E 6/6, mobile, build e Compose. Estrategia e runbook existem; deploy remoto exige secrets e servidor |
+| Arquitetura | Pipeline CI/CD, deploy e runbook | Evidenciado; deploy remoto condicional | GitHub Actions passou no push e PR do candidato `d5501c0`, incluindo lint, 28 testes, E2E 6/6, mobile, build e Compose. Estrategia simples de deploy/rollback e runbook existem; executar deploy remoto exige secrets e servidor |
 | Back-end Avancado | Cache-aside, TTL e invalidacao Redis | Demonstrado em stack E2E isolada | Edicao real de plano pela interface/API invalidou cache; consulta seguinte fez miss e set com TTL de 60 s. Ver `evidencias-redis-2026-11-23.md` |
 | Back-end Avancado | Redis Pub/Sub e logs de eventos | Demonstrado em stack E2E isolada | `plano.atualizado` foi publicado e consumido em `shapeup:eventos` durante o E2E, junto aos logs estruturados |
 | Back-end Avancado | Docker Compose e Nginx reverso | Revalidado na imagem atual em 23/11/2026 | Backend/frontend reconstruidos; MySQL e Redis saudaveis; `/`, `/health`, `/api/docs/` e `/api/openapi.json` responderam 200 via Nginx |
 | Back-end Avancado | Organizacao, logs e tratamento de erros | Revalidado por lint, testes e build em 23/11/2026 | Controllers, services, repositories, schemas, logger e middleware; 28 testes aprovados |
 | Tech Forge | Uso real do Jira para issues e fluxo | Concluido para demonstracao do backlog e do fluxo real | Site conectado; projeto SU no espaco Shape Up. O projeto tem Workstream, Task, Sub-task, Story e Bug. SU-1 a SU-9 demonstram tipos, prioridades, responsaveis, criterios de aceite e transicoes reais; estado conferido em 23/11: 4 Done e 5 In Progress. O board usa tres estados: To Do, In Progress e Done. |
 | Tech Forge | Cynefin e escolha da abordagem | Concluido em documentacao | docs/cynefin-abordagem-gestao.md classifica o projeto como Complexo e escolhe abordagem agil |
-| Tech Forge | Ciclo de vida, backlog, criterios de aceite e versoes | Parcial em fechamento | Backlog priorizado e criterios estao em SU-1 a SU-9; manifests raiz/workspaces/Expo e candidata Jira estao em 1.0.1, com escopo em `CHANGELOG.md`. O projeto nao expoe `fixVersions`, entao os itens usam label `release-1-0-1`; tag/publicacao ainda pendem da revisao final |
+| Tech Forge | Ciclo de vida, backlog, criterios de aceite e versoes | Parcial ate a publicacao formal, conforme leitura estrita | Backlog priorizado e criterios estao em SU-1 a SU-9; manifests raiz/workspaces/Expo e candidata Jira estao em 1.0.1, com escopo em `CHANGELOG.md`. O projeto nao expoe `fixVersions`, entao os itens usam label `release-1-0-1`. A tag/release formal ainda nao foi publicada. |
 
 ## Evidencias externas a coletar
 
@@ -47,7 +47,7 @@ Cada fase so deve ser marcada como concluida depois de sua evidencia estar regis
 - Historico real de transicao, conferido em 23/11/2026: `SU-2`, `SU-4`, `SU-5` e `SU-8` estao Done; `SU-1`, `SU-3`, `SU-6`, `SU-7` e `SU-9` estao In Progress. O quadro exibe os tres estados To Do, In Progress e Done.
 - Versao Jira `1.0.1` existe como nao lancada. O projeto business nao expoe o campo `fixVersions` nas issues; as issues foram marcadas com o label `release-1-0-1` e nenhuma release/tag foi declarada como publicada.
 - Evidencia Redis atual: `docs/evidencias-redis-2026-11-23.md`; demonstracao via `ServicoPlano.update`, Redis real, repository fake e sem gravacao no MySQL.
-- Workflow GitHub Actions aprovado em 24/11/2026 para o pacote final `9923d6d`: [push](https://github.com/desbika777/ShapeUp/actions/runs/45470720553) e [PR](https://github.com/desbika777/ShapeUp/actions/runs/45470736338). Deploy publico continua condicionado a servidor e secrets.
+- Workflow GitHub Actions aprovado em 24/11/2026 para o candidato `d5501c0`: [push](https://github.com/desbika777/ShapeUp/actions/runs/45520211716) e [PR](https://github.com/desbika777/ShapeUp/actions/runs/45520220583). Deploy publico continua condicionado a servidor e secrets.
 - Evidencia de deploy ou, se nao houver servidor configurado, registro claro da limitacao e demonstracao da estrategia de rollback.
 - Demonstracao via Nginx dos fluxos de cache, eventos e OpenAPI; a verificacao atual de `/`, `/health`, Swagger e OpenAPI passou.
 - Repositorio remoto configurado: `https://github.com/desbika777/ShapeUp.git`. Site validado nesta maquina em `http://localhost`; o professor ja viu o produto em banca anterior. Recuperar a URL apresentada antes apenas se a folha exigir o link literal.
@@ -65,9 +65,9 @@ Cada fase so deve ser marcada como concluida depois de sua evidencia estar regis
 | Parse do workflow YAML | Passou | 23/11/2026 | Parser js-yaml reconheceu jobs validate e deploy |
 | Sintaxe do script de deploy | Passou | 23/11/2026 | bash -n no script extraido do workflow |
 | git diff --check | Passou; avisos CRLF do Git | 23/11/2026 | Sem erros de whitespace |
-| Workflow GitHub Actions | Passou | 24/11/2026 | Commit `9923d6d`; push e PR passaram lint, 28 testes, Chromium/E2E isolado (6/6), mobile, build e Compose. [Push](https://github.com/desbika777/ShapeUp/actions/runs/45470720553) · [PR](https://github.com/desbika777/ShapeUp/actions/runs/45470736338) |
+| Workflow GitHub Actions | Passou | 24/11/2026 | Commit `d5501c0`; push e PR passaram lint, 28 testes, Chromium/E2E isolado (6/6), mobile, build e Compose. [Push](https://github.com/desbika777/ShapeUp/actions/runs/45520211716) · [PR](https://github.com/desbika777/ShapeUp/actions/runs/45520220583) |
 | Stack atual, `/`, `/health`, Swagger e OpenAPI via Nginx | Passou: 200; Redis e MySQL saudaveis | 23/11/2026 | Imagens backend/frontend reconstruidas do repositorio |
-| `npm run e2e` / runner do `pre-push` | Passou: 6/6 testes | 23/11/2026 | Compose isolado, banco/Redis/volumes descartaveis, portas aleatorias; limpeza concluida sem afetar a stack principal |
+| `npm run e2e` / runner do `pre-push` | Passou: 6/6 localmente em 23/11; hook interrompido por erro de rede em 24/11 | 23-24/11/2026 | No pre-push mais recente, `npm ci` encerrou com `ECONNRESET` antes do E2E. O CI remoto do commit `d5501c0` executou a suite 6/6 em Compose isolado |
 | Trava de limpeza E2E | Passou | 23/11/2026 | `backend/prisma/cleanup-e2e.ts` rejeitou explicitamente um `DATABASE_URL` apontando para `shapeup` antes de conectar ou apagar dados |
 | Redis durante edicao de plano pela interface | Passou | 23/11/2026 | `plano.atualizado` publicado/consumido; invalidação seguida de miss/set TTL 60 s; ver evidencia Redis |
 | Cache-aside e invalidacao no update | Passou em demonstracao isolada | 23/11/2026 | `ServicoPlano.update`, Redis real, repository fake; TTL 60 s; `cache_miss`, `cache_set`, `cache_hit`, `cache_invalidation` e novo miss |

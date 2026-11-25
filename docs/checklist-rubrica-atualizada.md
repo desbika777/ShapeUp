@@ -6,7 +6,7 @@ Fonte: `RubricaDeFatoAtt.pdf`, revisada em 24/11/2026.
 
 A folha avalia tres componentes de 3,0 pontos cada. Sao 12 criterios pontuados, que somam 9,0 pontos, mais tres linhas NSA sem descricao. As marcacoes de 100% e as notas maximas impressas no PDF sao apenas exemplos da rubrica, conforme confirmado pelo aluno; nao representam a avaliacao do Shape Up.
 
-Evidencia ponderada atualmente completa: 8,0 de 9,0 pontos (89%), com 11 de 12 criterios integralmente evidenciados. O professor ja viu o site em uma banca anterior, conforme informado pela equipe; isso remove a necessidade de uma nova hospedagem para a demonstracao, mas nao altera a pontuacao dos 12 criterios.
+Onze dos doze criterios estao integralmente apoiados por evidencia verificavel: 8,0 de 9,0 pontos (89% do peso total quando contamos apenas criterios integralmente fechados). O criterio de ciclo de vida/versionamento tem a candidata `1.0.1` padronizada nos manifests, Jira e changelog, mas permanece parcial/pendente de publicacao formal: nao ha tag nem release GitHub. Se a banca considerar suficiente a preparacao da versao parcial, a avaliacao desse criterio pode ser diferente; nao e possivel prometer nota. O professor ja viu o site em banca anterior, conforme informado pela equipe; hospedagem nova nao e necessaria.
 
 ## Criterios pontuados e evidencias
 
@@ -23,33 +23,35 @@ Evidencia ponderada atualmente completa: 8,0 de 9,0 pontos (89%), com 11 de 12 c
 | BE-4 | Back-end Avancado | 0,5 | Modulos, DTOs, services, controllers, logs e tratamento de erros; 28 testes unitarios | Concluido; lint, testes e build passaram no CI remoto |
 | TF-1 | Tech Forge | 1,0 | Projeto Jira SU com Workstream, Task, Story e Bug; responsaveis, criterios e status reais; issues `SU-1` a `SU-9` | Concluido para demonstracao; `SU-6` registra o CI atual e continua In Progress ate revisao/tag |
 | TF-2 | Tech Forge | 1,0 | `docs/cynefin-abordagem-gestao.md`: classificacao Complexa e escolha agil com Scrum adaptado/Kanban | Concluido em documentacao |
-| TF-3 | Tech Forge | 1,0 | Backlog Jira priorizado, Stories com criterios de aceite; Jira `1.0.1`, manifests dos workspaces/Expo e `CHANGELOG.md` | Parcial: versao candidata agora esta implementada nos manifests; tag/release ainda dependem de revisao final da equipe |
+| TF-3 | Tech Forge | 1,0 | Backlog Jira priorizado, Stories com criterios de aceite; versao Jira `1.0.1`, manifests raiz/workspaces/Expo e `CHANGELOG.md` | Parcial/risco de interpretacao: a candidata esta padronizada e validada no CI; a rubrica fala em versoes para lancamentos parciais. Como ainda nao ha tag/release, nao apresentar como lancamento concluido |
 
 ## Campos de identificacao da folha
 
 | Campo | Valor ou pendencia |
 | --- | --- |
-| Nome completo | Nomes confirmados em conversa; inserir apenas na cópia da folha que será entregue. Os nomes não são publicados neste repositório |
+| Nome completo | Preencher na copia entregue: Enzo Gabriel Menezes e Pedro Henrique Rodrigues da Costa. Os nomes nao sao publicados neste repositorio |
 | Link do GitHub | `https://github.com/desbika777/ShapeUp/tree/feature/documentacao-rubrica` |
-| Link do site | O professor ja viu o site em uma banca anterior; nao e preciso criar nova hospedagem para a demonstracao. Se a folha exigir URL literal, recuperar o mesmo link usado naquela apresentacao. `http://127.0.0.1` e local e nao substitui um link publico |
+| Link do site | Campo ainda sem URL confirmada. O professor ja viu o site em banca anterior, mas, se a folha exigir um endereco literal, recuperar o mesmo link usado naquela apresentacao. `http://127.0.0.1` e local e nao substitui um link publico |
 
 ## Verificacao remota atual
 
 - Commit funcional `0ea4002` e revisoes documentais intermediarias foram validados em execucoes anteriores.
-- CI de push e PR passou no commit `9923d6d`: [push](https://github.com/desbika777/ShapeUp/actions/runs/45470720553) e [PR](https://github.com/desbika777/ShapeUp/actions/runs/45470736338). Ambos executaram lint, 28 testes, E2E Playwright 6/6, verificacao mobile, build e Docker Compose.
+- CI de push e PR passou no commit candidato `d5501c0`: [push](https://github.com/desbika777/ShapeUp/actions/runs/45520211716) e [PR](https://github.com/desbika777/ShapeUp/actions/runs/45520220583). Ambos executaram lint, 28 testes, E2E Playwright 6/6, verificacao mobile, build e Docker Compose.
 - O workflow validou lint, 28 testes, E2E Playwright 6/6, verificacao mobile, build e Docker Compose. O deploy foi ignorado porque ocorre apenas em `main` e depende de secrets/servidor.
-- O pre-push local repetiu os 6 E2E e removeu apenas a stack descartavel.
+- No pre-push local de 23/11, o E2E repetiu os 6 testes e removeu apenas a stack descartavel; em 24/11, a nova tentativa foi interrompida antes do E2E por `ECONNRESET` durante `npm ci`.
 - `npm audit` foi executado novamente em 24/11/2026 e reportou zero vulnerabilidades; isso nao foi executado pelo workflow remoto.
-- O PR #1 esta aberto e ainda sem revisoes. Nao ha tag nem release GitHub para `1.0.1`.
+- O PR #1 esta aberto e ainda sem revisoes. A candidata `1.0.1` passou no CI, mas ainda nao tem tag nem release GitHub; apresentar como versao preparada/candidata.
+- A issue Jira `SU-6` continua `In Progress`; o projeto Jira tem a versao `1.0.1` cadastrada com `released=false`. As issues usam o label `release-1-0-1` porque o campo `fixVersions` nao esta exposto para este projeto.
+- A tentativa local do pre-push em 24/11 foi interrompida por `ECONNRESET` durante `npm ci`, antes da fase E2E. O CI remoto do commit `d5501c0` executou e aprovou o E2E (6/6), alem das outras etapas; nao confundir a falha local de rede com falha de codigo.
 
 ## Linhas NSA
 
 A rubrica tem tres linhas identificadas somente como NSA, sem descricao, peso ou entrega associada. Nao inventar criterios para essas linhas. Confirmar com o professor se sao nao aplicaveis ou se ha uma versao detalhada da planilha.
 
-## Condicoes restantes para fechar 100%
+## Pendencias para fechamento completo
 
 1. Inserir os nomes confirmados na copia da folha. Como o professor ja viu o site na banca anterior, usar a mesma URL previamente apresentada caso o campo exija um endereco literal; nao e necessario contratar hospedagem nova para repetir a demonstracao.
-2. Revisar o PR #1 em equipe e decidir se a versao candidata `1.0.1` deve receber tag e release.
-3. Confirmar com o professor o significado das tres linhas NSA.
+2. Revisar o PR #1 com a equipe. Depois da aprovacao, criar a tag Git e publicar a release parcial `1.0.1` se esse for o entendimento da rubrica. O fluxo continua pendente e nenhum lancamento foi feito.
+3. Confirmar com o professor se as tres linhas NSA sao nao aplicaveis ou se existe uma versao detalhada da planilha.
 
 Este checklist rastreia evidencias e pendencias; nao garante nota e nao substitui a avaliacao do professor.

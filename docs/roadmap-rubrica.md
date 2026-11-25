@@ -29,7 +29,7 @@ Validacoes recentes:
 - Reauditoria de dependencias em 23/11/2026: `npm audit` reportou zero vulnerabilidades apos Prisma 7.10.1 + adapter MariaDB e override restrito de `minimatch`; lint, 28 testes, build, lint mobile, Expo SDK check e E2E 6/6 passaram.
 - O comando `npm run e2e` agora usa banco, Redis, rede e volumes proprios, portas aleatorias e remocao delimitada ao projeto temporario. A trava de limpeza rejeitou um `DATABASE_URL` apontando para `shapeup` antes de conectar; a stack principal continuou ativa.
 - A stack principal continuou intacta e respondeu `200` em `/`, `/health`, `/api/docs/` e `/api/openapi.json`; MySQL e Redis saudaveis depois da remocao dos volumes E2E.
-- Em 24/11/2026, GitHub Actions passou no push e no PR para o pacote final `9923d6d`: lint, 28 testes, Chromium/E2E isolado (6/6), mobile, build e Compose; links em `docs/checklist-rubrica-atualizada.md`.
+- Em 24/11/2026, GitHub Actions passou no push e no PR para o candidato `d5501c0`: lint, 28 testes, Chromium/E2E isolado (6/6), mobile, build e Compose; links em `docs/checklist-rubrica-atualizada.md`.
 - `npm audit` foi repetido em 24/11/2026 na branch final e continuou em 0 vulnerabilidades.
 
 - Rubrica Nova 5 integrada em 08/10/2026 com foco em arquitetura, Redis, eventos, Docker/Nginx e observabilidade.
@@ -43,7 +43,7 @@ Validacoes recentes:
 - `npm run test --workspace backend`: passou em 29/09/2026 com 18 testes aprovados.
 - Docker Compose do `ShapeUpNew`: backend, MySQL, frontend e Nginx recriados/validados em 29/09/2026; `/health` retornou `{"status":"ok"}` via Nginx.
 - `RubricaNova.pdf`: revisada novamente em 14/09/2026 para confirmar os criterios avaliados; as tres linhas finais NSA continuam sem descricao objetiva no texto extraido.
-- Branch GitHub: `feature/documentacao-rubrica` sincronizada com `origin/feature/documentacao-rubrica`; pacote final `9923d6d` teve CI aprovado no push e no PR em 24/11/2026.
+- Branch GitHub: `feature/documentacao-rubrica` sincronizada com `origin/feature/documentacao-rubrica`; candidato `d5501c0` teve CI aprovado no push e no PR em 24/11/2026.
 - Rodada visual/UX de 14/09/2026: autenticacao, layout principal, painel, listagens, upload, gestores e mobile receberam polimento de interface.
 - App Expo ampliado em 14/09/2026: deixou de ser apenas painel demonstrativo e passou a ter navegacao por abas com consulta e CRUD administrativo de planos, alunos e treinos.
 - `npm exec --workspace mobile -- expo export --platform ios --output-dir ..\tmp\expo-export-mobile`: passou em 15/09/2026; Metro gerou bundle iOS a partir de `mobile/index.ts`.
@@ -165,9 +165,9 @@ Em 29/09/2026, a documentacao da API foi integrada ao backend oficial do `ShapeU
 
 - [x] Registrar no Jira as stories/tasks, prioridades, responsavel, criterios e transicoes reais.
 - [x] Validar a stack atual e os fluxos de UI/API/Redis em E2E isolado; guardar logs sem tocar no banco principal.
-- [x] Publicar a branch revisada e registrar uma execucao real de GitHub Actions (push e PR aprovados em `9923d6d`, 24/11/2026).
+- [x] Publicar a branch revisada e registrar uma execucao real de GitHub Actions (push e PR aprovados em `d5501c0`, 24/11/2026).
 - [ ] Ensaiar a demonstracao com conta/dados descartaveis; nao usar dados de producao.
-- [ ] Criar tag e publicar release 1.0.1 somente depois do CI remoto e revisao da equipe.
+- [ ] Criar tag e publicar release formal 1.0.1 somente depois da revisao final da equipe, se a equipe decidir publicar.
 - [ ] Configurar deploy por SSH somente se houver servidor da equipe e secrets correspondentes.
 
 ## Rubrica Nova 5 - Arquitetura E Back-end Avancado
@@ -206,11 +206,11 @@ A matriz detalhada e os resultados por criterio ficam em docs/execucao-final-rub
 | --- | --- | --- |
 | Gestao do trabalho via Jira | Concluido para demonstracao | Projeto SU real com Workstream, Task, Story e Bug; nove itens com prioridade, responsavel, criterios e status conferidos em 23/11/2026. A versao 1.0.1 existe como nao lancada |
 | Cynefin e escolha da abordagem | Documentado | cynefin-abordagem-gestao.md classifica Shape Up como Complexo e justifica Scrum adaptado/Kanban |
-| Ciclo de vida, backlog e versoes | Parcial em fechamento | Backlog, Stories, criterios e versao candidata 1.0.1 estao alinhados no Jira, manifests e `CHANGELOG.md`. Tag/release real no GitHub depende da validacao remota e revisao final |
+| Ciclo de vida, backlog e versoes | Parcial ate lancamento formal na leitura estrita | Backlog, Stories, criterios e candidata 1.0.1 estao alinhados no Jira, manifests e `CHANGELOG.md`, e passaram no CI. A versao Jira esta `released=false`; tag/release formal nao publicada. Revisar o PR com a equipe antes de lancar |
 
 ### Entrega continua e incidentes
 
 - Workflow: .github/workflows/ci-cd.yml executa lint, testes, E2E em Compose isolado, build e validacao de Compose em pushes e pull requests; deploy em `main` so ocorre com secrets e servidor configurados.
 - Deploy por SSH: condicional a secrets e servidor de demonstracao; sem configuracao, etapa aparece como ignorada.
 - Estrategia de rollback e triagem: docs/runbook-incidentes.md.
-- Estado desta revisao: CI remoto aprovado em `c39bf91`; deploy remoto nao executado porque depende de servidor e secrets, e tag/release aguardam revisao final da equipe.
+- Estado desta revisao: CI remoto aprovado no candidato `d5501c0`; deploy remoto nao executado porque depende de servidor e secrets, e tag/release aguardam revisao final da equipe.

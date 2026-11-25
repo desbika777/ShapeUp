@@ -14,12 +14,12 @@ projeto paralelo.
 | Arquitetura | Estilos arquiteturais e DDD | Context Map, Bounded Contexts e modelo tatico nesta revisao | Documentado |
 | Arquitetura | Integracao, APIs e dados | `backend/src/docs/openapi.ts`, Swagger em `/api/docs`, ADR-0003, Prisma e MySQL | Implementado |
 | Arquitetura | Qualidade, resiliencia e observabilidade | Middleware, SLOs/SLIs, retry, timeout, circuit breaker, fallback e logs | Implementado e documentado; medicao pendente |
-| Arquitetura | Entrega continua | `.github/workflows/ci-cd.yml` e `docs/runbook-incidentes.md` | Parcial; deploy remoto depende de secrets |
+| Arquitetura | Entrega continua | `.github/workflows/ci-cd.yml`, estrategia simples de deploy/rollback e `docs/runbook-incidentes.md` | Evidenciado; deploy remoto depende de secrets/servidor |
 | Back-end Avancado | Redis cache-aside com TTL e invalidacao | `backend/src/services/cache-service.ts`, services de planos/alunos/treinos/painel | Implementado |
 | Back-end Avancado | Redis Pub/Sub para eventos | `backend/src/services/event-bus-service.ts` | Implementado |
 | Back-end Avancado | Docker Compose com Nginx | `docker-compose.yml`, `docker/nginx/shapeup.conf` | Implementado |
 | Back-end Avancado | Boas praticas e observabilidade | Logs estruturados, request id, camadas, DTOs/schemas | Implementado |
-| Tech Forge | Jira, Cynefin e ciclo de vida | Backlog e Cynefin documentados; falta evidencia do quadro e fluxo real no Jira | Parcial |
+| Tech Forge | Jira, Cynefin e ciclo de vida | Quadro SU real e Cynefin documentados; candidata 1.0.1 alinhada em Jira/manifests/changelog | Parcial ate a publicacao formal da versao parcial |
 
 ## C4 - Contexto
 
